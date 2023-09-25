@@ -1,0 +1,26 @@
+Run powershell in admin mode
+
+//Powrshell - list the connected devices
+usbipd wsl list
+
+//Powrshell - attach device to WSL
+usbipd wsl attach --busid <busid> 
+
+//Powershell - detach device from WSL
+usbipd wsl detach --busid <busid>
+
+//Ubuntu - list USB connections
+lsusb
+
+/*
+//You can also look in the dev folder to find the device and use that
+//identifier in make when building a program and flashing the bumblebee board.
+//I have found it to be ttyACM0.
+*/
+
+//shorthand to check if it is connected and under dev folder
+ls /dev/ttyACM0
+
+//also you need permissions to use the device so either run make with sudo or
+//change device permissions
+sudo chmod +777 /dev/ttyACM0
