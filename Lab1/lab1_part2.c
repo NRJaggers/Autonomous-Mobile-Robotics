@@ -4,7 +4,8 @@ Name: Nathan Jaggers and Weston Keitz
 
 Assignment Number: Lab 1 Part 2
 
-Description: Scroll.
+Description: Scroll name horizontally. 
+Change name with onboard button press.
 
 */
 
@@ -18,8 +19,6 @@ int main(){
 
     init(); 
 
-    
-    
     char name0[] = "Nathan";
 
     char name1[] = "Weston";
@@ -90,9 +89,6 @@ int main(){
         _delay_ms(500); //delay half a second
 
         clear_screen(); //clear string
-
-        
-        
         
     }
 
