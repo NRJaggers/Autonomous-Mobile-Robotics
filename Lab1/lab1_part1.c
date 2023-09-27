@@ -6,6 +6,8 @@ Assignment Number: Lab 1 Part 1
 
 Description: Fade onboard led0 then led1 with no flickering.
 
+Test
+
 */
 
 #include "globals.h"
