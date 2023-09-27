@@ -24,3 +24,7 @@ ls /dev/ttyACM0
 //also you need permissions to use the device so either run make with sudo or
 //change device permissions
 sudo chmod +777 /dev/ttyACM0
+
+//Then you should be ready to make the program and flash the device!
+make 
+make program_linux
