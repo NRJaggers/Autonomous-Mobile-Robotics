@@ -6,8 +6,12 @@ Assignment Number: Lab 1 Part 1
 
 Description: Fade onboard led0 then led1 with no flickering.
 
-Test
+Turn off compiler optimizations. Edit makefile: 
 
+lab: $(LAB) $(wildcard $(BOARD_LIB)/*.c)
+	avr-gcc -I$(BOARD_LIB) -DF_CPU=$(CLOCK_RATE) -Wall -mmcu=atmega645a -o main.elf $(LAB) $(wildcard $(BOARD_LIB)/*.c)
+	avr-objcopy -O ihex main.elf main.hex
+	avr-size main.elf
 */
 
 #include "globals.h"
@@ -19,54 +23,67 @@ int main(){
     
     init();
 
-    LED_curr = 0; //start with led0 on
+    u08 LED_curr = 0; //start with led0 on
 
+    u16 loops = 1000; //check that this will not cause overflow, related to the power of lim2
+        
+    u16 current; //fade time
+
+    u16 i; //delay loop index
     while(1){
+  
+        current = 0;        
 
-        float lim1 = 1; //increases then decreases
-
-        float lim2 = 2^31; //decreases then increases
-
-        u08 loops = 31 //check that this will not cause overflow, related to the power of lim2
-       
-        //flicker on
-        for(u08 i = 0; i < loops; i++){
-
-            led_on(LED_curr);
-
-            for(u16 j = 0; i < lim1; j++){} //delay 1
+        while(current < loops){ //fade on
             
-            lim1 = lim1 * 2; //double
+            led_off(LED_curr); //turn off led
+           
+            i = 0; //delay, decrease to fade on
             
-            led_off(LED_curr);
-
-            for(u16 j = 0; i < lim2; j++){} //delay 2
+            while(i<loops-current){i++;}
             
-            lim2 = lim2 / 2; //helf
+            led_on(LED_curr); //turn on led
+            
+            i = 0; //delay, increase to fade on
+            
+            while(i<current){i++;}    
+            
+            current = current + 1; //increment delay amount
 
         }
 
-        //flicker off
-        for(u08 i = 0; i < loops; i++){
+        _delay_ms(100); //keep led on for 100 ms
 
-            led_on(LED_curr);
+        current = 0; //reset delay increment
+        
+        while(current < loops){ //fade off
+           
+            led_off(LED_curr); //turn led off
+            
+            i = 0; //delay, increase loop to fade out
+            
+            while(i<current){i++;}
 
-            for(u16 j = 0; i < lim1; j++){} //delay 1
             
-            lim1 = lim1 / 2; //divide now, lim1 will start at 2^31
+            led_on(LED_curr); //turn led on
             
-            led_off(LED_curr);
+            i = 0; //delay, decrease loop to fade out
+            
+            while(i<loops-current){i++;}
 
-            for(u16 j = 0; i < lim2; j++){}
-            
-            lim2 = lim2 * 2; //multiply, lim2 will start at 2^0
+            current = current + 1; //increment delay amount
 
         }
 
-        //change LED
-        if(LED_curr == 1){LED_curr = 0;}
+        
+        led_off(LED_curr); //keep LED off
 
-        else{LED_curr = 1;}
+        _delay_ms(100);
+
+        LED_curr = LED_curr ^ 1; //change LED
+
+
+
     
     }
 

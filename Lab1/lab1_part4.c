@@ -4,7 +4,8 @@ Name: Nathan Jaggers and Weston Keitz
 
 Assignment Number: Lab 1 Part 4
 
-Description: Screen tilt.
+Description: Screen tilt. x-axis adjusts row.
+y-axis adjusts column
 
 */
 
@@ -24,6 +25,7 @@ int main(){
     float x, y; // axes 
     
     u08 row = 0; //initialize row
+    
     u08 col = 4; // initialize column
 
     char class[4] = "416"; // screen message
@@ -39,12 +41,11 @@ int main(){
         else if(255 > x && x > 190){row = 1;} //set bottom row screen
 
         
-        if(101 > y && y > 0){col = (u08) floor((4 * (64 - y)) / 70 );} // set top row
+        if(101 > y && y > 0){col = (u08) floor((4 * (64 - y)) / 70 );} // column left side
         
-        else if(255 > y && y > 192){col = (u08) floor(((2*(255-y)) / 70) + 4); } //set bottom row screen
+        else if(255 > y && y > 192){col = (u08) floor(((2*(255-y)) / 70) + 4); } //column right side
 
-        if(col > 5){col = 5;}
-
+        if(col > 5){col = 5;} //prevent message falling off screen
 
         clear_screen(); //clear old message
 
@@ -52,7 +53,7 @@ int main(){
 
         print_string(class); //print message
 
-        _delay_ms(100);
+        _delay_ms(100); //add delay to slow screen refresh
     }
 
     return 0;
