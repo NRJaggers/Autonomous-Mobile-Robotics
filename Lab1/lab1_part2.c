@@ -50,7 +50,7 @@ int main(){
                     break;
             }
 
-            u08 len_name = strlen(name_str); //get string length
+            len_name = strlen(name_str); //get string length
 
         }
         
@@ -86,7 +86,7 @@ int main(){
             x++; //increment column
         }
 
-        _delay_ms(500); //delay half a second
+        _delay_ms(250); //delay half a second
 
         clear_screen(); //clear string
         
