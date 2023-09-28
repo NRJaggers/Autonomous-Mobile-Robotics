@@ -6,5 +6,7 @@
 int main(void) {
    init();  //initialize board hardware
 
+   print_string("Hello");
+
    return 0;
 }
