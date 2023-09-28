@@ -4,7 +4,8 @@ Name: Nathan Jaggers and Weston Keitz
 
 Assignment Number: Lab 1 Part 4
 
-Description: Screen tilt.
+Description: Screen tilt. x-axis adjusts row.
+y-axis adjusts column
 
 */
 
@@ -21,13 +22,13 @@ int main(){
    
     clear_screen(); // clear the screen for bugs
 
-    float x; // x-axis
-   
-    float y; // y-axis 
+    float x, y; // axes 
     
-    u08 row, col; // index for screen
+    u08 row = 0; //initialize row
+    
+    u08 col = 4; // initialize column
 
-    char class[3] = "416"; // screen message
+    char class[4] = "416"; // screen message
     
     while(1){
         
@@ -35,18 +36,24 @@ int main(){
         
         y = get_accel_y(); // get y-axis
 
-        if(y > 0){row = 0} // set top row
+        if(100 > x && x > 0){row = 0;} // set top row
         
-        else{row = 1} //set bottom row screen
+        else if(255 > x && x > 190){row = 1;} //set bottom row screen
 
-        col = (u08) floor(13 * (x + 180) / 360); //set column for screen (start 0 end 13)
+        
+        if(101 > y && y > 0){col = (u08) floor((4 * (64 - y)) / 70 );} // column left side
+        
+        else if(255 > y && y > 192){col = (u08) floor(((2*(255-y)) / 70) + 4); } //column right side
+
+        if(col > 5){col = 5;} //prevent message falling off screen
 
         clear_screen(); //clear old message
 
-        lcd_cursor(col, row); //set cursor for message
+        lcd_cursor(col,row); //set cursor for message
 
-        print_str(&class); //print message
-   
+        print_string(class); //print message
+
+        _delay_ms(100); //add delay to slow screen refresh
     }
 
     return 0;
