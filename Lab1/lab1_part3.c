@@ -26,40 +26,88 @@ int main(){
    
     clear_screen(); // clear the screen for bugs
 
-    lcd_cursor(2,0);
-
-    print_string("Pong!");
-
     //select direction for pins;
-    digital_dir(4,OUTPUT);
+    digital_dir(4,OUTPUT); // right most LED
     digital_dir(5,OUTPUT);
     digital_dir(6,OUTPUT);
     digital_dir(7,OUTPUT);
-    digital_dir(8,OUTPUT);
-    digital_dir(13,INPUT);
+    digital_dir(8,OUTPUT); // left most LED
+    digital_dir(13,INPUT); // input for button
 
-    //select output for pins
-    digital_out(4,TRUE);
-    digital_out(5,TRUE);
-    digital_out(6,TRUE);
-    digital_out(7,TRUE);
-    digital_out(8,TRUE);
-
-    u08 state = TRUE;
-    while(1)
+    while(TRUE)
     {
-        if(digital(13)==0)
+        //set up game
+        u16 speed = 100;
+        u08 direction = 0; // 0 for right, 1 for left
+        u08 current_led = 8; // keep track of lit led
+
+        //set state for starting LED
+        digital_out(4,FALSE);
+        digital_out(5,FALSE);
+        digital_out(6,FALSE);
+        digital_out(7,FALSE);
+        digital_out(8,TRUE);
+
+        //create start message
+        clear_screen();
+        lcd_cursor(3,0);
+        print_string("3");
+        _delay_ms(1000);
+
+        clear_screen();
+        lcd_cursor(3,0);
+        print_string("2");
+        _delay_ms(1000);
+
+        clear_screen();
+        lcd_cursor(3,0);
+        print_string("1");
+        _delay_ms(1000);
+
+        clear_screen();
+        lcd_cursor(2,0);
+        print_string("Pong!");
+
+        //play game
+        while(TRUE)
+        {
+            for (int i = 0; i < speed; i++)
             {
-                state = state ^ 1;
-                digital_out(4,state);
-                digital_out(5,state);
-                digital_out(6,state);
-                digital_out(7,state);
-                digital_out(8,state);
+                _delay_ms(10);
             }
+
+            //turn off current led, turn on next, and check next direction
+            digital_out(current_led,FALSE);
+            
+            if (direction)
+                current_led +=1;
+            else
+                current_led -=1;
+
+            digital_out(current_led,TRUE);
+
+            if (current_led == 4 || current_led == 8)
+            {
+                if (digital(13)!=0)
+                    break;
+                else
+                    speed /= 2;
+                
+                direction = direction ^ 1;
+            }
+        }
+        
+        //print end game stats
+        clear_screen();
+        lcd_cursor(0,0);
+        print_string("Speed");
+        lcd_cursor(0,1);
+        print_num(speed*10);
+        print_string("ms");
+
+        //restart program through button press or loops
+        while (digital(13)!=0){}; //wait for press
     }
 
-
     return 0;
-
 }
