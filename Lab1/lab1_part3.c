@@ -73,7 +73,7 @@ int main(){
         {
             for (int i = 0; i < speed; i++)
             {
-                _delay_ms(10);
+                _delay_ms(10); //I need to restructure and I think I need to put the check for press in this loop
             }
 
             //turn off current led, turn on next, and check next direction
