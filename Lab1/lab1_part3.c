@@ -37,16 +37,17 @@ int main(){
     while(TRUE)
     {
         //set up game
-        u16 speed = 100;
-        u08 direction = 0; // 0 for right, 1 for left
+        u16 speed = 125;
+        u08 direction = 1; // 0 for right, 1 for left
         u08 current_led = 8; // keep track of lit led
+        u08 pressed = TRUE;
 
         //set state for starting LED
         digital_out(4,FALSE);
         digital_out(5,FALSE);
         digital_out(6,FALSE);
         digital_out(7,FALSE);
-        digital_out(8,TRUE);
+        digital_out(8,FALSE);
 
         //create start message
         clear_screen();
@@ -71,30 +72,37 @@ int main(){
         //play game
         while(TRUE)
         {
+            //turn led on, wait and check for pressed
+            digital_out(current_led,TRUE);
+
             for (int i = 0; i < speed; i++)
             {
-                _delay_ms(10); //I need to restructure and I think I need to put the check for press in this loop
+                if (current_led == 4 || current_led == 8)
+                    if (digital(13)==0)
+                        pressed = TRUE;
+                _delay_ms(10);
             }
 
-            //turn off current led, turn on next, and check next direction
             digital_out(current_led,FALSE);
-            
+
+            if (current_led == 4 || current_led == 8)
+            {
+                if (pressed)
+                    speed *= 0.8;
+                else
+                    break;
+                
+                direction = direction ^ 1;
+            }
+
+            //check next direction and reset pressed
             if (direction)
                 current_led +=1;
             else
                 current_led -=1;
 
-            digital_out(current_led,TRUE);
+            pressed = FALSE;
 
-            if (current_led == 4 || current_led == 8)
-            {
-                if (digital(13)!=0)
-                    break;
-                else
-                    speed /= 2;
-                
-                direction = direction ^ 1;
-            }
         }
         
         //print end game stats
@@ -106,6 +114,7 @@ int main(){
         print_string("ms");
 
         //restart program through button press or loops
+        _delay_ms(1000);
         while (digital(13)!=0){}; //wait for press
     }
 
