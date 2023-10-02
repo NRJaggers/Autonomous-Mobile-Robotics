@@ -1,1 +1,29 @@
 http://users.csc.calpoly.edu/~jdalbey/101/Resources/GettingStarted/SubmittingYourWork.html
+http://users.csc.calpoly.edu/~jdalbey/101/Resources/handinref.html
+
+/*
+Directions:
+
+    0. Upload files to cal poly servers using ssh, putty, ftp, whatever. 
+        (I am using filezilla, haven't figure out how to do otherwise.)
+
+    1. Open Terminal 
+
+    2. SHH to Cal poly server (use calpoly password)
+        ssh <username>@unix1.csc.calpoly.edu 
+        ssh njaggers@unix1.csc.calpoly.edu
+        ssh wkeitz@unix1.csc.calpoly.edu
+
+        Note: If you're at calpoly, using the VPN might cause issues.
+              If unix1 is slow you can try 1-5.
+
+    3. Handin files
+        handin <toAccount> <assignmentName> <file>
+            toAccount: is the name of the instructor's account.
+            assignmentName: is the official assignment name given to you by the instructor.
+            file: is the name of the file in the current directory you want to submit.
+
+        handin <toAccount> <assignmentName>
+            using this format will show what you have already turned in.
+
+*/
