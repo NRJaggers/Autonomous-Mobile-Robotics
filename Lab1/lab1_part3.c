@@ -5,7 +5,12 @@ Name: Nathan Jaggers and Weston Keitz
 Assignment Number: Lab 1 Part 3
 
 Description: Pong.
-
+    This program implements a game of pong on the bumblebee board. It uses 5 leds
+    1 input, 5 output pins, a 10K pull up resistor, 5 1k curret limiting resistors
+    and wires. The game starts with a message and count down on the LCD and the 
+    light starts on the left moving to the right. You click when the light gets 
+    to the end to keep the game going and when yo miss a click, the game stops
+    showing the final speed on the LCD.  
 */
 
 #include "globals.h"
