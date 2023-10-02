@@ -6,6 +6,10 @@ Directions:
 
     0. Upload files to cal poly servers using ssh, putty, ftp, whatever. 
         (I am using filezilla, haven't figure out how to do otherwise.)
+        
+        or use SCP (Secure Copy Protocol)
+        scp [file_name]  remoteuser@remotehost:/remote/directory
+        scp ./<lab_folder>/<lab> njaggers@unix2.csc.calpoly.edu:~/CPE416/<lab_folder>
 
     1. Open Terminal 
 
