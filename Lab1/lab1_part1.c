@@ -52,8 +52,6 @@ int main(){
 
         }
 
-        _delay_ms(100); //keep led on for 100 ms
-
         current = 0; //reset delay increment
         
         while(current < loops){ //fade off
@@ -77,8 +75,6 @@ int main(){
 
         
         led_off(LED_curr); //keep LED off
-
-        _delay_ms(100);
 
         LED_curr = LED_curr ^ 1; //change LED
 
