@@ -68,15 +68,30 @@ void motor(uint8_t num, int8_t speed){
     if(num){
         
         set_servo(num,0.3*speed+127);
-        clear_screen();
-        print_num(speed);
+          
     }
     
     else{
         
         set_servo(num,127-0.3*speed);
-        clear_screen();
-        print_num(speed);
+
+    }
+
+    clear_screen();
+        
+    u08 negative = speed & 0x80 >> 7;
+    
+    if(negative){
+
+        print_string("-");
+
+        print_num((speed ^ 1) + 1);
+
+    }
+    else{
+    
+    print_num(speed);
+
     }
 
 }
