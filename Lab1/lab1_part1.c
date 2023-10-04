@@ -1,5 +1,4 @@
 /*
-
 Name: Nathan Jaggers and Weston Keitz  
 
 Assignment Number: Lab 1 Part 1 
