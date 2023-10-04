@@ -12,6 +12,8 @@ Description: Design a motor function and a program with gradual acceleration,
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+void motor(uint8_t num, int8_t speed);
+
 int main(){
 
     init();
@@ -30,10 +32,19 @@ int main(){
 
         if(state){
            
-            set_servo(0,137);
+            motor(0,-50);
 
-            set_servo(1,117);
-        
+            motor(1,-50);
+
+            _delay_ms(1000);
+
+
+            motor(0,50);
+
+            motor(1,50);
+
+            _delay_ms(1000);
+
         }
         
         else{
@@ -46,4 +57,26 @@ int main(){
     }
 
     return 0;
+}
+
+void motor(uint8_t num, int8_t speed){
+
+    if(speed < -100){speed = -100;}
+    
+    if(speed > 100){speed = 100;}
+
+    if(num){
+        
+        set_servo(num,0.3*speed+127);
+        clear_screen();
+        print_num(speed);
+    }
+    
+    else{
+        
+        set_servo(num,127-0.3*speed);
+        clear_screen();
+        print_num(speed);
+    }
+
 }
