@@ -5,6 +5,6 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
-void test_include()
+void test_include();
 
 #endif

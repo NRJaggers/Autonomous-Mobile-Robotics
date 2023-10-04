@@ -7,7 +7,7 @@
 int main(void) {
    init();  //initialize board hardware
 
-   test()
+   test_include();
 
    return 0;
 }
