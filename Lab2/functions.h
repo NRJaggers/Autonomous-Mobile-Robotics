@@ -1,33 +1,36 @@
+/*
+Name: Nathan Jaggers and Weston Keitz   
+
+Description: Include file for functions we develop for bumblebee
+
+Notes and Ideas:
+
+*/
+
 //Global defines
 #include<stdint.h>
-
 
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
+// Motor defines
+#define LEFT  0 // Left wheel if looking top town at bumblebee with usb port in the back
+#define RIGHT 1 // Right wheel if looking top town at bumblebee with usb port in the back
+
+#define SERVO_STOP 127  //stop value for servo
+#define SERVO_FSP 97    //full speed positive direction
+#define SERVO_FSN 157   //full speed negative direction
+
+// Testing include file
 void test_include();
 
-/* ideas
+// Motor Functions
+void motor_init();
+void motor(uint8_t num, int8_t speed);
+void spin(int8_t speed);
+void forward(int8_t speed);
+void reverse(int8_t speed);
 
-    make defines for left and right motors
-
-    # ignoring return values and parameters to pass in because I don't know
-    # what these funcions would need yet, these ideas are not fleshed out
-
-    motor_init() - initialize the motors to stop
-    ss_motor() - flip bit to start or stop motors 
-    spin() - set motors for bot to spin
-    forward() - make robot move forward. could make it so you can control speed
-    reverse() - same idea as above backwards
-    
-    turn()
-    u-turn()
-    # maybe the above two could be combined. mabe there would be a smart way to
-    # figure out what angle turn you would like to make and could implement that
-
-    # honestly may not end up using these functions, but it might be a good exercise?
-    # maybe it will make work down the line easier?
-*/
 
 
 

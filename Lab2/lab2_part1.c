@@ -11,12 +11,12 @@ Description: Design a motor function and a program with gradual acceleration,
 #include <util/delay.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-
-void motor(uint8_t num, int8_t speed);
+#include "functions.h"
 
 int main(){
 
     init();
+    motor_init();
     
     u08 state = 0;
 
@@ -59,7 +59,6 @@ int main(){
     return 0;
 }
 
-void motor(uint8_t num, int8_t speed){
 
     if(speed < -100){speed = -100;}
     

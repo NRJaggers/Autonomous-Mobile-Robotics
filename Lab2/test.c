@@ -7,7 +7,11 @@
 int main(void) {
    init();  //initialize board hardware
 
-   test_include();
+   motor_init();
+
+   reverse(1);
+
+   _delay_ms(1000);
 
    return 0;
 }
