@@ -17,7 +17,7 @@ void motor_init()
     set_servo(RIGHT,SERVO_STOP);
 }
 
-void motor(uint8_t num, int8_t speed){
+void motor(uint8_t num, int16_t speed){
 
     if(speed < -100){speed = -100;}
     
@@ -36,17 +36,12 @@ void motor(uint8_t num, int8_t speed){
 
     clear_screen();
         
-    u08 negative = ((u08)speed & 0x80) >> 7;
+    u08 negative = (speed & 0x8000) >> 15;
 
     if(negative){
 
         print_string("-");
-
-        //Not sure which is better
-        //u16 print_neg = ((speed ^ 0xFFFF) + 1);
-        //((speed ^ 1) + 1) & 0x00FF
-
-        print_num(print_neg); // needs work
+        print_num(((speed ^ 0xFFFF) + 1));
 
     }
     else{

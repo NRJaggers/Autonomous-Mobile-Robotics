@@ -9,7 +9,7 @@ int main(void) {
 
    motor_init();
 
-   reverse(1);
+   reverse(50);
 
    _delay_ms(1000);
 

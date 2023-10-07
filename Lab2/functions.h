@@ -26,7 +26,7 @@ void test_include();
 
 // Motor Functions
 void motor_init();
-void motor(uint8_t num, int8_t speed);
+void motor(uint8_t num, int16_t speed);
 void spin(int8_t speed);
 void forward(int8_t speed);
 void reverse(int8_t speed);
