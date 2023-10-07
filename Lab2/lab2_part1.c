@@ -19,6 +19,7 @@ int main(){
     motor_init();
     
     u08 state = 0;
+    u08 direction = 0;
 
     while(1){
     
@@ -31,7 +32,14 @@ int main(){
         }
 
         if(state){
+
+            // gradually spins the motors to full speed forward
+            // gradually slows the motors to a stop
+            // does the same in the reverse motor direction and continuously repeats
            
+            // use direction flag, go forward and increment. once full speed decrement
+            // then switch direction and repeat process. might need another flag like accelerate
+            
             motor(0,-50);
 
             motor(1,-50);
@@ -47,12 +55,9 @@ int main(){
 
         }
         
-        else{
-            
-            set_servo(0,127);
-
-            set_servo(1,127);
-        
+        else
+        {    
+            motor_init();
         }
     }
 
