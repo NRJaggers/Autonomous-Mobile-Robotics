@@ -38,13 +38,13 @@ int main(){
 
             _delay_ms(1000);
 
-
+/*
             motor(0,50);
 
             motor(1,50);
 
             _delay_ms(1000);
-
+*/
         }
         
         else{
@@ -85,7 +85,7 @@ void motor(uint8_t num, int8_t speed){
 
         print_string("-");
 
-        print_num((speed ^ 1) + 1);
+        print_num((!speed) + 1);
 
     }
     else{
