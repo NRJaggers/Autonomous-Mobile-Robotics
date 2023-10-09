@@ -17,6 +17,9 @@ Notes and Ideas:
 #define LEFT  0 // Left wheel if looking top town at bumblebee with usb port in the back
 #define RIGHT 1 // Right wheel if looking top town at bumblebee with usb port in the back
 
+#define FEAR 0
+#define AGR 1
+
 #define SERVO_STOP 127  //stop value for servo
 #define SERVO_FSP 97    //full speed positive direction
 #define SERVO_FSN 157   //full speed negative direction
@@ -27,6 +30,7 @@ void test_include();
 // Motor Functions
 void motor_init();
 void motor(uint8_t num, int16_t speed);
+void motor_print(uint8_t num, int16_t speed);
 void spin(int8_t speed);
 void forward(int8_t speed);
 void reverse(int8_t speed);
