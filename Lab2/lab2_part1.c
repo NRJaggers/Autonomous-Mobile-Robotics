@@ -11,14 +11,17 @@ Description: Design a motor function and a program with gradual acceleration,
 #include <util/delay.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-
-void motor(uint8_t num, int8_t speed);
+#include "functions.h"
 
 int main(){
 
     init();
+    motor_init();
     
-    u08 state = 0;
+    u08 state = 0;  // could maybe combine two flags into 1, where 0 is off and 1-4 is
+                    // accelerate forward, decelerate forward, accelerate backward, decelerate backward
+    u08 direction = 1;
+    u08 speed = 0;
 
     while(1){
     
@@ -31,67 +34,61 @@ int main(){
         }
 
         if(state){
+
+            // gradually spins the motors to full speed forward
+            // gradually slows the motors to a stop
+            // does the same in the reverse motor direction and continuously repeats
            
-            motor(0,-50);
+            // use direction flag, go forward and increment. once full speed decrement
+            // then switch direction and repeat process. might need another flag like accelerate
 
-            motor(1,-50);
+            //This switch could prob be reduced down to two states, I am leaving as is right now for
+            //development and readability purposes
+            switch(direction){
+                //accelerate forward
+                case 1:
+                    if(speed < 100)
+                        speed++;
+                    else
+                        direction = 2;
+                    break;
+                //deccelerate forward
+                case 2:
+                    if(speed > 0)
+                        speed--;
+                    else
+                        direction = 3;
+                    break;
+                //accelerate reverse
+                case 3:
+                    if(speed > -100)
+                        speed--;
+                    else
+                        direction = 4;
+                    break;
+                //deccelerate reverse
+                case 4:
+                    if(speed < 0)
+                        speed++;
+                    else
+                        direction = 1;
+                    break;
+                
+                default:
+                    direction = 1;
+                    break;
+            }
 
-            _delay_ms(1000);
+            forward(speed);
+            _delay_ms(10);
 
-/*
-            motor(0,50);
-
-            motor(1,50);
-
-            _delay_ms(1000);
-*/
         }
         
-        else{
-            
-            set_servo(0,127);
-
-            set_servo(1,127);
-        
+        else
+        {    
+            motor_init();
         }
     }
 
     return 0;
-}
-
-void motor(uint8_t num, int8_t speed){
-
-    if(speed < -100){speed = -100;}
-    
-    if(speed > 100){speed = 100;}
-
-    if(num){
-        
-        set_servo(num,0.3*speed+127);
-          
-    }
-    
-    else{
-        
-        set_servo(num,127-0.3*speed);
-
-    }
-
-    clear_screen();
-        
-    u08 negative = speed & 0x80 >> 7;
-    
-    if(negative){
-
-        print_string("-");
-
-        print_num((!speed) + 1);
-
-    }
-    else{
-    
-    print_num(speed);
-
-    }
-
 }
