@@ -17,8 +17,11 @@ Notes and Ideas:
 #define LEFT  0 // Left wheel if looking top town at bumblebee with usb port in the back
 #define RIGHT 1 // Right wheel if looking top town at bumblebee with usb port in the back
 
-#define FEAR 0
-#define AGR 1
+// Braitenberg cases
+#define FEAR 0 //2A
+#define AGGRESSION 1 //2B
+#define ATTRACTION 0 //3A
+#define SHY 1 //3B
 
 #define SERVO_STOP 127  //stop value for servo
 #define SERVO_FSP 97    //full speed positive direction

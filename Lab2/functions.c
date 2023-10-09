@@ -77,11 +77,6 @@ void spin(int8_t speed)
     motor(RIGHT, -speed);
 }
 
-void spin(int16_t speed)
-{
-    motor(LEFT, speed);
-    motor(RIGHT, -speed);
-}
 
 void forward(int8_t speed)
 {

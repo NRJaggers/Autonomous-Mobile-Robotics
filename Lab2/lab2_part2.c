@@ -18,13 +18,14 @@ Description: Implement Braitenberg vehicles 2a (fear) and 2b (aggression).
 int main(){
 
     init();
-  //  motor_init();
     
     u08 left_sensor_value, right_sensor_value;
     u08 left_motor_speed, right_motor_speed;    
-    u08 mode = FEAR; //0 is FEAR 1 is AGGRESSION
+    
+    u08 mode = FEAR; //0 is FEAR, 1 is AGGRESSION
     clear_screen();
     print_string("FEAR");
+    
     while(1){
 
         if(get_btn() == 1){
@@ -43,7 +44,6 @@ int main(){
         left_sensor_value = analog(LEFT);
         right_sensor_value = analog(RIGHT);
        
-        
         // convert 0 - 255 to 0 - 100
         left_motor_speed = (100 * left_sensor_value) / 255;
         right_motor_speed = (100 * right_sensor_value) / 255;
