@@ -18,10 +18,10 @@ int main(){
     init();
     motor_init();
     
-    u08 state = 0;  // could maybe combine two flags into 1, where 0 is off and 1-4 is
+    u08 state = 1;  // could maybe combine two flags into 1, where 0 is off and 1-4 is
                     // accelerate forward, decelerate forward, accelerate backward, decelerate backward
     u08 direction = 1;
-    u08 speed = 0;
+    int8_t speed = 0;
 
     while(1){
     
@@ -68,6 +68,7 @@ int main(){
                     else
                         direction = 4;
                     break;
+
                 //deccelerate reverse
                 case 4:
                     if(speed < 0)
@@ -93,40 +94,4 @@ int main(){
     }
 
     return 0;
-}
-
-
-    if(speed < -100){speed = -100;}
-    
-    if(speed > 100){speed = 100;}
-
-    if(num){
-        
-        set_servo(num,0.3*speed+127);
-          
-    }
-    
-    else{
-        
-        set_servo(num,127-0.3*speed);
-
-    }
-
-    clear_screen();
-        
-    u08 negative = speed & 0x80 >> 7;
-    
-    if(negative){
-
-        print_string("-");
-
-        print_num((speed ^ 1) + 1);
-
-    }
-    else{
-    
-    print_num(speed);
-
-    }
-
 }
