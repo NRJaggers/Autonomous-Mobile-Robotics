@@ -20,12 +20,13 @@ int main(){
     init();
     motor_init();
     
-    u08 state = 1;
-    u08 direction = 1;
-    int8_t speed = 0;
+    u08 sensor_value;
 
     while(1){
     
+        sensor_value = analog(0);
+        print_num(sensor_value);
+    /*
         if(get_btn() == 1){
 
             state = state ^ 1;
@@ -45,7 +46,8 @@ int main(){
         {    
             motor_init();
         }
+    
+    */
     }
-
     return 0;
 }
