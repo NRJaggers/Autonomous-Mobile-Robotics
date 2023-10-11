@@ -24,12 +24,16 @@ int main(){
     int8_t error, diff;
     int8_t diff_past = 0;
 
-    const u08 Kp = 10;
-    const u08 Kd = 2;
+    const u08 Kp = 5;
+    const u08 Kd = 1;
+    motor(RIGHT, 10);
+    motor(LEFT, 10);
+    _delay_ms(1000);
     while(1){
 
         
         left_sensor_value = analog(ANALOG4_PIN); //need new second sensor
+        
         right_sensor_value = analog(ANALOG3_PIN); //"Lower output voltage is an indication of greater reflection."
 
         //start here
@@ -43,16 +47,25 @@ int main(){
         diff = (left_sensor_value - right_sensor_value);
         
         error = (Kp * diff) - (Kd * (diff - diff_past)); // want error between 0 and 100
+
+        if((220 > left_sensor_value && left_sensor_value > 180) && 
+            (220 > right_sensor_value && right_sensor_value > 180) && 
+            (-10 < diff && diff < 10)){
+
+            motor(LEFT, 10);
+            motor(RIGHT, 10);
+        }
+        
         /*
         lcd_cursor(0,0);
         print_num(error);
         */
-        if(error > 0){
-            motor(RIGHT, 25 - error);
+        else if(error > 0){
+            motor(RIGHT, 10 - error);
         }
 
         else{
-            motor(LEFT, 25 - error);
+            motor(LEFT, 10 - error);
         }
 
         diff_past = diff; 
