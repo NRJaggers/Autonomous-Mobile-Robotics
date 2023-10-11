@@ -20,35 +20,43 @@ int main(){
     init();
     motor_init();
     
-    u08 state = 1;
     u08 left_sensor_value, right_sensor_value;
-    u08 left_motor_speed, right_motor_speed;    
-    
+    int8_t error, diff;
+    int8_t diff_past = 0;
+
+    const u08 Kp = 10;
+    const u08 Kd = 2;
     while(1){
 
-        if(get_btn() == 1){
-            state = state ^ 1;
-            clear_screen();
-            _delay_ms(200);
-        }
         
         left_sensor_value = analog(ANALOG4_PIN); //need new second sensor
         right_sensor_value = analog(ANALOG3_PIN); //"Lower output voltage is an indication of greater reflection."
 
-        if(state){
-            //start here
-            lcd_cursor(0,0);
-            print_num(left_sensor_value);
-            lcd_cursor(0,1);
-            print_num(right_sensor_value);
-
+        //start here
+        
+        lcd_cursor(0,0);
+        print_num(left_sensor_value);
+        lcd_cursor(0,1);
+        print_num(right_sensor_value); 
+        
+        
+        diff = (left_sensor_value - right_sensor_value);
+        
+        error = (Kp * diff) - (Kd * (diff - diff_past)); // want error between 0 and 100
+        /*
+        lcd_cursor(0,0);
+        print_num(error);
+        */
+        if(error > 0){
+            motor(RIGHT, 25 - error);
         }
-        else
-        {    
-            motor_init();
+
+        else{
+            motor(LEFT, 25 - error);
         }
 
-    
+        diff_past = diff; 
+       
     }
     return 0;
 }
