@@ -33,7 +33,7 @@ int main(){
         }
         
         left_sensor_value = analog(ANALOG4_PIN); //need new second sensor
-        right_sensor_value = analog(ANALOG5_PIN); //"Lower output voltage is an indication of greater reflection."
+        right_sensor_value = analog(ANALOG3_PIN); //"Lower output voltage is an indication of greater reflection."
 
         if(state){
             //start here
