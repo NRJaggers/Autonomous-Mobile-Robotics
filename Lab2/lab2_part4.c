@@ -37,7 +37,6 @@ int main(){
 
         if(state){
             //start here
-
             lcd_cursor(0,0);
             print_num(left_sensor_value);
             lcd_cursor(0,1);
