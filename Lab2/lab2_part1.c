@@ -80,7 +80,7 @@ int main(){
                     break;
             }
 
-            forward(speed);
+            forward_print(speed);
             _delay_ms(10);
 
         }

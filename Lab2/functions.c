@@ -17,6 +17,44 @@ void motor_init()
     set_servo(RIGHT,SERVO_STOP);
 }
 
+void motor(uint8_t num, int8_t speed){
+
+    if(speed < -100){speed = -100;}
+    
+    if(speed > 100){speed = 100;}
+
+    //num == LEFT or RIGHT
+    if(num){
+        //RIGHT
+        set_servo(num,127-0.3*speed);
+    }
+    
+    else{
+        //LEFT
+        set_servo(num,0.3*speed+127);
+    }
+ 
+}
+
+void spin(int8_t speed)
+{
+    motor(LEFT, speed);
+    motor(RIGHT, -speed);
+}
+
+void forward(int8_t speed)
+{
+    motor(LEFT, speed);
+    motor(RIGHT, speed);
+}
+
+void reverse(int8_t speed)
+{
+    motor(LEFT, -speed);
+    motor(RIGHT, -speed);
+}
+
+//Motor Functions with print
 void motor_print(uint8_t num, int16_t speed){
 
     if(speed < -100){speed = -100;}
@@ -52,40 +90,20 @@ void motor_print(uint8_t num, int16_t speed){
 
 }
 
-void motor(uint8_t num, int16_t speed){
-
-    if(speed < -100){speed = -100;}
-    
-    if(speed > 100){speed = 100;}
-
-    //num == LEFT or RIGHT
-    if(num){
-        //RIGHT
-        set_servo(num,127-0.3*speed);
-    }
-    
-    else{
-        //LEFT
-        set_servo(num,0.3*speed+127);
-    }
- 
+void spin_print(int8_t speed)
+{
+    motor_print(LEFT, speed);
+    motor_print(RIGHT, -speed);
 }
 
-void spin(int8_t speed)
+void forward_print(int8_t speed)
 {
-    motor(LEFT, speed);
-    motor(RIGHT, -speed);
+    motor_print(LEFT, speed);
+    motor_print(RIGHT, speed);
 }
 
-
-void forward(int8_t speed)
+void reverse_print(int8_t speed)
 {
-    motor(LEFT, speed);
-    motor(RIGHT, speed);
-}
-
-void reverse(int8_t speed)
-{
-    motor(LEFT, -speed);
-    motor(RIGHT, -speed);
+    motor_print(LEFT, -speed);
+    motor_print(RIGHT, -speed);
 }
