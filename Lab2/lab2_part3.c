@@ -1,9 +1,9 @@
 /*
 Name: Nathan Jaggers and Weston Keitz  
 
-Assignment Number: Lab 2 Part 2 
+Assignment Number: Lab 2 Part 3
 
-Description: Implement Braitenberg vehicles 2a (fear) and 2b (aggression).
+Description: Implement Braitenberg vehicles 3a (attraction) and 3b (shy).
             Press button to toggle between modes. Display mode on LCD.
             Stopped to full speed depending on amount of light recieved.
 
@@ -22,7 +22,7 @@ int main(){
     u08 left_sensor_value, right_sensor_value;
     u08 left_motor_speed, right_motor_speed;    
     
-    u08 mode = ATTRACTION; //0 is FEAR, 1 is AGGRESSION
+    u08 mode = ATTRACTION; //0 is ATTRACTION, 1 is SHY
     clear_screen();
     print_string("ATTRACT");
     
@@ -35,7 +35,7 @@ int main(){
             clear_screen();
             
             if(mode == FEAR){print_string("ATTRACT");}
-            else{print_string("FEAR");}
+            else{print_string("SHY");}
             
             _delay_ms(200);
 
