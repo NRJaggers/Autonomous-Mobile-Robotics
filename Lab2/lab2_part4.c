@@ -20,7 +20,7 @@ int main(){
     init();
     motor_init();
     
-    u08 left_sensor_value, right_sensor_value;
+    u08 left_sensor_value, right_sensor_value; //idea?: testing if using 16 bits gives better results
     int8_t error, diff;
     int8_t diff_past = 0;
     int8_t speed;

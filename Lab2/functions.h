@@ -30,6 +30,9 @@ Notes and Ideas:
 // Testing include file
 void test_include();
 
+// LCD Functions
+void print_snum(int16_t num);
+
 // Motor Functions
 void motor_init();
 void motor(uint8_t num, int8_t speed);

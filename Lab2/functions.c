@@ -10,6 +10,24 @@ void test_include()
     print_string("Hello");
 }
 
+// LCD Functions
+void print_snum(int16_t num)
+{
+    u08 negative = (num & 0x8000) >> 15;
+
+    if(negative){
+
+        print_string("-");
+        print_num(((num ^ 0xFFFF) + 1));
+
+    }
+    else{
+    
+    print_num(num);
+
+    }
+}
+
 // Motor Functions
 void motor_init()
 {
