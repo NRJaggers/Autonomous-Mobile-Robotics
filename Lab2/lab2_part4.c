@@ -6,6 +6,7 @@ Assignment Number: Lab 2 Part 4
 Description: 
 
 Sensor: https://www.pololu.com/product/2458
+"Lower output voltage is an indication of greater reflection."
 
 */
 
@@ -20,8 +21,8 @@ int main(){
     init();
     motor_init();
     
-    u08 left_sensor_value, right_sensor_value; //idea?: testing if using 16 bits gives better results
-    int8_t error, diff;
+    u16 left_sensor_value, right_sensor_value; //idea?: testing if using 16 bits gives better results
+    int8_t error = 0, diff = 0; 
     int8_t diff_past = 0;
     int8_t speed;
 
@@ -36,8 +37,6 @@ int main(){
         left_sensor_value = analog(ANALOG4_PIN); //need new second sensor
         
         right_sensor_value = analog(ANALOG3_PIN); //"Lower output voltage is an indication of greater reflection."
-
-        //start here
         
         lcd_cursor(0,0);
         print_num(left_sensor_value);
@@ -49,7 +48,8 @@ int main(){
         
         error = (Kp * diff) - (Kd * (diff - diff_past)); // want error between 0 and 10
         if(error > 0){
-            speed = 10 - error; }
+            speed = 10 - error; 
+            }
         else{
             speed = 10 + error;
             }

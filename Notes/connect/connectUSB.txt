@@ -28,3 +28,7 @@ sudo chmod +777 /dev/ttyACM0
 //Then you should be ready to make the program and flash the device!
 make 
 make program_linux
+
+10/11/23
+I have now made handy programs to make this a bit easier! One for powershell and
+one for WSL.
