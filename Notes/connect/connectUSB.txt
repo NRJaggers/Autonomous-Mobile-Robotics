@@ -30,5 +30,6 @@ make
 make program_linux
 
 10/11/23
-I have now made handy programs to make this a bit easier! One for powershell and
-one for WSL.
+//I have now made handy programs to make this a bit easier! One for powershell and
+//one for WSL.
+~/CPE416/connect.sh
