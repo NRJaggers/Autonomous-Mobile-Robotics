@@ -13,14 +13,18 @@ Description: Design a motor function and a program with gradual acceleration,
 #include <avr/interrupt.h>
 #include "functions.h"
 
+#define ACCEL_FWD   1
+#define DCCEL_FWD   2
+#define ACCEL_REV   3
+#define DCCEL_REV   4
+
 int main(){
 
     init();
     motor_init();
     
-    u08 state = 1;  // could maybe combine two flags into 1, where 0 is off and 1-4 is
-                    // accelerate forward, decelerate forward, accelerate backward, decelerate backward
-    u08 direction = 1;
+    u08 state = 1;  
+    u08 direction = ACCEL_FWD;
     int8_t speed = 0;
 
     while(1){
@@ -28,55 +32,45 @@ int main(){
         if(get_btn() == 1){
 
             state = state ^ 1;
-
-            _delay_ms(100);
+            _delay_ms(200);
 
         }
 
         if(state){
 
-            // gradually spins the motors to full speed forward
-            // gradually slows the motors to a stop
-            // does the same in the reverse motor direction and continuously repeats
-           
-            // use direction flag, go forward and increment. once full speed decrement
-            // then switch direction and repeat process. might need another flag like accelerate
-
-            //This switch could prob be reduced down to two states, I am leaving as is right now for
-            //development and readability purposes
             switch(direction){
                 //accelerate forward
-                case 1:
+                case ACCEL_FWD:
                     if(speed < 100)
                         speed++;
                     else
-                        direction = 2;
+                        direction = DCCEL_FWD;
                     break;
                 //deccelerate forward
-                case 2:
+                case DCCEL_FWD:
                     if(speed > 0)
                         speed--;
                     else
-                        direction = 3;
+                        direction = ACCEL_REV;
                     break;
                 //accelerate reverse
-                case 3:
+                case ACCEL_REV:
                     if(speed > -100)
                         speed--;
                     else
-                        direction = 4;
+                        direction = DCCEL_REV;
                     break;
 
                 //deccelerate reverse
-                case 4:
+                case DCCEL_REV:
                     if(speed < 0)
                         speed++;
                     else
-                        direction = 1;
+                        direction = ACCEL_FWD;
                     break;
                 
                 default:
-                    direction = 1;
+                    direction = ACCEL_FWD;
                     break;
             }
 
