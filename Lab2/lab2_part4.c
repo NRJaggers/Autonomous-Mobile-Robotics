@@ -26,11 +26,13 @@ motor_init();
     int16_t diff = 0; 
     int16_t diff_past = 0;
     int16_t derivative;
-    int8_t speed;
-
-    const u08 Kp = 3;
+    int16_t sum;
+    u08 mode = RIGHT;
+    const u08 Kp = 6;
     const u08 Kd = 1;
-    
+    const u08 Ki = 3;
+
+
     motor(RIGHT, 10);
     motor(LEFT, 10);
     while(1)
@@ -46,74 +48,61 @@ motor_init();
         lcd_cursor(0,1);
         print_num(right_sensor_value); 
         */
-        
+        diff = (left_sensor_value - right_sensor_value);
+        if(left_sensor_value > 180 && right_sensor_value > 180 && diff > -2 && diff < 2)
+        {
+            motor(RIGHT, 10);
+            motor(LEFT, 10);
+        }
         if(left_sensor_value > right_sensor_value) //left on black, right on white 
         {
+            if(mode == RIGHT){ diff_past = 0;}
             diff = (left_sensor_value - right_sensor_value);
             derivative = diff - diff_past;
             if(derivative > 100) {derivative = 0;}
-            error = (Kp * diff) - (Kd * (derivative));
+            
+            sum = diff + diff_past;
+            
+            if(sum > 200){
+                sum = 0;
+            }
 
+            error = (Kp * diff) - (Kd * derivative) + (Ki * sum);
             //increase speed of right , decrease left
 
-            motor(LEFT, 10 - (error/ 15));
-            motor(RIGHT, 10 + (error/ 15));
-
+            motor(LEFT, (20 - (error/5)));
+            motor(RIGHT, (20 + (error/ 2)));
+            mode = LEFT;
         }
        
-        else //right on black , eft on white
+        else //right on black , left on white
         {
+            if(mode == LEFT){ diff_past = 0;}
             diff = (right_sensor_value - left_sensor_value);
-             derivative = diff - diff_past;
+            
+            derivative = diff - diff_past;
+            
             if(derivative > 100) {derivative = 0;}
-            error = (Kp * diff) - (Kd * (derivative));
+            
+            sum = diff + diff_past;
+            
+            if(sum > 200){
+                sum = 0;
+            }
+
+            error = (Kp * diff) - (Kd * derivative) + (Ki * sum);
 
             //increase speed of right , decrease left
 
-            motor(LEFT, 10 + (error/ 15));
-            motor(RIGHT, 10 -(error/ 15) );
-        }
-       
-       
-       
-       // diff = (left_sensor_value - right_sensor_value);
-        
-    //    error = (Kp * diff) - (Kd * (diff - diff_past) / 2); // want error between 0 and 10
-        /*
-        if(error > 0){
-            speed = 10 - error; 
-            }
-        else{
-            speed = 10 + error;
-            }
-        
-        if (speed < 0){
-            speed = 0; }
-        
-        if((220 > left_sensor_value && left_sensor_value > 180) && 
-            (220 > right_sensor_value && right_sensor_value > 180) && 
-            (-10 < diff && diff < 10)){
+            motor(LEFT, (20 + (error/ 2)));
+            motor(RIGHT, (20 - (error/5)) );
 
-            motor(LEFT, 10);
-            motor(RIGHT, 10);
+            mode = RIGHT;
         }
-        */
-        
+       
         lcd_cursor(0,0);
         print_snum(error);
-        /*
-        else if(error > 0){
-            
-            motor(RIGHT, speed);
-            motor(LEFT, 10);
-        }
-
-        else{
-            motor(LEFT, speed);
-            motor(LEFT, 10);
-
-        }
-        */
+       
         diff_past = diff; 
        
     }
