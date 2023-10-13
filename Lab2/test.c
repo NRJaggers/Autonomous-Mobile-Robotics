@@ -7,20 +7,17 @@
 int main(void) {
    init();  //initialize board hardware
    motor_init();
-
-   int16_t count_p = 0;
-   int16_t count_n = 0;
+   u16 left_sensor_value, right_sensor_value; 
 
    while(1)
    {
-      count_p++;
-      count_n--;
-      clear_screen();
-      print_snum(count_p);
-      lcd_cursor(0,1);
-      print_snum(count_n);
-      _delay_ms(50);
-      
+      left_sensor_value = analog(ANALOG4_PIN); //need new second sensor   
+      right_sensor_value = analog(ANALOG3_PIN);
+
+      lcd_cursor(7-2,0);
+      print_num(left_sensor_value);
+      lcd_cursor(7-2,1);
+      print_num(right_sensor_value); 
    }
    
 
