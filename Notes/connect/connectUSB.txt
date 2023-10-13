@@ -33,3 +33,25 @@ make program_linux
 //I have now made handy programs to make this a bit easier! One for powershell and
 //one for WSL.
 ~/CPE416/connect.sh
+
+10/12/13
+//I have looked up an article to make the usb permissions permanent
+//https://www.xmodulo.com/change-usb-device-permission-linux.html
+
+//--Instructions--//
+//you need to identify the vendorID and productID of your USB device. For that, use lsusb command.
+lsusb -vvv
+
+    On Nathans computer:
+        idVendor           0x04b4 Cypress Semiconductor Corp.
+        idProduct          0x0003
+
+//Next, create a new udev rule as follows. Once in file, add new rule
+sudo vi /etc/udev/rules.d/50-myusb.rules
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="<#>", ATTRS{idProduct}=="<#>", GROUP="users", MODE="0666"
+
+//Now reboot your machine or reload udev rules
+sudo udevadm control --reload // having trouble here
+
+//Then verify the permission of the USB device. (make sure youre in /dev and can see device)
+ls -al
