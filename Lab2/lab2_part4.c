@@ -71,8 +71,8 @@ int main(){
             error = (Kp * diff) - (Kd * derivative) + (Ki * sum);
             
             //increase speed of right , decrease left
-            motor(LEFT, (20 - (error/2)));
-            motor(RIGHT, (20 + (error/ 2)));
+            motor(LEFT, 1.3*(20 - (error/2)));
+            motor(RIGHT, 1.3*(20 + (error/ 2)));
             mode = LEFT;
         }
        
@@ -97,8 +97,8 @@ int main(){
             error = (Kp * diff) - (Kd * derivative) + (Ki * sum);
 
             //increase speed of right , decrease left
-            motor(LEFT, (20 + (error/ 2)));
-            motor(RIGHT, (20 - (error/2)) );
+            motor(LEFT, 1.3*(20 + (error/ 2)));
+            motor(RIGHT, 1.3*(20 - (error/2)) );
             mode = RIGHT;
         }
         
