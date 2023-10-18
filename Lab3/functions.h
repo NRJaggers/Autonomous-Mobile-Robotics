@@ -13,9 +13,14 @@ Notes and Ideas:
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
+// general definitions
+#define FALSE  0
+#define TRUE 1
+
 // Motor defines
 #define LEFT  0 // Left wheel if looking top town at bumblebee with usb port in the back
 #define RIGHT 1 // Right wheel if looking top town at bumblebee with usb port in the back
+#define FWD 2
 
 // Braitenberg cases
 #define FEAR 0 //2A
@@ -26,6 +31,9 @@ Notes and Ideas:
 #define SERVO_STOP 127  //stop value for servo
 #define SERVO_FSP 97    //full speed positive direction
 #define SERVO_FSN 157   //full speed negative direction
+
+// Neural Network Lab componets
+#define BASE_SPEED 25 //cruising speed for bot
 
 // Testing include file
 void test_include();
@@ -46,9 +54,8 @@ void spin_print(int8_t speed);
 void forward_print(int8_t speed);
 void reverse_print(int8_t speed);
 
-
 // Neural Network functions'
-struct motor_command
-struct motor_command compute_proportional(uint8_t left, uint8_t right);
+// struct motor_command
+// struct motor_command compute_proportional(uint8_t left, uint8_t right);
 
 #endif
