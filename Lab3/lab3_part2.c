@@ -1,10 +1,11 @@
 /*
 Name: Nathan Jaggers and Weston Keitz  
 
-Assignment Number: Lab 3 Part 1 
+Assignment Number: Lab 3 Part 2
 
 Description: 
 */
+
 #include "globals.h"
 #include <util/delay.h>
 #include <avr/io.h>
@@ -12,4 +13,7 @@ Description:
 #include "functions.h"
 
 
-int main(){}
+int main(){
+    
+}
+

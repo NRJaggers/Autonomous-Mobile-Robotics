@@ -5,6 +5,7 @@ Assignment Number: Lab 3 Part 1
 
 Description: 
 */
+
 #include "globals.h"
 #include <util/delay.h>
 #include <avr/io.h>
@@ -18,4 +19,7 @@ struct motor_command {
 
 struct motor_command compute_proportional(uint8_t left, uint8_t right);
 
-int main(){}
+int main(){
+    
+}
+
