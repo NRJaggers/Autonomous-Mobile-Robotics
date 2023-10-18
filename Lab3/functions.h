@@ -46,4 +46,9 @@ void spin_print(int8_t speed);
 void forward_print(int8_t speed);
 void reverse_print(int8_t speed);
 
+
+// Neural Network functions'
+struct motor_command
+struct motor_command compute_proportional(uint8_t left, uint8_t right);
+
 #endif
