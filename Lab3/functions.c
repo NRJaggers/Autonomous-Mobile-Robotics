@@ -130,3 +130,74 @@ void reverse_print(int8_t speed)
     motor_print(LEFT, -speed);
     motor_print(RIGHT, -speed);
 }
+
+// Neural Network functions
+
+struct motor_command compute_proportional(uint8_t left, uint8_t right)
+{
+    //Variables
+    struct motor_command speed;
+    int8_t error = 0;
+    int8_t correction = 0;
+    //u08 mode;
+    const u08 Kp = 1;
+
+    error = (int8_t)left - (int8_t)right;
+
+    // if (left > right)
+    // {
+    //     error = left - right;
+    //     mode = LEFT;
+    // }
+    // else if (right > left)
+    // {
+    //     error = right - left;
+    //     mode = LEFT;
+    // }
+    // else
+    // {
+    //     error = 0;
+    //     mode = FWD; // not left or right
+    // }
+
+    correction = Kp*error;
+
+    //clear_screen();
+    lcd_cursor(0,0);
+    print_snum(error);
+    lcd_cursor(0,1);
+    print_snum(correction);
+
+    if (error > ERROR_THRESH) //if positive (left greater than right)
+    //if (mode == LEFT) //if positive (left greater than right)
+    {
+        //left on black, right on white
+        //increase right speed
+        speed.left_motor = BASE_SPEED - correction;
+        speed.right_motor = BASE_SPEED + correction;
+                            
+        if (speed.left_motor<0)
+            speed.left_motor=0;
+
+    }
+    else if (error < -ERROR_THRESH) //if negative (right greater than left)
+    //else if (mode == RIGHT) //if negative (right greater than left)
+    {
+        //right on black, left on white
+        //increase left speed
+        speed.left_motor = BASE_SPEED + correction;
+        speed.right_motor = BASE_SPEED - correction;
+
+        if (speed.right_motor<0)
+            speed.right_motor=0;
+
+    }
+    else // equal (aka 0 or less than threshold)
+    {
+        //both on black (or white), maintain base speed
+        speed.left_motor = BASE_SPEED;
+        speed.right_motor = BASE_SPEED;
+    }
+
+    return speed;
+}
