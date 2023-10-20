@@ -33,8 +33,8 @@ Notes and Ideas:
 #define SERVO_FSN 157   //full speed negative direction
 
 // Neural Network Lab componets
-#define BASE_SPEED 25 //cruising speed for bot
-#define ERROR_THRESH 25 // Threshold for error between sensors before control activates
+#define BASE_SPEED 35 //cruising speed for bot
+#define ERROR_THRESH 5 // Threshold for error between sensors before control activates
 
 // Testing include file
 void test_include();
@@ -58,8 +58,8 @@ void reverse_print(int8_t speed);
 // Neural Network functions
 struct motor_command 
 {
-    int8_t left_motor; // left motor speed 
-    int8_t right_motor; // right motor speed 
+    int16_t left_motor; // left motor speed
+    int16_t right_motor; // right motor speed
 };
 
 struct motor_command compute_proportional(uint8_t left, uint8_t right);

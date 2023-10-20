@@ -7,19 +7,33 @@
 int main(void) {
    init();  //initialize board hardware
    motor_init();
-   u16 left_sensor_value, right_sensor_value; 
+   u08 state = FALSE;
 
-   while(1)
-   {
-      left_sensor_value = analog(ANALOG4_PIN); //need new second sensor   
-      right_sensor_value = analog(ANALOG3_PIN);
+    while(TRUE)
+    {
+        if(get_btn())
+        {
+            state = FALSE;
+            _delay_ms(200);
+        }
+                //stop or start the motors
+        if (state == FALSE)
+        {
+            motor_init(); //stop motors
+            if(get_btn())
+            {
+                state = TRUE;
+                _delay_ms(200);
+            }
+        }
+        else
+        {
+            motor(LEFT, 50);
+            motor(RIGHT, 0);
+        }
 
-      lcd_cursor(7-2,0);
-      print_num(left_sensor_value);
-      lcd_cursor(7-2,1);
-      print_num(right_sensor_value); 
-   }
-   
+    }
+    
 
    return 0;
 }

@@ -54,7 +54,7 @@ void motor(uint8_t num, int8_t speed){
     
     else{
         //LEFT
-        set_servo(num,0.3*speed+127);
+        set_servo(num,127+0.3*speed);
     }
  
 }
@@ -140,7 +140,7 @@ struct motor_command compute_proportional(uint8_t left, uint8_t right)
     int8_t error = 0;
     int8_t correction = 0;
     //u08 mode;
-    const u08 Kp = 1;
+    const float Kp = 0.25;
 
     error = (int8_t)left - (int8_t)right;
 
@@ -160,7 +160,7 @@ struct motor_command compute_proportional(uint8_t left, uint8_t right)
     //     mode = FWD; // not left or right
     // }
 
-    correction = Kp*error;
+    correction = (Kp*error);
 
     //clear_screen();
     lcd_cursor(0,0);
@@ -168,7 +168,7 @@ struct motor_command compute_proportional(uint8_t left, uint8_t right)
     lcd_cursor(0,1);
     print_snum(correction);
 
-    if (error > ERROR_THRESH) //if positive (left greater than right)
+    if ((error > ERROR_THRESH) | (error < -ERROR_THRESH)) //if positive (left greater than right)
     //if (mode == LEFT) //if positive (left greater than right)
     {
         //left on black, right on white
@@ -178,15 +178,6 @@ struct motor_command compute_proportional(uint8_t left, uint8_t right)
                             
         if (speed.left_motor<0)
             speed.left_motor=0;
-
-    }
-    else if (error < -ERROR_THRESH) //if negative (right greater than left)
-    //else if (mode == RIGHT) //if negative (right greater than left)
-    {
-        //right on black, left on white
-        //increase left speed
-        speed.left_motor = BASE_SPEED + correction;
-        speed.right_motor = BASE_SPEED - correction;
 
         if (speed.right_motor<0)
             speed.right_motor=0;

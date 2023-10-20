@@ -12,7 +12,7 @@ Description:
 #include <avr/interrupt.h>
 #include "functions.h"
 
-#define DELAY 100 //refresh rate; controlled through delay time 
+#define DELAY 50 //refresh rate; controlled through delay time 
 
 int main(){
 
@@ -57,6 +57,12 @@ int main(){
         else
         {
             speed = compute_proportional(left_sensor_value, right_sensor_value);
+
+            // lcd_cursor(7-2,0);
+            // print_snum(speed.left_motor);
+            
+            // lcd_cursor(7-2,1);
+            // print_snum(speed.right_motor); 
 
             motor(LEFT, speed.left_motor);
             motor(RIGHT, speed.right_motor);
