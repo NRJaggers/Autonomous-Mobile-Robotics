@@ -11,8 +11,42 @@ Description:
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "functions.h"
+#include <math.h>
 
 #define DATA_POINTS 100
+
+double sigmoid(double x){
+    return (1 / (1 + exp(x)));
+}
+
+double d_sigmoid(double x){
+    double s = sigmoid(x);
+    return s* (1 - s);
+}
+
+train_neural_network(){
+
+}
+
+struct MotorValues { 
+  float left;
+  float right;  // String
+};
+
+struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor){
+    
+    struct MotorValues m1;
+    
+    ml.left = ;
+    m1.right = ;
+    return m1;
+}
+
+compute_proportional(){
+
+}
+
+
 int main(){
 
     init();
