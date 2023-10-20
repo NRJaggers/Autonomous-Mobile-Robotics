@@ -2,7 +2,7 @@ SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 BOARD_LIB = $(SELF_DIR)/library
 SOURCE_LIB = $(wildcard $(BOARD_LIB)/*.c)
 CLOCK_RATE = 16000000L
-LAB = lab2_part4.c
+LAB = lab3_part1.c
 FUNCS = functions.c 
 
 sample: sample.c $(wildcard $(BOARD_LIB)/*.c)
