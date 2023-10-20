@@ -24,22 +24,37 @@ double d_sigmoid(double x){
     return s* (1 - s);
 }
 
-train_neural_network(){
 
-}
 
 struct MotorValues { 
-  float left;
-  float right;  // String
+    float left;
+    float right;  // String
 };
 
-struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor){
+struct NeuralData{
+    float sensor_values[DATA_POINTS][2];
+    float motor_values[DATA_POINTS][2];
+    float parameters[17]; //hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
+};
+
+
+
+struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor, struct NeuralData d1){
     
     struct MotorValues m1;
     
-    ml.left = ;
-    m1.right = ;
+    float h1 = (dl.parameters[0] * (float)left_sensor) + (d1.parameters[1] * (float)right_sensor) + d1.parameters[2];
+    float h2 = (dl.parameters[3] * (float)left_sensor) + (d1.parameters[4] * (float)right_sensor) + d1.parameters[5];
+    float h3 = (dl.parameters[6] * (float)left_sensor) + (d1.parameters[7] * (float)right_sensor) + d1.parameters[8];
+
+    ml.left = (dl.parameters[9] * h1) + (dl.parameters[10] * h2) + (dl.parameters[11] * h3) + d1.parameters[12];
+    m1.right = (dl.parameters[13] * h1) + (dl.parameters[14] * h2) + (dl.parameters[15] * h3) + d1.parameters[16];
+
     return m1;
+}
+
+train_neural_network(){
+
 }
 
 compute_proportional(){
@@ -55,10 +70,8 @@ int main(){
 
     state_Type state = STD_MODE;
     
-    float sensor_values[DATA_POINTS][2];
-    float motor_values[DATA_POINTS][2];
+    struct NN_data NN_values;
 
-    float parameters[17]; //hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
     int epochs = 0;
     int epochs_max = 100;
 
