@@ -17,7 +17,7 @@ Description:
 int main(){
 
     init(); //initialize board
-    motor_init(); //initialize motors
+    motor_init(); //initialize motors 
 
     //Variables
     u16 left_sensor_value, right_sensor_value; //read analog sensor values
