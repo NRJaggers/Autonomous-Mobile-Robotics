@@ -16,6 +16,7 @@ Notes and Ideas:
 // general definitions
 #define FALSE  0
 #define TRUE 1
+#define BTN_DELAY 200 // button delay for 200 ms
 
 // Motor defines
 #define LEFT  0 // Left wheel if looking top town at bumblebee with usb port in the back
@@ -33,7 +34,7 @@ Notes and Ideas:
 #define SERVO_FSN 157   //full speed negative direction
 
 // Neural Network Lab componets
-#define BASE_SPEED 35 //cruising speed for bot
+#define BASE_SPEED 30 //cruising speed for bot
 #define ERROR_THRESH 5 // Threshold for error between sensors before control activates
 
 // Testing include file

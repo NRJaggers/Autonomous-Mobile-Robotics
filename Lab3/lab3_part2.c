@@ -39,49 +39,58 @@ struct NeuralData{
 
 
 
-struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor, struct NeuralData d1){
+// struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor, struct NeuralData d1){
     
-    struct MotorValues m1;
+//     struct MotorValues m1;
     
-    float h1 = (dl.parameters[0] * (float)left_sensor) + (d1.parameters[1] * (float)right_sensor) + d1.parameters[2];
-    float h2 = (dl.parameters[3] * (float)left_sensor) + (d1.parameters[4] * (float)right_sensor) + d1.parameters[5];
-    float h3 = (dl.parameters[6] * (float)left_sensor) + (d1.parameters[7] * (float)right_sensor) + d1.parameters[8];
+//     float h1 = (d1.parameters[0] * (float)left_sensor) + (d1.parameters[1] * (float)right_sensor) + d1.parameters[2];
+//     float h2 = (d1.parameters[3] * (float)left_sensor) + (d1.parameters[4] * (float)right_sensor) + d1.parameters[5];
+//     float h3 = (d1.parameters[6] * (float)left_sensor) + (d1.parameters[7] * (float)right_sensor) + d1.parameters[8];
 
-    ml.left = (dl.parameters[9] * h1) + (dl.parameters[10] * h2) + (dl.parameters[11] * h3) + d1.parameters[12];
-    m1.right = (dl.parameters[13] * h1) + (dl.parameters[14] * h2) + (dl.parameters[15] * h3) + d1.parameters[16];
+//     ml.left = (d1.parameters[9] * h1) + (d1.parameters[10] * h2) + (d1.parameters[11] * h3) + d1.parameters[12];
+//     m1.right = (d1.parameters[13] * h1) + (d1.parameters[14] * h2) + (d1.parameters[15] * h3) + d1.parameters[16];
 
-    return m1;
-}
+//     return m1;
+// }
 
-train_neural_network(){
+// train_neural_network(){
 
-}
+// }
 
-compute_proportional(){
+// compute_proportional(){
 
-}
+// }
 
 
 int main(){
 
-    init();
+    init(); //initialize board
+    motor_init(); //initialize motors 
     
+    // state machine modes
     typedef enum {STD_MODE, DATA_MODE, TRAIN_MODE, NN_MODE} state_Robot;
 
-    state_Type state = STD_MODE;
+    state_Robot state = STD_MODE;
     
-    struct NN_data NN_values;
+    //struct NN_data NN_values;
 
     int epochs = 0;
     int epochs_max = 100;
 
-    int *sensor_point = sensor_values;
-    int *sensor_point_start = sensor_values;
+    // int *sensor_point = sensor_values;
+    // int *sensor_point_start = sensor_values;
     
-    int *motor_point = motor_values;
-    int *motor_point_start = motor_values;
+    // int *motor_point = motor_values;
+    // int *motor_point_start = motor_values;
+
+    u16 left_sensor_value, right_sensor_value; //read analog sensor values
+    struct motor_command speed;
 
     while(1){
+        //read and print sensor values
+        left_sensor_value = analog(ANALOG4_PIN); 
+        right_sensor_value = analog(ANALOG3_PIN);
+
         switch(state){
 
             case STD_MODE:
@@ -91,10 +100,17 @@ int main(){
                 lcd_cursor(0,1);
                 print_string("tional");
 
+                speed = compute_proportional(left_sensor_value, right_sensor_value);
+                motor(LEFT, speed.left_motor);
+                motor(RIGHT, speed.right_motor);
+
                 if(get_btn()){
-                    state = TRAIN_MODE;
-                    break;
+                    state = DATA_MODE;
+                    motor_init();
+                    _delay_ms(BTN_DELAY);
                 }
+
+                break;
 
             case DATA_MODE:
                 clear_screen();
@@ -103,8 +119,9 @@ int main(){
 
                 if(get_btn()){
                     state = TRAIN_MODE;
-                    break;
+                    _delay_ms(BTN_DELAY);
                 }
+                break;
 
             case TRAIN_MODE:
                 clear_screen();
@@ -112,7 +129,7 @@ int main(){
                 print_string("Training");
                 
                 while(epochs < epochs_max){
-                    for(i=0;i<DATA_POINTS;i++){
+                    for(u08 i=0;i<DATA_POINTS;i++){
                         //update parameters
                     }
                     epochs++;
@@ -121,7 +138,6 @@ int main(){
                 state = NN_MODE;
                 break;
                 
-
             case NN_MODE:
                 clear_screen();
                 lcd_cursor(0,0);
@@ -129,8 +145,10 @@ int main(){
 
                 if(get_btn()){
                     state = TRAIN_MODE;
-                    break;
+                    _delay_ms(BTN_DELAY);
                 }
+
+                break;
         }
     }
 
