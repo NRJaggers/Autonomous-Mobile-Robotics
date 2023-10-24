@@ -12,18 +12,20 @@ Description:
 #include <avr/interrupt.h>
 #include "functions.h"
 #include <math.h>
+#include <stdlib.h> 
 
 #define DATA_POINTS 100
 #define PARAMS 17
+#define ALPHA 0.001
 
 double sigmoid(double x){
     return (1 / (1 + exp(x)));
-}
+};
 
 double d_sigmoid(double x){
   //  double s = sigmoid(x);
-    return s* (1 - s);
-}
+    return x* (1 - x);
+};
 
 struct MotorValues { 
     float left;
@@ -44,7 +46,7 @@ struct NeuralData{
 struct TempOutputValues{
     float left[DATA_POINTS];
     float right[DATA_POINTS];
-}
+};
 
 struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor, struct NeuralData d1){
 
@@ -54,7 +56,7 @@ struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor, str
     m1.h2 = sigmoid((d1.parameters[3] * (float)left_sensor) + (d1.parameters[4] * (float)right_sensor) + d1.parameters[5]);
     m1.h3 = sigmoid((d1.parameters[6] * (float)left_sensor) + (d1.parameters[7] * (float)right_sensor) + d1.parameters[8]);
 
-    ml.left = sigmoid((d1.parameters[9] * m1.h1) + (d1.parameters[10] * m1.h2) + (d1.parameters[11] * m1.h3) + d1.parameters[12]);
+    m1.left = sigmoid((d1.parameters[9] * m1.h1) + (d1.parameters[10] * m1.h2) + (d1.parameters[11] * m1.h3) + d1.parameters[12]);
     m1.right = sigmoid((d1.parameters[13] * m1.h1) + (d1.parameters[14] * m1.h2) + (d1.parameters[15] * m1.h3) + d1.parameters[16]);
 
     return m1;
@@ -63,21 +65,26 @@ struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor, str
 struct NeuralData train_neural_network(int epochs_max, float alpha,  struct NeuralData nD){
     
     int epochs = 0;
-    struct TempOutputValues tV; 
+    //struct TempOutputValues tV; 
     float dE[PARAMS];
-
+    struct MotorValues mV;
     
 
     while(epochs < epochs_max){
+        clear_screen();
+        lcd_cursor(0,0);
+        print_string("Epoch:");
+        lcd_cursor(0,1);
+        print_num(epochs);
         
-        for(int i = 0 ; i < DATA_POINTS; ++){
+        for(int i = 0 ; i < DATA_POINTS; i++){
             
-            MotorValues mV =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],nD);
+            mV =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],nD);
 
         //update output layer
             float outleftTemp = (mV.left - nD.left_motor_values[i]) * d_sigmoid(mV.left);
             //update w10
-            dE[9] = outleftTemp * mv.h1;
+            dE[9] = outleftTemp * mV.h1;
             //update w11
             dE[10] = outleftTemp * mV.h2;
             //update w12
@@ -127,8 +134,8 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             //update w9
             dE[8] = (c1Temp*nD.parameters[15-1] + c2Temp*nD.parameters[16-1]) * h3Temp * -1;
 
-            for(j = 0 ; j < PARAMS; j++){
-                nD.parameters[j] = nD.parameters[j] - (alpha * dE[i]);
+            for(int j = 0 ; j < PARAMS; j++){
+                nD.parameters[j] = nD.parameters[j] - (alpha * dE[j]);
             }
         
         }
@@ -154,19 +161,19 @@ int main(){
     
     //struct NN_data NN_values;
 
-    int epochs_max = 100;
 
-     int *sensor_point = sensor_values;
-     int *sensor_point_start = sensor_values;
+    //  int *sensor_point = sensor_values;
+    //  int *sensor_point_start = sensor_values;
     
-     int *motor_point = motor_values;
-     int *motor_point_start = motor_values;
+    //  int *motor_point = motor_values;
+    //  int *motor_point_start = motor_values;
 
     u16 left_sensor_value, right_sensor_value; //read analog sensor values
     struct motor_command speed;
     struct NeuralData trainingData;
     int index = 0;
     int epochs; 
+    u08 data_gathered = 0;
 
     while(1){
         //read and print sensor values
@@ -208,6 +215,7 @@ int main(){
                 speed = compute_proportional(left_sensor_value, right_sensor_value);
                 if(index >= DATA_POINTS){
                     index = 0;
+                    data_gathered = 1; 
                 }
 
                 trainingData.left_sensor_values[index] = left_sensor_value;
@@ -216,9 +224,10 @@ int main(){
                 trainingData.left_motor_values[index] = speed.left_motor;
                 trainingData.right_motor_values[index] = speed.right_motor;
 
-                _delay_ms(100) //10 total seconds of data gathering time
-                if(get_btn()){
-                    for(int i = 0; i < PARAMS, i++){
+                _delay_ms(100); //10 total seconds of data gathering time
+                
+                if(get_btn() && data_gathered){
+                    for(int i = 0; i < PARAMS; i++){
                         trainingData.parameters[i] = (float)rand() / RAND_MAX;
                     }
                     state = TRAIN_MODE;
@@ -232,16 +241,21 @@ int main(){
                 lcd_cursor(0,0);
                 print_string("Epochs:");
                 
-                x = get_accel_x(); // get x-axis
+                float x = get_accel_x(); // get x-axis
 
-                if(100 > x && x > 0){epochs = x * 10;} // set top row
+                if(100 > x && x > 0){epochs = floor(50 *x + 1500);} // set top row
         
-                else if(255 > x && x > 190){row = 500;} //set bottom row screen
-
+                else if(255 > x && x > 190){epochs = floor((500 * (x - 190)) / 65) + 1000;} //set bottom row screen
+                lcd_cursor(0,1);
+                print_num(epochs);
+                
                 if(get_btn()){
                     clear_screen();
                     lcd_cursor(0,0);
                     print_string("Training");
+                    
+                    trainingData = train_neural_network(epochs, ALPHA, trainingData);
+                    
                     state = NN_MODE;
                 }
 
