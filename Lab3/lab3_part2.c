@@ -66,17 +66,16 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
     struct TempOutputValues tV; 
     float dE[PARAMS];
 
-    for(int i = 0 ; i < DATA_POINTS; ++){
-        MotorValues mV =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],nD);
-        tV.left[i] = mV.left;
-        tV.right[i] = mV.right;
-    }
+    
 
     while(epochs < epochs_max){
-
+        
         for(int i = 0 ; i < DATA_POINTS; ++){
+            
+            MotorValues mV =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],nD);
+
         //update output layer
-            float outleftTemp = (tV.left[i] - nD.left_motor_values[i]) * d_sigmoid(tV.left[i]);
+            float outleftTemp = (mV.left - nD.left_motor_values[i]) * d_sigmoid(mV.left);
             //update w10
             dE[9] = outleftTemp * mv.h1;
             //update w11
@@ -86,7 +85,7 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             //update w13
             dE[12] = outleftTemp * -1; // may work with positive 1 too
             
-            float outrightTemp = (tV.right[i] - nD.right_motor_values[i]) * d_sigmoid(tV.right[i]);
+            float outrightTemp = (mV.right - nD.right_motor_values[i]) * d_sigmoid(mV.right);
             //update w14
             dE[13] = outrightTemp * mV.h1;
             //update w15
@@ -97,9 +96,9 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             dE[16] = outrightTemp * -1; // may work with positive 1 too
             
         //update hidden layer
-            float c1Temp = (tV.left[i] - nD.left_motor_values[i]) * d_sigmoid(tV.left[i]);
+            float c1Temp = (mV.left - nD.left_motor_values[i]) * d_sigmoid(mV.left);
             
-            float c2Temp = (tV.right[i] - nD.right_motor_values[i]) * d_sigmoid(tV.right[i]);
+            float c2Temp = (mV.right - nD.right_motor_values[i]) * d_sigmoid(mV.right);
            
             float h1Temp = d_sigmoid(mV.h1);
 
@@ -165,6 +164,9 @@ int main(){
 
     u16 left_sensor_value, right_sensor_value; //read analog sensor values
     struct motor_command speed;
+    struct NeuralData trainingData;
+    int index = 0;
+    int epochs; 
 
     while(1){
         //read and print sensor values
@@ -197,20 +199,54 @@ int main(){
                 lcd_cursor(0,0);
                 print_string("Data");
 
+                lcd_cursor(0,1);
+                print_num(left_sensor_value);
+
+                lcd_cursor(5,1);
+                print_num(right_sensor_value);
+                
+                speed = compute_proportional(left_sensor_value, right_sensor_value);
+                if(index >= DATA_POINTS){
+                    index = 0;
+                }
+
+                trainingData.left_sensor_values[index] = left_sensor_value;
+                trainingData.right_sensor_values[index] = right_sensor_value;
+
+                trainingData.left_motor_values[index] = speed.left_motor;
+                trainingData.right_motor_values[index] = speed.right_motor;
+
+                _delay_ms(100) //10 total seconds of data gathering time
                 if(get_btn()){
+                    for(int i = 0; i < PARAMS, i++){
+                        trainingData.parameters[i] = (float)rand() / RAND_MAX;
+                    }
                     state = TRAIN_MODE;
                     _delay_ms(BTN_DELAY);
+                    
                 }
                 break;
 
             case TRAIN_MODE:
                 clear_screen();
                 lcd_cursor(0,0);
-                print_string("Training");
+                print_string("Epochs:");
                 
+                x = get_accel_x(); // get x-axis
+
+                if(100 > x && x > 0){epochs = x * 10;} // set top row
+        
+                else if(255 > x && x > 190){row = 500;} //set bottom row screen
+
+                if(get_btn()){
+                    clear_screen();
+                    lcd_cursor(0,0);
+                    print_string("Training");
+                    state = NN_MODE;
+                }
 
 
-                state = NN_MODE;
+                
                 break;
                 
             case NN_MODE:
