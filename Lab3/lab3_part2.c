@@ -14,11 +14,7 @@ Description:
 #include <math.h>
 #include <stdlib.h> 
 
-<<<<<<< HEAD
-#define DATA_POINTS 10
-=======
 #define DATA_POINTS 50// more than 50 seems to lead to memeory problems; only 4k for variables
->>>>>>> 9fc583249a4a74db0eebf50040545c7ece08d60f
 #define PARAMS 17
 #define ALPHA 0.05
 #define SCALE 10
