@@ -12,6 +12,8 @@ Description:
 #include <avr/interrupt.h>
 #include "functions.h"
 
+//need to make changes for input. need to be scaled to 0->1.0 (float) 
+
 #define DELAY 50 //refresh rate; controlled through delay time 
 
 int main(){
