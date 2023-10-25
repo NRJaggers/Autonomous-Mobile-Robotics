@@ -6,7 +6,6 @@ Assignment Number: Lab 3 Part 2
 Description: 
 */
 
-#include "functions.h"
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,6 +17,9 @@ Description:
 #define SCALE 10
 #define PERCENT 100
 #define BIAS_CONST -1
+// Neural Network Lab componets
+#define BASE_SPEED 30 //cruising speed for bot
+#define ERROR_THRESH 5 // Threshold for error between sensors before control activates
 
 double sigmoid(double x){
     return (1 / (1 + exp(x)));
@@ -26,6 +28,11 @@ double sigmoid(double x){
 double d_sigmoid(double x){
   //  double s = sigmoid(x);
     return x* (1 - x);
+};
+
+struct motor_command {
+    float left_motor; // left motor speed
+    float right_motor; // right motor speed
 };
 
 struct MotorValues { 
@@ -50,7 +57,7 @@ struct TempOutputValues{
 };
 
 //why not motor_command? also only should need two input values, can d1 be global? switch motor values to nural data for h1,2,3?
-struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor, struct NeuralData d1){
+struct MotorValues compute_neural_network(float left_sensor, float right_sensor, struct NeuralData d1){
 
     //Tip from Dr.Seng
     //Inside compute_neural_network(), scale the sensor readings to values between 0 and 1
@@ -81,10 +88,11 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
     struct motor_command tTest;
     
     float MSE;
+    float error;
 
     while(epochs < epochs_max){
         
-        printf(epochs);
+        printf("%d",epochs);
         
         for(int i = 0 ; i < DATA_POINTS; i++){
             
@@ -153,16 +161,17 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
 
 
         MSE = 0;
-        for(int i = 0; i< DATA_POINTS, i++){
+        for(int i = 0; i< DATA_POINTS; i++){
             mTest =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],nD);
 
             //generate target values
             tTest = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
-
-            MSE += ((mTest.right - tTest.right_motor) + (mTest.left - tTest.left_motor))^2;
+            
+            error = ((mTest.right - tTest.right_motor) + (mTest.left - tTest.left_motor));
+            MSE +=  error*error;
         }
 
-        printf(MSE);
+        printf("%.6f", MSE);
 
         epochs++;
     }
@@ -171,18 +180,53 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
 
 }
 
+struct motor_command compute_proportional(float left, float right)
+{
+    //Variables
+    struct motor_command speed;
+    float error = 0;
+    float correction = 0;
+    //u08 mode;
+    const float Kp = 0.25;
+
+    error = left - right;
+
+    correction = (Kp*error);
+
+
+
+    if ((error > ERROR_THRESH) | (error < -ERROR_THRESH)) //if positive (left greater than right)
+    {
+        //left on black, right on white
+        //increase right speed
+        speed.left_motor = BASE_SPEED - correction;
+        speed.right_motor = BASE_SPEED + correction;
+                            
+        if (speed.left_motor<0)
+            speed.left_motor=0;
+
+        if (speed.right_motor<0)
+            speed.right_motor=0;
+
+    }
+    else // equal (aka 0 or less than threshold)
+    {
+        //both on black (or white), maintain base speed
+        speed.left_motor = BASE_SPEED;
+        speed.right_motor = BASE_SPEED;
+    }
+
+    return speed;
+}
+
 
 int main(){
     
-    u16 left_sensor_value, right_sensor_value; //read analog sensor values
-    struct motor_command speed;
+   // int left_sensor_value, right_sensor_value; //read analog sensor values
+    
     struct NeuralData trainingData;
     
-    struct MotorValues m_speed;
-    int index = 0;
-    int epochs; 
-    u08 data_gathered = 0;
-    
+    int epochs = 100;     
 
     trainingData.left_sensor_values[0] = 110;
     trainingData.left_sensor_values[0] = 101;
@@ -247,7 +291,7 @@ int main(){
     trainingData = train_neural_network(epochs, 0.001, trainingData);
 
     printf("Done");           
-    return     
+    return 0;
                     
                 
         
