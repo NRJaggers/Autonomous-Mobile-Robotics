@@ -13,16 +13,16 @@ Description:
 
 #define DATA_POINTS 20 // more than 50 seems to lead to memeory problems; only 4k for variables
 #define PARAMS 17 //hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
-#define ALPHA 1
+#define ALPHA 0.00001
 #define SCALE 10
-#define PERCENT 100
+#define PERCENT 100 
 #define BIAS_CONST -1
 // Neural Network Lab componets
 #define BASE_SPEED 30 //cruising speed for bot
 #define ERROR_THRESH 5 // Threshold for error between sensors before control activates
 
 double sigmoid(double x){
-    return (1 / (1 + exp(-1*x)));
+    return (1 / (1 + exp(-x)));
 };
 
 double d_sigmoid(double s){
@@ -138,7 +138,7 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             
         //update output layer
          //   float outleftTemp = (mV.left - target.left_motor) * (mV.left)*(1-mV.left);
-            float outleftTemp = (mV.left - target.left_motor) * d_sigmoid(mV.left);
+            float outleftTemp = ((mV.left*100) - target.left_motor) * d_sigmoid(mV.left);
             
         //    printf("%2.6f\n",sigmoid(mV.left));
 
@@ -152,7 +152,7 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             //update w13
             dE[12] = outleftTemp * BIAS_CONST; // may work with positive 1 too
             
-            float outrightTemp = (mV.right - target.right_motor) * d_sigmoid(mV.right);
+            float outrightTemp = ((mV.right*100) - target.right_motor) * d_sigmoid(mV.right);
          //   float outrightTemp = (mV.right - target.right_motor) * (mV.right)*(1-mV.right);
             //update w14
             dE[13] = outrightTemp * mV.h1;
@@ -164,9 +164,9 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             dE[16] = outrightTemp * BIAS_CONST; // may work with positive 1 too
             
         //update hidden layer
-            float c1Temp = (mV.left - target.left_motor) * d_sigmoid(mV.left);
+            float c1Temp = ((mV.left*100) - target.left_motor) * d_sigmoid(mV.left);
             
-            float c2Temp = (mV.right - target.left_motor) * d_sigmoid(mV.right);
+            float c2Temp = ((mV.right*100) - target.left_motor) * d_sigmoid(mV.right);
            
             float h1Temp = d_sigmoid(mV.h1);
 
@@ -213,9 +213,9 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             error_r = (mTest.right*100) - tTest.right_motor; // network - target
 
             error = (abs((error_r)) + abs((error_l)));
-            printf("Proportional: L:%f R:%f\n", tTest.left_motor, tTest.right_motor);
-            printf("Network:      L:%f R:%f\n", mTest.left, mTest.right);
-            //printf("LErr: %5.3f RErr: %5.3f Error: %5.3f\n",error_l, error_r, error);
+            // printf("Proportional: L:%f R:%f\n", tTest.left_motor, tTest.right_motor);
+            // printf("Network:      L:%f R:%f\n", mTest.left*100, mTest.right*100);
+            // printf("LErr: %5.3f RErr: %5.3f Error: %5.3f\n",error_l, error_r, error);
             printf("Error: %5.3f\n", error);
         }
         
