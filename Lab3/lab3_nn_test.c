@@ -6,7 +6,6 @@ Assignment Number: Lab 3 Part 2
 Description: 
 */
 
-#include "globals.h"
 #include "functions.h"
 #include <math.h>
 #include <stdlib.h>
@@ -82,7 +81,7 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
     struct motor_command tTest;
     
     float MSE;
-    
+
     while(epochs < epochs_max){
         
         printf(epochs);
@@ -162,6 +161,8 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
 
             MSE += ((mTest.right - tTest.right_motor) + (mTest.left - tTest.left_motor))^2;
         }
+
+        printf(MSE);
 
         epochs++;
     }
@@ -244,8 +245,9 @@ int main(){
     trainingData.left_sensor_values[19] = 91;
 
     trainingData = train_neural_network(epochs, 0.001, trainingData);
-                    
-                    
+
+    printf("Done");           
+    return     
                     
                 
         
