@@ -10,10 +10,16 @@ sample: sample.c $(wildcard $(BOARD_LIB)/*.c)
 	avr-objcopy -O ihex main.elf main.hex
 	avr-size main.elf
 
+sample_c: sample.c
+	gcc -Wall -O2 -o main.o sample.c
+
 test: test.c $(wildcard $(BOARD_LIB)/*.c)
 	avr-gcc -I$(BOARD_LIB) -DF_CPU=$(CLOCK_RATE) -Wall -mmcu=atmega645a -O2 -o main.elf test.c $(FUNCS) $(wildcard $(BOARD_LIB)/*.c)
 	avr-objcopy -O ihex main.elf main.hex
 	avr-size main.elf
+
+test_c: test.c $(wildcard $(BOARD_LIB)/*.c)
+	gcc -Wall -O2 -o main.o test.c
 
 debug: debug.c $(wildcard $(BOARD_LIB)/*.c)
 	avr-gcc -I$(BOARD_LIB) -DF_CPU=$(CLOCK_RATE) -Wall -mmcu=atmega645a -O2 -o main.elf debug.c $(FUNCS) $(wildcard $(BOARD_LIB)/*.c)
@@ -26,11 +32,19 @@ lab: $(LAB) $(wildcard $(BOARD_LIB)/*.c)
 	avr-objcopy -O ihex main.elf main.hex
 	avr-size main.elf
 
+#Define LAB variable above
+lab_c: $(LAB)
+	gcc -Wall -O2 -o main.o $(LAB)
+
 #Define FILE variable on command line
 file: $(FILE) $(wildcard $(BOARD_LIB)/*.c)
 	avr-gcc -I$(BOARD_LIB) -DF_CPU=$(CLOCK_RATE) -Wall -mmcu=atmega645a -O2 -o main.elf $(FILE) $(FUNCS) $(wildcard $(BOARD_LIB)/*.c)
 	avr-objcopy -O ihex main.elf main.hex
 	avr-size main.elf
+
+#Define FILE variable on command line
+file_c: $(FILE) $(wildcard $(BOARD_LIB)/*.c)
+	gcc -Wall -O2 -o main.o $(FILE)
 
 #Define NOPT variable on command line
 nopt: $(NOPT) $(wildcard $(BOARD_LIB)/*.c)
