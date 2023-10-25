@@ -48,7 +48,11 @@ struct TempOutputValues{
     float right[DATA_POINTS];
 };
 
+//why not motor_command? also only should need two input values, can d1 be global?
 struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor, struct NeuralData d1){
+
+    //Tip from Dr.Seng
+    //Inside compute_neural_network(), scale the sensor readings to values between 0 and 1
 
     struct MotorValues m1;
 
