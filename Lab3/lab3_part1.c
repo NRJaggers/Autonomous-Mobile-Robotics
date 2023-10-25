@@ -12,7 +12,9 @@ Description:
 #include <avr/interrupt.h>
 #include "functions.h"
 
-//need to make changes for input. need to be scaled to 0->1.0 (float) 
+//need to make changes for input. need to be scaled to 0->1.0 (float)?
+//ask Dr.Seng in class. Should it be like the notes or lab specs, or am I missing
+//something?
 
 #define DELAY 50 //refresh rate; controlled through delay time 
 
