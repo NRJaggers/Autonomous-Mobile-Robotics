@@ -6,10 +6,22 @@ Assignment Number: Lab 3 Part 2
 Description: 
 */
 
-#include "globals.h"
+//#include "globals.h"
 #include "functions.h"
 #include <math.h>
 #include <stdlib.h> 
+
+// Fake robot functions
+#define u08 uint8_t
+#define u08 uint8_t
+
+void clear_screen() {};
+void lcd_cursor(int,int){};
+void print_string(string){};
+void print_num(int){};
+void _delay_ms(int){};
+void get_btn(){};
+
 
 #define DATA_POINTS 50// more than 50 seems to lead to memeory problems; only 4k for variables
 #define PARAMS 17
