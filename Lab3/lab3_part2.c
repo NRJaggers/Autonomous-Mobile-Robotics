@@ -299,8 +299,8 @@ int main(){
 
                 m_speed = compute_neural_network(left_sensor_value, right_sensor_value, trainingData);
 
-                motor(LEFT, m_speed.left);
-                motor(RIGHT, m_speed.right);
+                motor(LEFT, PERCENT * m_speed.left);
+                motor(RIGHT, PERCENT * m_speed.right);
 
                 if(get_btn()){
                     state = TRAIN_MODE;

@@ -25,8 +25,8 @@ double sigmoid(double x){
     return (1 / (1 + exp(-1*x)));
 };
 
-double d_sigmoid(double x){
-    double s = sigmoid(x);
+double d_sigmoid(double s){
+  //  double s = sigmoid(x);
     return s* (1 - s);
 };
 
@@ -108,8 +108,8 @@ struct MotorValues compute_neural_network(float left_sensor, float right_sensor,
     m1.h3 = sigmoid((d1.parameters[6] * left_scaled) + (d1.parameters[7] * right_scaled) + d1.parameters[8]);
 
     //sigmoid results in value from 0-1.0, therefore multiply by 100
-    m1.left = sigmoid((d1.parameters[9] * m1.h1) + (d1.parameters[10] * m1.h2) + (d1.parameters[11] * m1.h3) + d1.parameters[12]) * PERCENT;
-    m1.right = sigmoid((d1.parameters[13] * m1.h1) + (d1.parameters[14] * m1.h2) + (d1.parameters[15] * m1.h3) + d1.parameters[16]) * PERCENT;
+    m1.left = sigmoid((d1.parameters[9] * m1.h1) + (d1.parameters[10] * m1.h2) + (d1.parameters[11] * m1.h3) + d1.parameters[12]);
+    m1.right = sigmoid((d1.parameters[13] * m1.h1) + (d1.parameters[14] * m1.h2) + (d1.parameters[15] * m1.h3) + d1.parameters[16]);
 
     return m1;
 }
@@ -140,8 +140,8 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
            
             
         //update output layer
-            float outleftTemp = (mV.left - target.left_motor) * (mV.left)*(1-mV.left);
-         //   float outleftTemp = (mV.left - target.left_motor) * d_sigmoid(mV.left);
+         //   float outleftTemp = (mV.left - target.left_motor) * (mV.left)*(1-mV.left);
+            float outleftTemp = (mV.left - target.left_motor) * d_sigmoid(mV.left);
             
         //    printf("%2.6f\n",sigmoid(mV.left));
 
@@ -156,7 +156,7 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             dE[12] = outleftTemp * BIAS_CONST; // may work with positive 1 too
             
             float outrightTemp = (mV.right - target.right_motor) * d_sigmoid(mV.right);
-           // float outrightTemp = (mV.right - target.right_motor) * (mV.right)*(1-mV.right);
+         //   float outrightTemp = (mV.right - target.right_motor) * (mV.right)*(1-mV.right);
             //update w14
             dE[13] = outrightTemp * mV.h1;
             //update w15
@@ -201,12 +201,10 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             for(int j = 0 ; j < PARAMS; j++){
                 nD.parameters[j] = nD.parameters[j] - (alpha * dE[j]);
             }
-            printf("Param: %2.6f\n",nD.parameters[9]);
+            
         } 
 
-        for(int j = 0 ; j < PARAMS; j++){
-                nD.parameters[j] = nD.parameters[j] - (alpha * dE[j]);
-            }
+        
 
         MSE = 0;
         for(int i = 0; i< DATA_POINTS; i++){
@@ -216,10 +214,9 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             tTest = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
 
             error = (abs((mTest.right - tTest.right_motor)) + abs((mTest.left - tTest.left_motor)));
-            
+            printf("%5.3f\n",error);
         }
 
-      //  printf("%7.9f\n", dE[1]);
 
         epochs++;
     }
@@ -234,76 +231,84 @@ int main(){
    // int left_sensor_value, right_sensor_value; //read analog sensor values
     
     struct NeuralData trainingData;
-    
+    struct MotorValues m;
     int epochs = 100;     
 
     trainingData.left_sensor_values[0] = 110;
-    trainingData.left_sensor_values[0] = 101;
+    trainingData.right_sensor_values[0] = 101;
 
     trainingData.left_sensor_values[1] = 130;
-    trainingData.left_sensor_values[1] = 124;
+    trainingData.right_sensor_values[1] = 124;
 
     trainingData.left_sensor_values[2] = 196;
-    trainingData.left_sensor_values[2] = 118;
+    trainingData.right_sensor_values[2] = 118;
 
     trainingData.left_sensor_values[3] = 192;
-    trainingData.left_sensor_values[3] = 102;
+    trainingData.right_sensor_values[3] = 102;
 
     trainingData.left_sensor_values[4] = 157;
-    trainingData.left_sensor_values[4] = 93;
+    trainingData.right_sensor_values[4] = 93;
 
     trainingData.left_sensor_values[5] = 101;
-    trainingData.left_sensor_values[5] = 163;
+    trainingData.right_sensor_values[5] = 163;
 
     trainingData.left_sensor_values[6] = 117;
-    trainingData.left_sensor_values[6] = 111;
+    trainingData.right_sensor_values[6] = 111;
 
     trainingData.left_sensor_values[7] = 100;
-    trainingData.left_sensor_values[7] = 192;
+    trainingData.right_sensor_values[7] = 192;
 
     trainingData.left_sensor_values[8] = 168;
-    trainingData.left_sensor_values[8] = 77;
+    trainingData.right_sensor_values[8] = 77;
 
     trainingData.left_sensor_values[9] = 192;
-    trainingData.left_sensor_values[9] = 55;
+    trainingData.right_sensor_values[9] = 55;
 
     trainingData.left_sensor_values[10] = 118;
-    trainingData.left_sensor_values[10] = 196;
+    trainingData.right_sensor_values[10] = 196;
 
     trainingData.left_sensor_values[11] = 108;
-    trainingData.left_sensor_values[11] = 116;
+    trainingData.right_sensor_values[11] = 116;
 
     trainingData.left_sensor_values[12] = 103;
-    trainingData.left_sensor_values[12] = 94;
+    trainingData.right_sensor_values[12] = 94;
 
     trainingData.left_sensor_values[13] = 192;
-    trainingData.left_sensor_values[13] = 194;
+    trainingData.right_sensor_values[13] = 194;
 
     trainingData.left_sensor_values[14] = 105;
-    trainingData.left_sensor_values[14] = 111;
+    trainingData.right_sensor_values[14] = 111;
 
     trainingData.left_sensor_values[15] = 188;
-    trainingData.left_sensor_values[15] = 77;
+    trainingData.right_sensor_values[15] = 77;
 
     trainingData.left_sensor_values[16] = 98;
-    trainingData.left_sensor_values[16] = 92;
+    trainingData.right_sensor_values[16] = 92;
 
     trainingData.left_sensor_values[17] = 99;
-    trainingData.left_sensor_values[17] = 195;
+    trainingData.right_sensor_values[17] = 195;
 
     trainingData.left_sensor_values[18] = 111;
-    trainingData.left_sensor_values[18] = 109;
+    trainingData.right_sensor_values[18] = 109;
 
     trainingData.left_sensor_values[19] = 100;
-    trainingData.left_sensor_values[19] = 91;
+    trainingData.right_sensor_values[19] = 91;
 
     for(int i = 0; i < PARAMS; i++){
         trainingData.parameters[i] = (float)rand() / RAND_MAX;
-   //     printf("%2.3f\n",trainingData.parameters[i]);
     }
 
-    trainingData = train_neural_network(5, 0.001, trainingData);
+    trainingData = train_neural_network(1000, 0.05, trainingData);
+    
+    for(int j = 0 ; j < PARAMS; j++){
+        printf("Param %d: %2.6f\n",j,trainingData.parameters[j]);
+    }
 
+    for(int j = 0 ; j < DATA_POINTS; j++){
+        m = compute_neural_network(trainingData.left_sensor_values[j],trainingData.left_sensor_values[j], trainingData);
+        printf("Outputs L:%.3f R%.3f \n", m.left,m.right);
+    }
+   
     printf("Done");           
     return 0;
                     
