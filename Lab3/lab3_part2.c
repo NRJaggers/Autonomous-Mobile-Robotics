@@ -14,7 +14,7 @@ Description:
 #include <math.h>
 #include <stdlib.h> 
 
-#define DATA_POINTS 100
+#define DATA_POINTS 10
 #define PARAMS 17
 #define ALPHA 0.001
 
@@ -171,6 +171,7 @@ int main(){
     u16 left_sensor_value, right_sensor_value; //read analog sensor values
     struct motor_command speed;
     struct NeuralData trainingData;
+    
     int index = 0;
     int epochs; 
     u08 data_gathered = 0;
@@ -213,7 +214,8 @@ int main(){
                 print_num(right_sensor_value);
                 
                 speed = compute_proportional(left_sensor_value, right_sensor_value);
-                if(index >= DATA_POINTS){
+               
+                if(index >= DATA_POINTS - 1){
                     index = 0;
                     data_gathered = 1; 
                 }
@@ -225,11 +227,13 @@ int main(){
                 trainingData.right_motor_values[index] = speed.right_motor;
 
                 _delay_ms(100); //10 total seconds of data gathering time
-                
-                if(get_btn() && data_gathered){
+                 //(data_gathered == 1)
+                if(get_btn()){
                     for(int i = 0; i < PARAMS; i++){
                         trainingData.parameters[i] = (float)rand() / RAND_MAX;
                     }
+                    clear_screen();
+                    print_num((u16) (trainingData.parameters[10] * 1000));
                     state = TRAIN_MODE;
                     _delay_ms(BTN_DELAY);
                     
@@ -243,20 +247,22 @@ int main(){
                 
                 float x = get_accel_x(); // get x-axis
 
-                if(100 > x && x > 0){epochs = floor(50 *x + 1500);} // set top row
+                if(100 > x && x > 0){epochs = floor(50 *x + 500);} // set top row
         
-                else if(255 > x && x > 190){epochs = floor((500 * (x - 190)) / 65) + 1000;} //set bottom row screen
+                else if(255 > x && x > 190){epochs = floor((500 * (x - 190)) / 65) + 0;} //set bottom row screen
                 lcd_cursor(0,1);
                 print_num(epochs);
-                
+                delay_ms(50); //delay to stop flickering
+
                 if(get_btn()){
                     clear_screen();
                     lcd_cursor(0,0);
                     print_string("Training");
                     
-                    trainingData = train_neural_network(epochs, ALPHA, trainingData);
+                    trainingData = train_neural_network(epochs, 0.001, trainingData);
                     
                     state = NN_MODE;
+                    _delay_ms(BTN_DELAY);
                 }
 
 
@@ -267,6 +273,10 @@ int main(){
                 clear_screen();
                 lcd_cursor(0,0);
                 print_string("Neural");
+
+                speed = compute_neural_network(left_sensor_value, right_sensor_value, trainingData);
+                motor(LEFT, speed.left_motor);
+                motor(RIGHT, speed.right_motor);
 
                 if(get_btn()){
                     state = TRAIN_MODE;
