@@ -9,9 +9,11 @@ Description:
 #include "globals.h"
 #include "functions.h"
 #include <math.h>
-#include <stdlib.h> 
+#include <stdlib.h>
+#include <stdio.h>
 
-#define DATA_POINTS 50// more than 50 seems to lead to memeory problems; only 4k for variables
+
+#define DATA_POINTS 20// more than 50 seems to lead to memeory problems; only 4k for variables
 #define PARAMS 17
 #define ALPHA 0.05
 #define SCALE 10
@@ -53,12 +55,13 @@ struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor, str
 
     //Tip from Dr.Seng
     //Inside compute_neural_network(), scale the sensor readings to values between 0 and 1
-
+    float left_scaled = left_sensor / 255;
+    float right_scaled = right_sensor / 255;
     struct MotorValues m1;
 
-    m1.h1 = sigmoid((d1.parameters[0] * (float)left_sensor) + (d1.parameters[1] * (float)right_sensor) + d1.parameters[2]);
-    m1.h2 = sigmoid((d1.parameters[3] * (float)left_sensor) + (d1.parameters[4] * (float)right_sensor) + d1.parameters[5]);
-    m1.h3 = sigmoid((d1.parameters[6] * (float)left_sensor) + (d1.parameters[7] * (float)right_sensor) + d1.parameters[8]);
+    m1.h1 = sigmoid((d1.parameters[0] * left_scaled) + (d1.parameters[1] * right_scaled) + d1.parameters[2]);
+    m1.h2 = sigmoid((d1.parameters[3] * left_scaled) + (d1.parameters[4] * right_scaled) + d1.parameters[5]);
+    m1.h3 = sigmoid((d1.parameters[6] * left_scaled) + (d1.parameters[7] * right_scaled) + d1.parameters[8]);
 
     //sigmoid results in value from 0-1.0, therefore multiply by 100
     m1.left = sigmoid((d1.parameters[9] * m1.h1) + (d1.parameters[10] * m1.h2) + (d1.parameters[11] * m1.h3) + d1.parameters[12]) * PERCENT;
@@ -74,14 +77,15 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
     float dE[PARAMS];
     struct MotorValues mV;
     struct motor_command target;
-    
 
+    struct MotorValues mTest;
+    struct motor_command tTest;
+    
+    float MSE;
+    
     while(epochs < epochs_max){
-        clear_screen();
-        lcd_cursor(0,0);
-        print_string("Epoch:");
-        lcd_cursor(0,1);
-        print_num(epochs);
+        
+        printf(epochs);
         
         for(int i = 0 ; i < DATA_POINTS; i++){
             
@@ -147,6 +151,18 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
                 nD.parameters[j] = nD.parameters[j] - (alpha * dE[j]);
             }
         } 
+
+
+        MSE = 0;
+        for(int i = 0; i< DATA_POINTS, i++){
+            mTest =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],nD);
+
+            //generate target values
+            tTest = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
+
+            MSE += ((mTest.right - tTest.right_motor) + (mTest.left - tTest.left_motor))^2;
+        }
+
         epochs++;
     }
 
@@ -165,51 +181,76 @@ int main(){
     int index = 0;
     int epochs; 
     u08 data_gathered = 0;
-  
+    
 
-    while(1){
-       
+    trainingData.left_sensor_values[0] = 110;
+    trainingData.left_sensor_values[0] = 101;
 
+    trainingData.left_sensor_values[1] = 130;
+    trainingData.left_sensor_values[1] = 124;
+
+    trainingData.left_sensor_values[2] = 196;
+    trainingData.left_sensor_values[2] = 118;
+
+    trainingData.left_sensor_values[3] = 192;
+    trainingData.left_sensor_values[3] = 102;
+
+    trainingData.left_sensor_values[4] = 157;
+    trainingData.left_sensor_values[4] = 93;
+
+    trainingData.left_sensor_values[5] = 101;
+    trainingData.left_sensor_values[5] = 163;
+
+    trainingData.left_sensor_values[6] = 117;
+    trainingData.left_sensor_values[6] = 111;
+
+    trainingData.left_sensor_values[7] = 100;
+    trainingData.left_sensor_values[7] = 192;
+
+    trainingData.left_sensor_values[8] = 168;
+    trainingData.left_sensor_values[8] = 77;
+
+    trainingData.left_sensor_values[9] = 192;
+    trainingData.left_sensor_values[9] = 55;
+
+    trainingData.left_sensor_values[10] = 118;
+    trainingData.left_sensor_values[10] = 196;
+
+    trainingData.left_sensor_values[11] = 108;
+    trainingData.left_sensor_values[11] = 116;
+
+    trainingData.left_sensor_values[12] = 103;
+    trainingData.left_sensor_values[12] = 94;
+
+    trainingData.left_sensor_values[13] = 192;
+    trainingData.left_sensor_values[13] = 194;
+
+    trainingData.left_sensor_values[14] = 105;
+    trainingData.left_sensor_values[14] = 111;
+
+    trainingData.left_sensor_values[15] = 188;
+    trainingData.left_sensor_values[15] = 77;
+
+    trainingData.left_sensor_values[16] = 98;
+    trainingData.left_sensor_values[16] = 92;
+
+    trainingData.left_sensor_values[17] = 99;
+    trainingData.left_sensor_values[17] = 195;
+
+    trainingData.left_sensor_values[18] = 111;
+    trainingData.left_sensor_values[18] = 109;
+
+    trainingData.left_sensor_values[19] = 100;
+    trainingData.left_sensor_values[19] = 91;
+
+    trainingData = train_neural_network(epochs, 0.001, trainingData);
+                    
+                    
+                    
                 
-                
-
-                    clear_screen();
-                    lcd_cursor(0,0);
-                    print_string("Training");
-                    
-                    trainingData = train_neural_network(epochs, 0.001, trainingData);
-                    
-                    trainingData = train_neural_network(epochs, ALPHA, trainingData);
-                    
-                    lcd_cursor(0,1);
-                    print_string("Done!");
-                    _delay_ms(BTN_DELAY);
-
-                    state = NN_MODE;
-                    _delay_ms(BTN_DELAY);
-                }
         
-                break;
                 
-            case NN_MODE:
-                clear_screen();
-                lcd_cursor(0,0);
-                print_string("Neural");
-
-
-                m_speed = compute_neural_network(left_sensor_value, right_sensor_value, trainingData);
-
-                motor(LEFT, m_speed.left);
-                motor(RIGHT, m_speed.right);
-
-                if(get_btn()){
-                    state = TRAIN_MODE;
-                    _delay_ms(BTN_DELAY);
-                }
-
-                break;
-        }
-    }
+        
 
 }
 

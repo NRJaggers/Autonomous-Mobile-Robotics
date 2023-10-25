@@ -56,12 +56,15 @@ struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor, str
 
     //Tip from Dr.Seng
     //Inside compute_neural_network(), scale the sensor readings to values between 0 and 1
-
+    
+    float left_scaled = left_sensor / 255;
+    float right_scaled = right_sensor / 255;
     struct MotorValues m1;
 
-    m1.h1 = sigmoid((d1.parameters[0] * (float)left_sensor) + (d1.parameters[1] * (float)right_sensor) + d1.parameters[2]);
-    m1.h2 = sigmoid((d1.parameters[3] * (float)left_sensor) + (d1.parameters[4] * (float)right_sensor) + d1.parameters[5]);
-    m1.h3 = sigmoid((d1.parameters[6] * (float)left_sensor) + (d1.parameters[7] * (float)right_sensor) + d1.parameters[8]);
+    m1.h1 = sigmoid((d1.parameters[0] * left_scaled) + (d1.parameters[1] * right_scaled) + d1.parameters[2]);
+    m1.h2 = sigmoid((d1.parameters[3] * left_scaled) + (d1.parameters[4] * right_scaled) + d1.parameters[5]);
+    m1.h3 = sigmoid((d1.parameters[6] * left_scaled) + (d1.parameters[7] * right_scaled) + d1.parameters[8]);
+
 
     //sigmoid results in value from 0-1.0, therefore multiply by 100
     m1.left = sigmoid((d1.parameters[9] * m1.h1) + (d1.parameters[10] * m1.h2) + (d1.parameters[11] * m1.h3) + d1.parameters[12]) * PERCENT;
