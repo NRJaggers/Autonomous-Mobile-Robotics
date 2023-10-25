@@ -43,8 +43,9 @@ file: $(FILE) $(wildcard $(BOARD_LIB)/*.c)
 	avr-size main.elf
 
 #Define FILE variable on command line
+#use -Wall flag to show warnings
 file_c: $(FILE) $(wildcard $(BOARD_LIB)/*.c)
-	g++ -Wall -O2 -o main.o $(FILE)
+	g++ -O2 -o main.o $(FILE)
 
 #Define NOPT variable on command line
 nopt: $(NOPT) $(wildcard $(BOARD_LIB)/*.c)

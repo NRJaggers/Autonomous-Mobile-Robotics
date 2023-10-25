@@ -11,9 +11,9 @@ Description:
 #include <stdio.h>
 
 
-#define DATA_POINTS 20// more than 50 seems to lead to memeory problems; only 4k for variables
-#define PARAMS 17
-#define ALPHA 0.05
+#define DATA_POINTS 20 // more than 50 seems to lead to memeory problems; only 4k for variables
+#define PARAMS 17 //hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
+#define ALPHA 1
 #define SCALE 10
 #define PERCENT 100
 #define BIAS_CONST -1
@@ -27,6 +27,7 @@ double sigmoid(double x){
 
 double d_sigmoid(double s){
   //  double s = sigmoid(x);
+    //Assuming input coming in is already sigmoided
     return s* (1 - s);
 };
 
@@ -37,18 +38,16 @@ struct motor_command {
 
 struct MotorValues { 
     float left;
-    float right;  // String
+    float right;
     float h1; 
     float h2;
     float h3;
 };
 
 struct NeuralData{
-    float left_sensor_values[DATA_POINTS];
-    float right_sensor_values[DATA_POINTS]; //left 1 right 2
-    // float left_motor_values[DATA_POINTS];                           //*** THIS HAS POTENTIAL TO BE REPLACED
-    // float right_motor_values[DATA_POINTS]; //left 1 right 2
-    float parameters[PARAMS]; //hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
+    float left_sensor_values[DATA_POINTS]; // make u8 or uint_8? shouldnt need to be float
+    float right_sensor_values[DATA_POINTS]; // make u8 or uint_8? shouldnt need to be float
+    float parameters[PARAMS]; 
 };
 
 struct TempOutputValues{
@@ -62,14 +61,11 @@ struct motor_command compute_proportional(float left, float right)
     struct motor_command speed;
     float error = 0;
     float correction = 0;
-    //u08 mode;
     const float Kp = 0.25;
 
+    //calculate error
     error = left - right;
-
     correction = (Kp*error);
-
-
 
     if ((error > ERROR_THRESH) | (error < -ERROR_THRESH)) //if positive (left greater than right)
     {
@@ -94,11 +90,10 @@ struct motor_command compute_proportional(float left, float right)
 
     return speed;
 }
-//why not motor_command? also only should need two input values, can d1 be global? switch motor values to nural data for h1,2,3?
-struct MotorValues compute_neural_network(float left_sensor, float right_sensor, struct NeuralData d1){
 
-    //Tip from Dr.Seng
-    //Inside compute_neural_network(), scale the sensor readings to values between 0 and 1
+struct MotorValues compute_neural_network(float left_sensor, float right_sensor, struct NeuralData d1){
+    
+    //scale the sensor readings to values between 0 and 1
     float left_scaled = left_sensor / 255;
     float right_scaled = right_sensor / 255;
     struct MotorValues m1;
@@ -127,6 +122,8 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
     
     float MSE;
     float error;
+    float error_l;
+    float error_r;
 
     while(epochs < epochs_max){
         
@@ -192,11 +189,11 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             dE[5] = (c1Temp*nD.parameters[11-1] + c2Temp*nD.parameters[15-1]) * h2Temp * BIAS_CONST;
 
             //update w7
-            dE[6] = (c1Temp*nD.parameters[15-1] + c2Temp*nD.parameters[16-1]) * h3Temp * nD.left_sensor_values[i];
+            dE[6] = (c1Temp*nD.parameters[12-1] + c2Temp*nD.parameters[16-1]) * h3Temp * nD.left_sensor_values[i];
             //update w8
-            dE[7] = (c1Temp*nD.parameters[15-1] + c2Temp*nD.parameters[16-1]) * h3Temp * nD.right_sensor_values[i];;
+            dE[7] = (c1Temp*nD.parameters[12-1] + c2Temp*nD.parameters[16-1]) * h3Temp * nD.right_sensor_values[i];
             //update w9
-            dE[8] = (c1Temp*nD.parameters[15-1] + c2Temp*nD.parameters[16-1]) * h3Temp * BIAS_CONST;
+            dE[8] = (c1Temp*nD.parameters[12-1] + c2Temp*nD.parameters[16-1]) * h3Temp * BIAS_CONST;
 
             for(int j = 0 ; j < PARAMS; j++){
                 nD.parameters[j] = nD.parameters[j] - (alpha * dE[j]);
@@ -204,20 +201,24 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             
         } 
 
-        
-
         MSE = 0;
+        printf("---Epoch: %d---\n",epochs);
         for(int i = 0; i< DATA_POINTS; i++){
             mTest =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],nD);
 
             //generate target values
             tTest = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
 
-            error = (abs((mTest.right - tTest.right_motor)) + abs((mTest.left - tTest.left_motor)));
-            printf("%5.3f\n",error);
+            error_l = (mTest.left*100) - tTest.left_motor; // network - target
+            error_r = (mTest.right*100) - tTest.right_motor; // network - target
+
+            error = (abs((error_r)) + abs((error_l)));
+            printf("Proportional: L:%f R:%f\n", tTest.left_motor, tTest.right_motor);
+            printf("Network:      L:%f R:%f\n", mTest.left, mTest.right);
+            //printf("LErr: %5.3f RErr: %5.3f Error: %5.3f\n",error_l, error_r, error);
+            printf("Error: %5.3f\n", error);
         }
-
-
+        
         epochs++;
     }
 
@@ -298,8 +299,14 @@ int main(){
         trainingData.parameters[i] = (float)rand() / RAND_MAX;
     }
 
-    trainingData = train_neural_network(1000, 0.05, trainingData);
+    printf("---Init Param---\n");
+    for(int k = 0 ; k < PARAMS; k++){
+        printf("Param %d: %2.6f\n",k,trainingData.parameters[k]);
+    }
+
+    trainingData = train_neural_network(25, 1, trainingData);
     
+    printf("---Trained Param---\n");
     for(int j = 0 ; j < PARAMS; j++){
         printf("Param %d: %2.6f\n",j,trainingData.parameters[j]);
     }
@@ -311,11 +318,6 @@ int main(){
    
     printf("Done");           
     return 0;
-                    
-                
-        
-                
-        
 
 }
 
