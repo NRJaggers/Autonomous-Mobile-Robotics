@@ -6,29 +6,20 @@ Assignment Number: Lab 3 Part 2
 Description: 
 */
 
-//#include "globals.h"
-#include "functions.h"
 #include <math.h>
-#include <stdlib.h> 
-
-// Fake robot functions
-#define u08 uint8_t
-#define u08 uint8_t
-
-void clear_screen() {};
-void lcd_cursor(int,int){};
-void print_string(string){};
-void print_num(int){};
-void _delay_ms(int){};
-void get_btn(){};
+#include <stdlib.h>
+#include <stdio.h>
 
 
-#define DATA_POINTS 50// more than 50 seems to lead to memeory problems; only 4k for variables
+#define DATA_POINTS 20// more than 50 seems to lead to memeory problems; only 4k for variables
 #define PARAMS 17
 #define ALPHA 0.05
 #define SCALE 10
 #define PERCENT 100
 #define BIAS_CONST -1
+// Neural Network Lab componets
+#define BASE_SPEED 30 //cruising speed for bot
+#define ERROR_THRESH 5 // Threshold for error between sensors before control activates
 
 double sigmoid(double x){
     return (1 / (1 + exp(x)));
@@ -37,6 +28,11 @@ double sigmoid(double x){
 double d_sigmoid(double x){
   //  double s = sigmoid(x);
     return x* (1 - x);
+};
+
+struct motor_command {
+    float left_motor; // left motor speed
+    float right_motor; // right motor speed
 };
 
 struct MotorValues { 
@@ -61,16 +57,17 @@ struct TempOutputValues{
 };
 
 //why not motor_command? also only should need two input values, can d1 be global? switch motor values to nural data for h1,2,3?
-struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor, struct NeuralData d1){
+struct MotorValues compute_neural_network(float left_sensor, float right_sensor, struct NeuralData d1){
 
     //Tip from Dr.Seng
     //Inside compute_neural_network(), scale the sensor readings to values between 0 and 1
-
+    float left_scaled = left_sensor / 255;
+    float right_scaled = right_sensor / 255;
     struct MotorValues m1;
 
-    m1.h1 = sigmoid((d1.parameters[0] * (float)left_sensor) + (d1.parameters[1] * (float)right_sensor) + d1.parameters[2]);
-    m1.h2 = sigmoid((d1.parameters[3] * (float)left_sensor) + (d1.parameters[4] * (float)right_sensor) + d1.parameters[5]);
-    m1.h3 = sigmoid((d1.parameters[6] * (float)left_sensor) + (d1.parameters[7] * (float)right_sensor) + d1.parameters[8]);
+    m1.h1 = sigmoid((d1.parameters[0] * left_scaled) + (d1.parameters[1] * right_scaled) + d1.parameters[2]);
+    m1.h2 = sigmoid((d1.parameters[3] * left_scaled) + (d1.parameters[4] * right_scaled) + d1.parameters[5]);
+    m1.h3 = sigmoid((d1.parameters[6] * left_scaled) + (d1.parameters[7] * right_scaled) + d1.parameters[8]);
 
     //sigmoid results in value from 0-1.0, therefore multiply by 100
     m1.left = sigmoid((d1.parameters[9] * m1.h1) + (d1.parameters[10] * m1.h2) + (d1.parameters[11] * m1.h3) + d1.parameters[12]) * PERCENT;
@@ -86,14 +83,16 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
     float dE[PARAMS];
     struct MotorValues mV;
     struct motor_command target;
+
+    struct MotorValues mTest;
+    struct motor_command tTest;
     
+    float MSE;
+    float error;
 
     while(epochs < epochs_max){
-        clear_screen();
-        lcd_cursor(0,0);
-        print_string("Epoch:");
-        lcd_cursor(0,1);
-        print_num(epochs);
+        
+        printf("%d",epochs);
         
         for(int i = 0 ; i < DATA_POINTS; i++){
             
@@ -159,6 +158,21 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
                 nD.parameters[j] = nD.parameters[j] - (alpha * dE[j]);
             }
         } 
+
+
+        MSE = 0;
+        for(int i = 0; i< DATA_POINTS; i++){
+            mTest =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],nD);
+
+            //generate target values
+            tTest = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
+            
+            error = ((mTest.right - tTest.right_motor) + (mTest.left - tTest.left_motor));
+            MSE +=  error*error;
+        }
+
+        printf("%.6f", MSE);
+
         epochs++;
     }
 
@@ -166,62 +180,123 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
 
 }
 
+struct motor_command compute_proportional(float left, float right)
+{
+    //Variables
+    struct motor_command speed;
+    float error = 0;
+    float correction = 0;
+    //u08 mode;
+    const float Kp = 0.25;
+
+    error = left - right;
+
+    correction = (Kp*error);
+
+
+
+    if ((error > ERROR_THRESH) | (error < -ERROR_THRESH)) //if positive (left greater than right)
+    {
+        //left on black, right on white
+        //increase right speed
+        speed.left_motor = BASE_SPEED - correction;
+        speed.right_motor = BASE_SPEED + correction;
+                            
+        if (speed.left_motor<0)
+            speed.left_motor=0;
+
+        if (speed.right_motor<0)
+            speed.right_motor=0;
+
+    }
+    else // equal (aka 0 or less than threshold)
+    {
+        //both on black (or white), maintain base speed
+        speed.left_motor = BASE_SPEED;
+        speed.right_motor = BASE_SPEED;
+    }
+
+    return speed;
+}
+
 
 int main(){
     
-    u16 left_sensor_value, right_sensor_value; //read analog sensor values
-    struct motor_command speed;
+   // int left_sensor_value, right_sensor_value; //read analog sensor values
+    
     struct NeuralData trainingData;
     
-    struct MotorValues m_speed;
-    int index = 0;
-    int epochs; 
-    u08 data_gathered = 0;
-  
+    int epochs = 100;     
 
-    while(1){
-       
+    trainingData.left_sensor_values[0] = 110;
+    trainingData.left_sensor_values[0] = 101;
 
+    trainingData.left_sensor_values[1] = 130;
+    trainingData.left_sensor_values[1] = 124;
+
+    trainingData.left_sensor_values[2] = 196;
+    trainingData.left_sensor_values[2] = 118;
+
+    trainingData.left_sensor_values[3] = 192;
+    trainingData.left_sensor_values[3] = 102;
+
+    trainingData.left_sensor_values[4] = 157;
+    trainingData.left_sensor_values[4] = 93;
+
+    trainingData.left_sensor_values[5] = 101;
+    trainingData.left_sensor_values[5] = 163;
+
+    trainingData.left_sensor_values[6] = 117;
+    trainingData.left_sensor_values[6] = 111;
+
+    trainingData.left_sensor_values[7] = 100;
+    trainingData.left_sensor_values[7] = 192;
+
+    trainingData.left_sensor_values[8] = 168;
+    trainingData.left_sensor_values[8] = 77;
+
+    trainingData.left_sensor_values[9] = 192;
+    trainingData.left_sensor_values[9] = 55;
+
+    trainingData.left_sensor_values[10] = 118;
+    trainingData.left_sensor_values[10] = 196;
+
+    trainingData.left_sensor_values[11] = 108;
+    trainingData.left_sensor_values[11] = 116;
+
+    trainingData.left_sensor_values[12] = 103;
+    trainingData.left_sensor_values[12] = 94;
+
+    trainingData.left_sensor_values[13] = 192;
+    trainingData.left_sensor_values[13] = 194;
+
+    trainingData.left_sensor_values[14] = 105;
+    trainingData.left_sensor_values[14] = 111;
+
+    trainingData.left_sensor_values[15] = 188;
+    trainingData.left_sensor_values[15] = 77;
+
+    trainingData.left_sensor_values[16] = 98;
+    trainingData.left_sensor_values[16] = 92;
+
+    trainingData.left_sensor_values[17] = 99;
+    trainingData.left_sensor_values[17] = 195;
+
+    trainingData.left_sensor_values[18] = 111;
+    trainingData.left_sensor_values[18] = 109;
+
+    trainingData.left_sensor_values[19] = 100;
+    trainingData.left_sensor_values[19] = 91;
+
+    trainingData = train_neural_network(epochs, 0.001, trainingData);
+
+    printf("Done");           
+    return 0;
+                    
                 
-                
-
-                    clear_screen();
-                    lcd_cursor(0,0);
-                    print_string("Training");
-                    
-                    trainingData = train_neural_network(epochs, 0.001, trainingData);
-                    
-                    trainingData = train_neural_network(epochs, ALPHA, trainingData);
-                    
-                    lcd_cursor(0,1);
-                    print_string("Done!");
-                    _delay_ms(BTN_DELAY);
-
-                    state = NN_MODE;
-                    _delay_ms(BTN_DELAY);
-                }
         
-                break;
                 
-            case NN_MODE:
-                clear_screen();
-                lcd_cursor(0,0);
-                print_string("Neural");
-
-
-                m_speed = compute_neural_network(left_sensor_value, right_sensor_value, trainingData);
-
-                motor(LEFT, m_speed.left);
-                motor(RIGHT, m_speed.right);
-
-                if(get_btn()){
-                    state = TRAIN_MODE;
-                    _delay_ms(BTN_DELAY);
-                }
-
-                break;
-        }
-    }
+        
 
 }
 

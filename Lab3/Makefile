@@ -44,7 +44,7 @@ file: $(FILE) $(wildcard $(BOARD_LIB)/*.c)
 
 #Define FILE variable on command line
 file_c: $(FILE) $(wildcard $(BOARD_LIB)/*.c)
-	gcc -Wall -O2 -o main.o $(FILE)
+	g++ -Wall -O2 -o main.o $(FILE)
 
 #Define NOPT variable on command line
 nopt: $(NOPT) $(wildcard $(BOARD_LIB)/*.c)

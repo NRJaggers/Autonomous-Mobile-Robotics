@@ -4,6 +4,10 @@
 #include <util/delay.h>
 #include "functions.h"
 
+// Neural Network Lab componets
+#define BASE_SPEED 30 //cruising speed for bot
+#define ERROR_THRESH 5 // Threshold for error between sensors before control activates
+
 // Testing include file
 void test_include()
 {
