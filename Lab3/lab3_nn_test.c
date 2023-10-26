@@ -11,8 +11,6 @@ around line 147 with:   target = compute_proportional(nD.left_sensor_values[i], 
 
 maybe try divide target with 100 and compute with that. 
 
-on epoch 10/11 left seems to go up and right seems to go down. (is there a mistake with right and left?)
-
 */
 
 #include <math.h>
