@@ -19,7 +19,7 @@ maybe try divide target with 100 and compute with that.
 
 #define BASE_SPEED 30 //cruising speed for bot
 #define ERROR_THRESH 5 // Threshold for error between sensors before control activates
-#define BIAS_CONST 1
+#define BIAS_CONST 1/255
 #define SCALE 10
 #define PERCENT 100
 #define SENSOR_MAX 255
@@ -34,7 +34,7 @@ double sigmoid(double x){
 };
 
 double d_sigmoid(double s){
-  //  double s = sigmoid(x);
+   // double s = sigmoid(x);
     //Assuming input coming in is already sigmoided
     return s* (1 - s);
 };
@@ -101,13 +101,13 @@ struct MotorValues compute_neural_network(float left_sensor, float right_sensor,
     float right_scaled = right_sensor / SENSOR_MAX;
     struct MotorValues m1;
 
-    m1.h1 = sigmoid((d1.parameters[0] * left_scaled) + (d1.parameters[1] * right_scaled) + d1.parameters[2]);
-    m1.h2 = sigmoid((d1.parameters[3] * left_scaled) + (d1.parameters[4] * right_scaled) + d1.parameters[5]);
-    m1.h3 = sigmoid((d1.parameters[6] * left_scaled) + (d1.parameters[7] * right_scaled) + d1.parameters[8]);
+    m1.h1 = sigmoid((d1.parameters[0] * left_scaled) + (d1.parameters[1] * right_scaled) + d1.parameters[2] * BIAS_CONST);
+    m1.h2 = sigmoid((d1.parameters[3] * left_scaled) + (d1.parameters[4] * right_scaled) + d1.parameters[5] * BIAS_CONST);
+    m1.h3 = sigmoid((d1.parameters[6] * left_scaled) + (d1.parameters[7] * right_scaled) + d1.parameters[8] * BIAS_CONST);
 
     //sigmoid results in value from 0-1.0, therefore multiply by 100
-    m1.left = sigmoid((d1.parameters[9] * m1.h1) + (d1.parameters[10] * m1.h2) + (d1.parameters[11] * m1.h3) + d1.parameters[12]);
-    m1.right = sigmoid((d1.parameters[13] * m1.h1) + (d1.parameters[14] * m1.h2) + (d1.parameters[15] * m1.h3) + d1.parameters[16]);
+    m1.left = sigmoid((d1.parameters[9] * m1.h1) + (d1.parameters[10] * m1.h2) + (d1.parameters[11] * m1.h3) + d1.parameters[12] * BIAS_CONST);
+    m1.right = sigmoid((d1.parameters[13] * m1.h1) + (d1.parameters[14] * m1.h2) + (d1.parameters[15] * m1.h3) + d1.parameters[16] * BIAS_CONST);
 
     return m1;
 }
@@ -123,7 +123,6 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
     struct MotorValues mTest;
     struct motor_command tTest;
     
-    float MSE;
     float error;
     float error_l;
     float error_r;
@@ -204,26 +203,27 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             
         } 
 
-        MSE = 0;
-        printf("---Epoch: %d---\n",epochs);
+        error = 0;
+        // printf("---Epoch: %d---\n",epochs);
         for(int i = 0; i< DATA_POINTS; i++){
             mTest =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],nD);
 
             //generate target values
             tTest = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
 
-            error_l = (mTest.left*100) - tTest.left_motor; // network - target
-            error_r = (mTest.right*100) - tTest.right_motor; // network - target
+            error_l = abs((mTest.left*100) - tTest.left_motor); // network - target
+            error_r = abs((mTest.right*100) - tTest.right_motor); // network - target
 
-            error = (abs((error_r)) + abs((error_l)));
+            error += (error_r + error_l) *(error_r + error_l);
             // printf("Proportional: L:%f R:%f\n", tTest.left_motor, tTest.right_motor);
             // printf("Network:      L:%f R:%f\n", mTest.left*100, mTest.right*100);
-            //printf("LErr: %5.3f RErr: %5.3f Error: %5.3f\n",error_l, error_r, error);
+            // printf("LErr: %5.3f RErr: %5.3f Error: %5.3f\n",error_l, error_r, error);
 
-            printf("Error_%d: %5.3f\n",i, error);
+            
             //printf("\n");
         }
         
+         printf("%5.4f\n", error / DATA_POINTS);
         epochs++;
     }
 
@@ -236,6 +236,7 @@ int main(){
     
     struct NeuralData trainingData;
     struct MotorValues m;    
+    struct motor_command t;
 
     trainingData.left_sensor_values[0] = 110;
     trainingData.right_sensor_values[0] = 101;
@@ -299,26 +300,34 @@ int main(){
 
     for(int i = 0; i < PARAMS; i++){
         trainingData.parameters[i] = (float)rand() / RAND_MAX;
+        // printf("%1.4f \n", trainingData.parameters[i]);
     }
 
-    printf("\n---Init Param---\n");
-    for(int k = 0 ; k < PARAMS; k++){
-        printf("Param %d: %2.6f\n",k,trainingData.parameters[k]);
-    }
+    // printf("\n---Init Param---\n");
+    // for(int k = 0 ; k < PARAMS; k++){
+    //     printf("Param %d: %2.6f\n",k,trainingData.parameters[k]);
+    // }
 
-    trainingData = train_neural_network(100, 0.01, trainingData);
+    trainingData = train_neural_network(900, 0.001, trainingData);
     
-    printf("---Trained Param---\n");
-    for(int j = 0 ; j < PARAMS; j++){
-        printf("Param %d: %2.6f\n",j,trainingData.parameters[j]);
-    }
+    // printf("---Trained Param---\n");
+    // for(int j = 0 ; j < PARAMS; j++){
+    //     printf("Param %d: %2.6f\n",j,trainingData.parameters[j]);
+    // }
 
     for(int j = 0 ; j < DATA_POINTS; j++){
         m = compute_neural_network(trainingData.left_sensor_values[j],trainingData.right_sensor_values[j], trainingData);
-        printf("Outputs L:%.3f R%.3f \n", m.left,m.right);
+        t = compute_proportional(trainingData.left_sensor_values[j],trainingData.right_sensor_values[j]);
+    
+        printf("---- Data Point %d ----\n", j);
+        printf("Hidden: %0.4f\n",trainingData.parameters[0]);
+        printf("Inputs     L:%.3f R%.3f \n", trainingData.left_sensor_values[j],trainingData.right_sensor_values[j]);
+       //printf("%f\n", t.right_motor);
+        printf("NN Outputs L:%.3f R%.3f \n", m.left*100,m.right*100);
+        printf("PP Outputs L:%.3f R%.3f \n", t.left_motor,t.right_motor);
     }
    
-    printf("Done");           
+    printf("Done\n");           
     return 0;
 
 }
