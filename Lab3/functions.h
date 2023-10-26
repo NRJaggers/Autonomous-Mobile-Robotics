@@ -36,6 +36,15 @@ Notes and Ideas:
 // Neural Network Lab componets
 #define BASE_SPEED 30 //cruising speed for bot
 #define ERROR_THRESH 5 // Threshold for error between sensors before control activates
+#define BIAS_CONST 1
+#define SCALE 10
+#define PERCENT 100
+#define SENSOR_MAX 255
+
+#define DATA_POINTS 20  // more than 50 seems to lead to memeory problems; only 4k for variables
+#define PARAMS 17       //hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
+#define ALPHA 0.015
+
 
 // Testing include file
 void test_include();
@@ -63,6 +72,24 @@ struct motor_command
     int16_t right_motor; // right motor speed
 };
 
+struct MotorValues { 
+    float left; // make u8 or uint_8? shouldnt need to be float
+    float right; // make u8 or uint_8? shouldnt need to be float
+    float h1; 
+    float h2;
+    float h3;
+};
+
+struct NeuralData{
+    float left_sensor_values[DATA_POINTS]; // make u8 or uint_8? shouldnt need to be float
+    float right_sensor_values[DATA_POINTS]; // make u8 or uint_8? shouldnt need to be float
+    float parameters[PARAMS]; 
+};
+
 struct motor_command compute_proportional(uint8_t left, uint8_t right);
+double sigmoid(double x);
+double d_sigmoid(double s);
+struct MotorValues compute_neural_network(uint8_t left_sensor, uint8_t right_sensor, struct NeuralData d1);
+struct NeuralData train_neural_network(uint16_t epochs_max, float alpha,  struct NeuralData nD);
 
 #endif

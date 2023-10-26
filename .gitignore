@@ -1,6 +1,8 @@
 .vscode/
 main.elf
 main.hex
+main.o
 /attach.ps1
 /connect.ps1
 /connect.sh
+lab3_nn_test
