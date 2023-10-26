@@ -4,6 +4,7 @@ main.elf
 main.hex
 main.o
 lab3_nn_test
+*temp*
 
 #Folders
 /attach.ps1
