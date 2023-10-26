@@ -17,22 +17,17 @@ maybe try divide target with 100 and compute with that.
 #include <stdlib.h>
 #include <stdio.h>
 
-
-#define DATA_POINTS 20 // more than 50 seems to lead to memeory problems; only 4k for variables
-#define PARAMS 17 //hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
-#define ALPHA 0.015
-#define EPOCHS 100
+#define BASE_SPEED 30 //cruising speed for bot
+#define ERROR_THRESH 5 // Threshold for error between sensors before control activates
 #define BIAS_CONST 1
-
 #define SCALE 10
 #define PERCENT 100
 #define SENSOR_MAX 255
 
-// Neural Network Lab componets
-#define BASE_SPEED 30 //cruising speed for bot
-#define ERROR_THRESH 5 // Threshold for error between sensors before control activates
-
-
+#define EPOCHS 100
+#define DATA_POINTS 20  // more than 50 seems to lead to memeory problems; only 4k for variables
+#define PARAMS 17       //hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
+#define ALPHA 0.015
 
 double sigmoid(double x){
     return (1 / (1 + exp(-x)));
@@ -61,11 +56,6 @@ struct NeuralData{
     float left_sensor_values[DATA_POINTS]; // make u8 or uint_8? shouldnt need to be float
     float right_sensor_values[DATA_POINTS]; // make u8 or uint_8? shouldnt need to be float
     float parameters[PARAMS]; 
-};
-
-struct TempOutputValues{
-    float left[DATA_POINTS];
-    float right[DATA_POINTS];
 };
 
 struct motor_command compute_proportional(float left, float right)
@@ -243,11 +233,8 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
 
 int main(){
     
-   // int left_sensor_value, right_sensor_value; //read analog sensor values
-    
     struct NeuralData trainingData;
-    struct MotorValues m;
-    //int epochs = 100;     
+    struct MotorValues m;    
 
     trainingData.left_sensor_values[0] = 110;
     trainingData.right_sensor_values[0] = 101;
