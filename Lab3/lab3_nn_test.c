@@ -216,7 +216,7 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             printf("Proportional: L:%f R:%f\n", tTest.left_motor, tTest.right_motor);
             printf("Network:      L:%f R:%f\n", mTest.left, mTest.right);
             //printf("LErr: %5.3f RErr: %5.3f Error: %5.3f\n",error_l, error_r, error);
-            printf("Error: %5.3f\n", error);
+            printf("Error: %5.3f\n\n", error);
         }
         
         epochs++;
@@ -299,12 +299,12 @@ int main(){
         trainingData.parameters[i] = (float)rand() / RAND_MAX;
     }
 
-    printf("---Init Param---\n");
+    printf("\n---Init Param---\n");
     for(int k = 0 ; k < PARAMS; k++){
         printf("Param %d: %2.6f\n",k,trainingData.parameters[k]);
     }
 
-    trainingData = train_neural_network(25, 1, trainingData);
+    trainingData = train_neural_network(100, 0.01, trainingData);
     
     printf("---Trained Param---\n");
     for(int j = 0 ; j < PARAMS; j++){
