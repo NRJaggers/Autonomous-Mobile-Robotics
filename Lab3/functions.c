@@ -203,6 +203,11 @@ struct NeuralData train_neural_network(uint16_t epochs_max, float alpha,  struct
     struct motor_command target;
 
     while(epochs < epochs_max){
+        clear_screen();
+        lcd_cursor(0,0);
+        print_string("Epoch:");
+        lcd_cursor(0,1);
+        print_num(epochs);
         
         for(int i = 0 ; i < DATA_POINTS; i++){
             
