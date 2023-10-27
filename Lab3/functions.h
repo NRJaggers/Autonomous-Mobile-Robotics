@@ -36,7 +36,7 @@ Notes and Ideas:
 // Neural Network Lab componets
 #define BASE_SPEED 30 //cruising speed for bot
 #define ERROR_THRESH 5 // Threshold for error between sensors before control activates
-#define BIAS_CONST 1
+#define BIAS_CONST -1
 #define SCALE 10
 #define PERCENT 100
 #define SENSOR_MAX 255

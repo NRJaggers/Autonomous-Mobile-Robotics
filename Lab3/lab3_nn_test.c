@@ -7,9 +7,6 @@ Description:
 
 
 Notes:
-around line 147 with:   target = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
-
-maybe try divide target with 100 and compute with that. 
 
 */
 
@@ -19,7 +16,7 @@ maybe try divide target with 100 and compute with that.
 
 #define BASE_SPEED 30 //cruising speed for bot
 #define ERROR_THRESH 5 // Threshold for error between sensors before control activates
-#define BIAS_CONST -1/255
+#define BIAS_CONST -1
 #define SCALE 10
 #define PERCENT 100
 #define SENSOR_MAX 255
@@ -236,7 +233,6 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
     return nD;
 
 }
-
 
 int main(){
     
