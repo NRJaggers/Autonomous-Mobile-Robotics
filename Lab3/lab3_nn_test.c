@@ -7,9 +7,6 @@ Description:
 
 
 Notes:
-around line 147 with:   target = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
-
-maybe try divide target with 100 and compute with that. 
 
 */
 
@@ -236,7 +233,6 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
     return nD;
 
 }
-
 
 int main(){
     

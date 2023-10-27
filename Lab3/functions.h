@@ -43,7 +43,7 @@ Notes and Ideas:
 
 #define DATA_POINTS 100  // more than 50 seems to lead to memeory problems; only 4k for variables
 #define PARAMS 17       //hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
-#define ALPHA 0.015
+#define ALPHA 0.07
 
 
 // Testing include file
