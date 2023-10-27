@@ -53,7 +53,6 @@ struct MotorValues {
 struct NeuralData{
     float left_sensor_values[DATA_POINTS]; // make u8 or uint_8? shouldnt need to be float
     float right_sensor_values[DATA_POINTS]; // make u8 or uint_8? shouldnt need to be float
-    float parameters[PARAMS]; 
 };
 
 struct motor_command compute_proportional(float left, float right)
@@ -92,25 +91,61 @@ struct motor_command compute_proportional(float left, float right)
     return speed;
 }
 
-struct MotorValues compute_neural_network(float left_sensor, float right_sensor, struct NeuralData d1){
+// struct MotorValues compute_neural_network(float left_sensor, float right_sensor, float *d1){
+    
+//     //scale the sensor readings to values between 0 and 1
+//     float left_scaled = left_sensor / SENSOR_MAX;
+//     float right_scaled = right_sensor / SENSOR_MAX;
+//     struct MotorValues m1;
+
+//     m1.h1 = sigmoid((d1.parameters[0] * left_scaled) + (d1.parameters[1] * right_scaled) + (d1.parameters[2] * BIAS_CONST));
+//     m1.h2 = sigmoid((d1.parameters[3] * left_scaled) + (d1.parameters[4] * right_scaled) + (d1.parameters[5] * BIAS_CONST));
+//     m1.h3 = sigmoid((d1.parameters[6] * left_scaled) + (d1.parameters[7] * right_scaled) + (d1.parameters[8] * BIAS_CONST));
+
+//     //sigmoid results in value from 0-1.0, therefore multiply by 100
+//     m1.left = sigmoid((d1.parameters[9] * m1.h1) + (d1.parameters[10] * m1.h2) + (d1.parameters[11] * m1.h3) + (d1.parameters[12] * BIAS_CONST));
+//     m1.right = sigmoid((d1.parameters[13] * m1.h1) + (d1.parameters[14] * m1.h2) + (d1.parameters[15] * m1.h3) + (d1.parameters[16] * BIAS_CONST));
+
+//     return m1;
+// }
+
+// struct MotorValues compute_neural_network(float left_sensor, float right_sensor, float *parameters){
+    
+//     //scale the sensor readings to values between 0 and 1
+//     float left_scaled = left_sensor / SENSOR_MAX;
+//     float right_scaled = right_sensor / SENSOR_MAX;
+//     struct MotorValues m1;
+
+//     m1.h1 = sigmoid((parameters * left_scaled) + ((parameters+1)* right_scaled) + ((parameters+2) * BIAS_CONST));
+//     m1.h2 = sigmoid(((parameters+3) * left_scaled) + ((parameters+4) * right_scaled) + ((parameters+5) * BIAS_CONST));
+//     m1.h3 = sigmoid(((parameters+6) * left_scaled) + ((parameters+7) * right_scaled) + ((parameters+8) * BIAS_CONST));
+
+//     //sigmoid results in value from 0-1.0, therefore multiply by 100
+//     m1.left = sigmoid(((parameters+9) * m1.h1) + ((parameters+10) * m1.h2) + ((parameters+11) * m1.h3) + ((parameters+12) * BIAS_CONST));
+//     m1.right = sigmoid(((parameters+13) * m1.h1) + ((parameters+14) * m1.h2) + ((parameters+15) * m1.h3) + ((parameters+16) * BIAS_CONST));
+
+//     return m1;
+// }
+
+struct MotorValues compute_neural_network(float left_sensor, float right_sensor, float *parameters){
     
     //scale the sensor readings to values between 0 and 1
     float left_scaled = left_sensor / SENSOR_MAX;
     float right_scaled = right_sensor / SENSOR_MAX;
     struct MotorValues m1;
 
-    m1.h1 = sigmoid((d1.parameters[0] * left_scaled) + (d1.parameters[1] * right_scaled) + (d1.parameters[2] * BIAS_CONST));
-    m1.h2 = sigmoid((d1.parameters[3] * left_scaled) + (d1.parameters[4] * right_scaled) + (d1.parameters[5] * BIAS_CONST));
-    m1.h3 = sigmoid((d1.parameters[6] * left_scaled) + (d1.parameters[7] * right_scaled) + (d1.parameters[8] * BIAS_CONST));
+    m1.h1 = sigmoid((parameters[0] * left_scaled) + (parameters[1] * right_scaled) + (parameters[2] * BIAS_CONST));
+    m1.h2 = sigmoid((parameters[3] * left_scaled) + (parameters[4] * right_scaled) + (parameters[5] * BIAS_CONST));
+    m1.h3 = sigmoid((parameters[6] * left_scaled) + (parameters[7] * right_scaled) + (parameters[8] * BIAS_CONST));
 
     //sigmoid results in value from 0-1.0, therefore multiply by 100
-    m1.left = sigmoid((d1.parameters[9] * m1.h1) + (d1.parameters[10] * m1.h2) + (d1.parameters[11] * m1.h3) + (d1.parameters[12] * BIAS_CONST));
-    m1.right = sigmoid((d1.parameters[13] * m1.h1) + (d1.parameters[14] * m1.h2) + (d1.parameters[15] * m1.h3) + (d1.parameters[16] * BIAS_CONST));
+    m1.left = sigmoid((parameters[9] * m1.h1) + (parameters[10] * m1.h2) + (parameters[11] * m1.h3) + (parameters[12] * BIAS_CONST));
+    m1.right = sigmoid((parameters[13] * m1.h1) + (parameters[14] * m1.h2) + (parameters[15] * m1.h3) + (parameters[16] * BIAS_CONST));
 
     return m1;
 }
 
-struct NeuralData train_neural_network(int epochs_max, float alpha,  struct NeuralData nD){
+struct NeuralData train_neural_network(int epochs_max, float alpha,  struct NeuralData nD, float *parameters){
     
     int epochs = 0;
     //struct TempOutputValues tV; 
@@ -131,7 +166,7 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
         
         for(int i = 0 ; i < DATA_POINTS; i++){
             
-            mV =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],nD);
+            mV =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],parameters);
             //generate target values
             target = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
            
@@ -175,28 +210,28 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             float h3Temp = d_sigmoid(mV.h3);
 
             //update w1
-            dE[0] = ((c1Temp*nD.parameters[9]) + (c2Temp*nD.parameters[13])) * h1Temp * (nD.left_sensor_values[i]/SENSOR_MAX);
+            dE[0] = ((c1Temp*parameters[9]) + (c2Temp*parameters[13])) * h1Temp * (nD.left_sensor_values[i]/SENSOR_MAX);
             //update w2
-            dE[1] = ((c1Temp*nD.parameters[9]) + (c2Temp*nD.parameters[13])) * h1Temp * (nD.right_sensor_values[i]/SENSOR_MAX);
+            dE[1] = ((c1Temp*parameters[9]) + (c2Temp*parameters[13])) * h1Temp * (nD.right_sensor_values[i]/SENSOR_MAX);
             //update w3
-            dE[2] = ((c1Temp*nD.parameters[9]) + (c2Temp*nD.parameters[13])) * h1Temp * BIAS_CONST;
+            dE[2] = ((c1Temp*parameters[9]) + (c2Temp*parameters[13])) * h1Temp * BIAS_CONST;
 
             //update w4
-            dE[3] = ((c1Temp*nD.parameters[10]) + (c2Temp*nD.parameters[13])) * h2Temp * (nD.left_sensor_values[i]/SENSOR_MAX);
+            dE[3] = ((c1Temp*parameters[10]) + (c2Temp*parameters[13])) * h2Temp * (nD.left_sensor_values[i]/SENSOR_MAX);
             //update w5
-            dE[4] = ((c1Temp*nD.parameters[10]) + (c2Temp*nD.parameters[13])) * h2Temp * (nD.right_sensor_values[i]/SENSOR_MAX);
+            dE[4] = ((c1Temp*parameters[10]) + (c2Temp*parameters[13])) * h2Temp * (nD.right_sensor_values[i]/SENSOR_MAX);
             //update w6
-            dE[5] = ((c1Temp*nD.parameters[10]) + (c2Temp*nD.parameters[13])) * h2Temp * BIAS_CONST;
+            dE[5] = ((c1Temp*parameters[10]) + (c2Temp*parameters[13])) * h2Temp * BIAS_CONST;
 
             //update w7
-            dE[6] = ((c1Temp*nD.parameters[11]) + (c2Temp*nD.parameters[15])) * h3Temp * (nD.left_sensor_values[i]/SENSOR_MAX);
+            dE[6] = ((c1Temp*parameters[11]) + (c2Temp*parameters[15])) * h3Temp * (nD.left_sensor_values[i]/SENSOR_MAX);
             //update w8
-            dE[7] = ((c1Temp*nD.parameters[11]) + (c2Temp*nD.parameters[15])) * h3Temp * (nD.right_sensor_values[i]/SENSOR_MAX);
+            dE[7] = ((c1Temp*parameters[11]) + (c2Temp*parameters[15])) * h3Temp * (nD.right_sensor_values[i]/SENSOR_MAX);
             //update w9
-            dE[8] = ((c1Temp*nD.parameters[11]) + (c2Temp*nD.parameters[15])) * h3Temp * BIAS_CONST;
+            dE[8] = ((c1Temp*parameters[11]) + (c2Temp*parameters[15])) * h3Temp * BIAS_CONST;
 
             for(int j = 0 ; j < PARAMS; j++){
-                nD.parameters[j] = nD.parameters[j] - (alpha * dE[j]);
+                parameters[j] = parameters[j] - (alpha * dE[j]);
             }
 
         } 
@@ -208,7 +243,7 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
         error = 0;
         // printf("---Epoch: %d---\n",epochs);
         for(int i = 0; i< DATA_POINTS; i++){
-            mTest =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],nD);
+            mTest =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],parameters);
 
             //generate target values
             tTest = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
@@ -239,31 +274,32 @@ int main(){
     struct NeuralData trainingData;
     struct MotorValues m;    
     struct motor_command t;
-
+    float parameters[PARAMS];
+  //  float *ptr = &parameters[0];
     for(int i = 0 ; i < DATA_POINTS;i++){
         trainingData.left_sensor_values[i] = 255*(float)rand() / RAND_MAX;
         trainingData.right_sensor_values[i] = 255*(float)rand() / RAND_MAX;
     }
   
     for(int i = 0; i < PARAMS; i++){
-        trainingData.parameters[i] = (float)rand() / RAND_MAX;
+        parameters[i] = (float)rand() / RAND_MAX;
+        // printf("\n---Init Param---\n");
+
         // printf("%1.4f \n", trainingData.parameters[i]);
     }
 
-    // printf("\n---Init Param---\n");
-    // for(int k = 0 ; k < PARAMS; k++){
-    //     printf("Param %d: %2.6f\n",k,trainingData.parameters[k]);
-    // }
-    
-    trainingData = train_neural_network(500, 0.07, trainingData);
+ 
+    trainingData = train_neural_network(500, 0.07, trainingData, parameters);
     
     // printf("---Trained Param---\n");
     // for(int j = 0 ; j < PARAMS; j++){
     //     printf("Param %d: %2.6f\n",j,trainingData.parameters[j]);
     // }
 
+    m = compute_neural_network(20,200, parameters);
+ //   printf("NN Outputs L:%2.3f R%2.3f \n", m.left*100,m.right*100);
     for(int j = 0 ; j < DATA_POINTS; j++){
-        m = compute_neural_network(trainingData.left_sensor_values[j],trainingData.right_sensor_values[j], trainingData);
+        m = compute_neural_network(trainingData.left_sensor_values[j],trainingData.right_sensor_values[j], parameters);
         t = compute_proportional(trainingData.left_sensor_values[j],trainingData.right_sensor_values[j]);
 
         
@@ -277,7 +313,7 @@ int main(){
         printf("NN Outputs L:%2.3f R%2.3f \n", m.left*100,m.right*100);
         printf("PP Outputs L:%2.3f R%2.3f \n", t.left_motor,t.right_motor);
     }
-   // for(int i = 0; i< PARAMS; i++){printf("NN Parameter:%.3f \n",trainingData.parameters[i]);}
+//    // for(int i = 0; i< PARAMS; i++){printf("NN Parameter:%.3f \n",trainingData.parameters[i]);}
 
     printf("Done\n");           
     return 0;
