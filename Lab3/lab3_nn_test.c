@@ -168,7 +168,7 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
         //update hidden layer
             float c1Temp = ((mV.left) - (target.left_motor/100)) * d_sigmoid(mV.left);
             
-            float c2Temp = ((mV.right) - (target.left_motor/100)) * d_sigmoid(mV.right);
+            float c2Temp = ((mV.right) - (target.right_motor/100)) * d_sigmoid(mV.right);
            
             float h1Temp = d_sigmoid(mV.h1);
 
@@ -205,6 +205,10 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
         
         printf("---- Epcoh %d ----\n", epochs);
 
+        printf("NN Hidden Output 1:%.3f \n",mV.h1);
+        printf("NN Hidden Output 2:%.3f \n",mV.h2);
+        printf("NN Hidden Output 3:%.3f \n",mV.h2);
+    
         for(int i = 0; i< PARAMS; i++){printf("NN Parameter %d:%.3f \n",i,nD.parameters[i]);}
 
         error = 0;
@@ -313,7 +317,7 @@ int main(){
     //     printf("Param %d: %2.6f\n",k,trainingData.parameters[k]);
     // }
     
-    trainingData = train_neural_network(100, 0.01, trainingData);
+    trainingData = train_neural_network(20, 0.01, trainingData);
     
     // printf("---Trained Param---\n");
     // for(int j = 0 ; j < PARAMS; j++){
