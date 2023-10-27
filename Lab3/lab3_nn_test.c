@@ -19,7 +19,7 @@ maybe try divide target with 100 and compute with that.
 
 #define BASE_SPEED 30 //cruising speed for bot
 #define ERROR_THRESH 5 // Threshold for error between sensors before control activates
-#define BIAS_CONST -1/255
+#define BIAS_CONST 1
 #define SCALE 10
 #define PERCENT 100
 #define SENSOR_MAX 255
@@ -206,7 +206,7 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
         
         
     
-        for(int i = 0; i< PARAMS; i++){printf("NN Parameter %d:%.3f \n",i,nD.parameters[i]);}
+     //   for(int i = 0; i< PARAMS; i++){printf("NN Parameter %d:%.3f \n",i,nD.parameters[i]);}
 
         error = 0;
         // printf("---Epoch: %d---\n",epochs);
@@ -229,7 +229,7 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
         }
         
         
-    //    printf("%5.4f\n", error / DATA_POINTS);
+        printf("%5.4f\n", error / DATA_POINTS);
         epochs++;
     }
 
@@ -259,7 +259,7 @@ int main(){
     //     printf("Param %d: %2.6f\n",k,trainingData.parameters[k]);
     // }
     
-    trainingData = train_neural_network(1000, 0.01, trainingData);
+    trainingData = train_neural_network(500, 0.07, trainingData);
     
     // printf("---Trained Param---\n");
     // for(int j = 0 ; j < PARAMS; j++){
