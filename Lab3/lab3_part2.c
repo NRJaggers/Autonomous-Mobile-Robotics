@@ -137,12 +137,12 @@ Description:
 //             //update w6
 //             dE[5] = (c1Temp*nD.parameters[11-1] + c2Temp*nD.parameters[15-1]) * h2Temp * BIAS_CONST;
 
-            //update w7
-            dE[6] = (c1Temp*nD.parameters[12-1] + c2Temp*nD.parameters[16-1]) * h3Temp * nD.left_sensor_values[i];
-            //update w8
-            dE[7] = (c1Temp*nD.parameters[12-1] + c2Temp*nD.parameters[16-1]) * h3Temp * nD.right_sensor_values[i];;
-            //update w9
-            dE[8] = (c1Temp*nD.parameters[12-1] + c2Temp*nD.parameters[16-1]) * h3Temp * BIAS_CONST;
+            // //update w7
+            // dE[6] = (c1Temp*nD.parameters[12-1] + c2Temp*nD.parameters[16-1]) * h3Temp * nD.left_sensor_values[i];
+            // //update w8
+            // dE[7] = (c1Temp*nD.parameters[12-1] + c2Temp*nD.parameters[16-1]) * h3Temp * nD.right_sensor_values[i];;
+            // //update w9
+            // dE[8] = (c1Temp*nD.parameters[12-1] + c2Temp*nD.parameters[16-1]) * h3Temp * BIAS_CONST;
 
 //             for(int j = 0 ; j < PARAMS; j++){
 //                 nD.parameters[j] = nD.parameters[j] - (alpha * dE[j]);
