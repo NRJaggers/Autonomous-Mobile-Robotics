@@ -87,8 +87,8 @@ struct NeuralData{
 };
 
 struct motor_command compute_proportional(uint8_t left, uint8_t right);
-double sigmoid(double x);
-double d_sigmoid(double s);
+float sigmoid(double x);
+float d_sigmoid(float s);
 struct MotorValues compute_neural_network(uint8_t left_sensor, uint8_t right_sensor, struct NeuralData d1);
 struct NeuralData train_neural_network(uint16_t epochs_max, float alpha,  struct NeuralData nD);
 
