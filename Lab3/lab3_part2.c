@@ -222,8 +222,17 @@ int main(){
                 }
 
                 //save proportional data and increment index
-                trainingData.left_sensor_values[index] = left_sensor_value;
-                trainingData.right_sensor_values[index] = right_sensor_value;
+                // trainingData.left_sensor_values[index] = left_sensor_value;
+                // trainingData.right_sensor_values[index] = right_sensor_value;
+                
+                //test against random values
+                trainingData.left_sensor_values[index] = 255*(float)rand() / RAND_MAX;
+                trainingData.right_sensor_values[index] = 255*(float)rand() / RAND_MAX;
+                // lcd_cursor(0,1);
+                // print_num(trainingData.left_sensor_values[index]);
+
+                // lcd_cursor(5,1);
+                // print_num(trainingData.right_sensor_values[index]);
 
                 // trainingData.left_motor_values[index] = speed.left_motor;
                 // trainingData.right_motor_values[index] = speed.right_motor;
@@ -278,15 +287,20 @@ int main(){
                 break;
                 
             case NN_MODE:
+                //motor_init();
                 clear_screen();
                 lcd_cursor(0,0);
                 print_string("Neural");
 
-
                 m_speed = compute_neural_network(left_sensor_value, right_sensor_value, trainingData);
 
-                motor(LEFT, PERCENT * m_speed.left);
-                motor(RIGHT, PERCENT * m_speed.right);
+                lcd_cursor(0,1);
+                print_num((int8_t)(PERCENT * m_speed.left));
+                lcd_cursor(5,1);
+                print_num((int8_t)(PERCENT * m_speed.right));
+
+                motor(LEFT, (int8_t)(PERCENT * m_speed.left));
+                motor(RIGHT, (int8_t)(PERCENT * m_speed.right));
 
                 if(get_btn()){
                     state = TRAIN_MODE;

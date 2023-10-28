@@ -34,16 +34,16 @@ Notes and Ideas:
 #define SERVO_FSN 157   //full speed negative direction
 
 // Neural Network Lab componets
-#define BASE_SPEED 30 //cruising speed for bot
+#define BASE_SPEED 25 //cruising speed for bot
 #define ERROR_THRESH 5 // Threshold for error between sensors before control activates
 #define BIAS_CONST 1
-#define SCALE 10
+#define SCALE 5
 #define PERCENT 100
 #define SENSOR_MAX 255
 
 #define DATA_POINTS 100  // more than 50 seems to lead to memeory problems; only 4k for variables
 #define PARAMS 17       //hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
-#define ALPHA 0.07
+#define ALPHA 1         //2 = 550-600 with this config
 
 
 // Testing include file

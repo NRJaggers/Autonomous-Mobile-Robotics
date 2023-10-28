@@ -180,8 +180,8 @@ float d_sigmoid(float s){
 struct MotorValues compute_neural_network(uint8_t left_sensor, uint8_t right_sensor, struct NeuralData d1){
     
     //scale the sensor readings to values between 0 and 1
-    float left_scaled = left_sensor / SENSOR_MAX;
-    float right_scaled = right_sensor / SENSOR_MAX;
+    float left_scaled = ((float)left_sensor) / SENSOR_MAX;
+    float right_scaled = ((float)right_sensor) / SENSOR_MAX;
     struct MotorValues m1;
 
     m1.h1 = sigmoid((d1.parameters[0] * left_scaled) + (d1.parameters[1] * right_scaled) + (d1.parameters[2] * BIAS_CONST));
@@ -217,7 +217,7 @@ struct NeuralData train_neural_network(uint16_t epochs_max, float alpha,  struct
            
             
         //update output layer
-            float outleftTemp = ((mV.left) - (target.left_motor/100)) * d_sigmoid(mV.left);
+            float outleftTemp = ((mV.left) - (((float)target.left_motor)/100)) * d_sigmoid(mV.left);
 
             //update w10
             dE[9] = outleftTemp * mV.h1;
@@ -228,7 +228,7 @@ struct NeuralData train_neural_network(uint16_t epochs_max, float alpha,  struct
             //update w13
             dE[12] = outleftTemp * BIAS_CONST;
             
-            float outrightTemp = ((mV.right) - (target.right_motor/100)) * d_sigmoid(mV.right);
+            float outrightTemp = ((mV.right) - (((float)target.right_motor)/100)) * d_sigmoid(mV.right);
             //update w14
             dE[13] = outrightTemp * mV.h1;
             //update w15
@@ -239,9 +239,9 @@ struct NeuralData train_neural_network(uint16_t epochs_max, float alpha,  struct
             dE[16] = outrightTemp * BIAS_CONST;
             
         //update hidden layer
-            float c1Temp = ((mV.left) - (target.left_motor/100)) * d_sigmoid(mV.left);
+            float c1Temp = ((mV.left) - (((float)target.left_motor)/100)) * d_sigmoid(mV.left);
             
-            float c2Temp = ((mV.right) - (target.right_motor/100)) * d_sigmoid(mV.right);
+            float c2Temp = ((mV.right) - (((float)target.right_motor)/100)) * d_sigmoid(mV.right);
            
             float h1Temp = d_sigmoid(mV.h1);
 
