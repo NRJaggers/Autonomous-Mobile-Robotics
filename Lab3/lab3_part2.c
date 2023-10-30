@@ -3,7 +3,12 @@ Name: Nathan Jaggers and Weston Keitz
 
 Assignment Number: Lab 3 Part 2
 
-Description: 
+Description: Create a program that steps between the following modes: 
+ - Proportional controller for robot
+ - Data gather mode, collects sensor values.
+ - Choose epochs for training
+ - Train robot
+ - NN controller for robot
 */
 
 #include "globals.h"
@@ -14,146 +19,6 @@ Description:
 #include <math.h>
 #include <stdlib.h> 
 
-// #define DATA_POINTS 50// more than 50 seems to lead to memeory problems; only 4k for variables
-// #define PARAMS 17
-// #define ALPHA 0.05
-// #define SCALE 10
-// #define PERCENT 100
-// #define BIAS_CONST -1
-
-// double sigmoid(double x){
-//     return (1 / (1 + exp(x)));
-// };
-
-// double d_sigmoid(double x){
-//   //  double s = sigmoid(x);
-//     return x* (1 - x);
-// };
-
-// struct MotorValues { 
-//     float left;
-//     float right;  // String
-//     float h1; 
-//     float h2;
-//     float h3;
-// };
-
-// struct NeuralData{
-//     float left_sensor_values[DATA_POINTS];
-//     float right_sensor_values[DATA_POINTS]; //left 1 right 2
-//     // float left_motor_values[DATA_POINTS];                           //*** THIS HAS POTENTIAL TO BE REPLACED
-//     // float right_motor_values[DATA_POINTS]; //left 1 right 2
-//     float parameters[PARAMS]; //hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
-// };
-
-// //why not motor_command? also only should need two input values, can d1 be global? switch motor values to nural data for h1,2,3?
-// struct MotorValues compute_neural_network(u08 left_sensor, u08 right_sensor, struct NeuralData d1){
-
-//     //Tip from Dr.Seng
-//     //Inside compute_neural_network(), scale the sensor readings to values between 0 and 1
-    
-//     float left_scaled = left_sensor / 255;
-//     float right_scaled = right_sensor / 255;
-//     struct MotorValues m1;
-
-//     m1.h1 = sigmoid((d1.parameters[0] * left_scaled) + (d1.parameters[1] * right_scaled) + d1.parameters[2]);
-//     m1.h2 = sigmoid((d1.parameters[3] * left_scaled) + (d1.parameters[4] * right_scaled) + d1.parameters[5]);
-//     m1.h3 = sigmoid((d1.parameters[6] * left_scaled) + (d1.parameters[7] * right_scaled) + d1.parameters[8]);
-
-
-//     //sigmoid results in value from 0-1.0, therefore multiply by 100
-//     m1.left = sigmoid((d1.parameters[9] * m1.h1) + (d1.parameters[10] * m1.h2) + (d1.parameters[11] * m1.h3) + d1.parameters[12]) * PERCENT;
-//     m1.right = sigmoid((d1.parameters[13] * m1.h1) + (d1.parameters[14] * m1.h2) + (d1.parameters[15] * m1.h3) + d1.parameters[16]) * PERCENT;
-
-//     return m1;
-// }
-
-// struct NeuralData train_neural_network(int epochs_max, float alpha,  struct NeuralData nD){
-    
-//     int epochs = 0;
-//     //struct TempOutputValues tV; 
-//     float dE[PARAMS];
-//     struct MotorValues mV;
-//     struct motor_command target;
-    
-
-//     while(epochs < epochs_max){
-//         clear_screen();
-//         lcd_cursor(0,0);
-//         print_string("Epoch:");
-//         lcd_cursor(0,1);
-//         print_num(epochs);
-        
-//         for(int i = 0 ; i < DATA_POINTS; i++){
-            
-//             mV =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],nD);
-
-//             //generate target values
-//             target = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
-
-//         //update output layer
-//             float outleftTemp = (mV.left - target.left_motor) * d_sigmoid(mV.left);
-//             //update w10
-//             dE[9] = outleftTemp * mV.h1;
-//             //update w11
-//             dE[10] = outleftTemp * mV.h2;
-//             //update w12
-//             dE[11] = outleftTemp * mV.h3;
-//             //update w13
-//             dE[12] = outleftTemp * BIAS_CONST; // may work with positive 1 too
-            
-//             float outrightTemp = (mV.right - target.right_motor) * d_sigmoid(mV.right);
-//             //update w14
-//             dE[13] = outrightTemp * mV.h1;
-//             //update w15
-//             dE[14] = outrightTemp * mV.h2;
-//             //update w16
-//             dE[15] = outrightTemp * mV.h3;
-//             //update w17
-//             dE[16] = outrightTemp * BIAS_CONST; // may work with positive 1 too
-            
-//         //update hidden layer
-//             float c1Temp = (mV.left - target.left_motor) * d_sigmoid(mV.left);
-            
-//             float c2Temp = (mV.right - target.left_motor) * d_sigmoid(mV.right);
-           
-//             float h1Temp = d_sigmoid(mV.h1);
-
-//             float h2Temp = d_sigmoid(mV.h2);
-            
-//             float h3Temp = d_sigmoid(mV.h3);
-
-//             //update w1
-//             dE[0] = (c1Temp*nD.parameters[10-1] + c2Temp*nD.parameters[14-1]) * h1Temp * nD.left_sensor_values[i];
-//             //update w2
-//             dE[1] = (c1Temp*nD.parameters[10-1] + c2Temp*nD.parameters[14-1]) * h1Temp * nD.right_sensor_values[i];
-//             //update w3
-//             dE[2] = (c1Temp*nD.parameters[10-1] + c2Temp*nD.parameters[14-1]) * h1Temp * BIAS_CONST;
-
-//             //update w4
-//             dE[3] = (c1Temp*nD.parameters[11-1] + c2Temp*nD.parameters[15-1]) * h2Temp * nD.left_sensor_values[i];
-//             //update w5
-//             dE[4] = (c1Temp*nD.parameters[11-1] + c2Temp*nD.parameters[15-1]) * h2Temp * nD.right_sensor_values[i];
-//             //update w6
-//             dE[5] = (c1Temp*nD.parameters[11-1] + c2Temp*nD.parameters[15-1]) * h2Temp * BIAS_CONST;
-
-            // //update w7
-            // dE[6] = (c1Temp*nD.parameters[12-1] + c2Temp*nD.parameters[16-1]) * h3Temp * nD.left_sensor_values[i];
-            // //update w8
-            // dE[7] = (c1Temp*nD.parameters[12-1] + c2Temp*nD.parameters[16-1]) * h3Temp * nD.right_sensor_values[i];;
-            // //update w9
-            // dE[8] = (c1Temp*nD.parameters[12-1] + c2Temp*nD.parameters[16-1]) * h3Temp * BIAS_CONST;
-
-//             for(int j = 0 ; j < PARAMS; j++){
-//                 nD.parameters[j] = nD.parameters[j] - (alpha * dE[j]);
-//             }
-//         } 
-//         epochs++;
-//     }
-
-//     return nD;
-
-// }
 
 
 int main(){
@@ -162,153 +27,187 @@ int main(){
     motor_init(); //initialize motors 
     
     // state machine modes
-    typedef enum {STD_MODE, DATA_MODE, TRAIN_MODE, NN_MODE} state_Robot;
+    typedef enum {STD_MODE, DATA_MODE, CHOOSE_EPOCHS, TRAIN_MODE, NN_MODE} state_Robot;
 
     state_Robot state = STD_MODE;
 
-    u16 left_sensor_value, right_sensor_value; //read analog sensor values
-    struct motor_command speed;
-    struct NeuralData trainingData;
-    
-    struct MotorValues m_speed;
-    int index = 0;
-    int epochs; 
-    u08 data_gathered = 0;
+    u08 left_sensor_value, right_sensor_value; //read analog sensor values
+    struct motor_command speed; // proportional controller output values
+    struct NeuralData trainingData; // sensor values for NN training
+    struct MotorValues m_speed; //  compute NN output values
+
+    int index = 0; // training data index
+    int epochs; // epochs count for training
+    float x; // accelerometer sensor value
   
+    float parameters[PARAMS]; // Weights for computation and training
 
     while(1){
-        //read and print sensor values
-        left_sensor_value = analog(ANALOG4_PIN); 
-        right_sensor_value = analog(ANALOG3_PIN);
 
-        switch(state){
+        switch(state){ // state machine for controlling modes
 
             case STD_MODE:
+                // print proportional mode
                 clear_screen();
                 lcd_cursor(0,0);
                 print_string("Propor-");
                 lcd_cursor(0,1);
                 print_string("tional");
+                _delay_ms(1000);
 
-                speed = compute_proportional(left_sensor_value, right_sensor_value);
-                motor(LEFT, speed.left_motor);
-                motor(RIGHT, speed.right_motor);
+                //stay in propotion mode
+                while(!get_btn()){
+                    //read sensor values
+                    left_sensor_value = analog(ANALOG4_PIN); 
+                    right_sensor_value = analog(ANALOG3_PIN);
 
-                if(get_btn()){
-                    state = DATA_MODE;
-                    motor_init();
-                    _delay_ms(BTN_DELAY);
+                    //print sensor values (for debugging)
+                    clear_screen();
+                    lcd_cursor(0,0);
+                    print_string("Propor-");
+                    lcd_cursor(0,1);
+                    print_num(left_sensor_value);
+                    lcd_cursor(5,1);
+                    print_num(right_sensor_value);
+                    _delay_ms(15); //stops flickering
+
+                    //compute proporitional correction and set motors
+                    speed = compute_proportional(left_sensor_value, right_sensor_value);
+                    motor(LEFT, speed.left_motor);
+                    motor(RIGHT, speed.right_motor);
+
+                    //change mode to NN data collection if button pressed
+                    if(get_btn()){
+                        state = DATA_MODE;
+                        motor_init(); //stop motors
+                        _delay_ms(BTN_DELAY);
+                        break;
+                    }
                 }
 
                 break;
 
             case DATA_MODE:
+                //print data mode
                 clear_screen();
                 lcd_cursor(0,0);
                 print_string("Data ");
-                (!data_gathered) ? print_num(index) : print_num(DATA_POINTS);
-                    
-                lcd_cursor(0,1);
-                print_num(left_sensor_value);
 
-                lcd_cursor(5,1);
-                print_num(right_sensor_value);
-                
-                // speed = compute_proportional(left_sensor_value, right_sensor_value);
-               
-                if(index >= DATA_POINTS - 1){
-                    index = 0;
-                    data_gathered = 1; 
+                //read sensor values
+                left_sensor_value = analog(ANALOG4_PIN); 
+                right_sensor_value = analog(ANALOG3_PIN);            
+
+                //collect data until max
+                if(index >= DATA_POINTS){
+                    //print data index max
+                    print_num(DATA_POINTS);
+                    
+                    //change state to epoch choice if button press
+                    if(get_btn()){
+                        state = CHOOSE_EPOCHS;
+                        _delay_ms(BTN_DELAY);
+                    }
+                }
+                else{
+                    // print index and store sensor values
+                    print_num(index);
+                    trainingData.left_sensor_values[index] = left_sensor_value;
+                    trainingData.right_sensor_values[index] = right_sensor_value;
+
                 }
 
-                //save proportional data and increment index
-                // trainingData.left_sensor_values[index] = left_sensor_value;
-                // trainingData.right_sensor_values[index] = right_sensor_value;
-                
-                //test against random values
-                trainingData.left_sensor_values[index] = 255*(float)rand() / RAND_MAX;
-                trainingData.right_sensor_values[index] = 255*(float)rand() / RAND_MAX;
-                // lcd_cursor(0,1);
-                // print_num(trainingData.left_sensor_values[index]);
+                //print sensor values on screen (for debugging)
+                lcd_cursor(0,1);
+                print_num(left_sensor_value);
+                lcd_cursor(5,1);
+                print_num(right_sensor_value);
 
-                // lcd_cursor(5,1);
-                // print_num(trainingData.right_sensor_values[index]);
-
-                // trainingData.left_motor_values[index] = speed.left_motor;
-                // trainingData.right_motor_values[index] = speed.right_motor;
-
+                //incrment index
                 index++;
+                _delay_ms(100); //delay for human movement factor
+                break;
 
-                _delay_ms(100); //10 total seconds of data gathering time
+            case CHOOSE_EPOCHS:
 
-                if(get_btn() & data_gathered){
-                    for(int i = 0; i < PARAMS; i++){
-                        trainingData.parameters[i] = (float)rand() / RAND_MAX;
-                    }
-                    //clear_screen();
-                    //print_num((u16) (trainingData.parameters[10] * 1000));
+                //read accelerometer value
+                x = get_accel_x(); // get x-axis
+                
+                // convert accelerometer value to epoch count
+                if(100 > x && x > 0){epochs = floor(50 *x + 1500)/SCALE;} 
+                else if(255 > x && x > 190){epochs = (floor((500 * (x - 190)) / 65) + 1000)/SCALE;}
+                
+                // print training epoch count
+                clear_screen();
+                lcd_cursor(0,0);
+                print_string("Epochs: ");
+                lcd_cursor(0,1);
+                print_num(epochs);
+                _delay_ms(15); //flickering
+                
+                //if button press, enter training mode
+                if(get_btn()){
                     state = TRAIN_MODE;
                     _delay_ms(BTN_DELAY);
-                    
                 }
                 break;
 
             case TRAIN_MODE:
-                motor_init();
+                
+                // print training message
                 clear_screen();
                 lcd_cursor(0,0);
-                print_string("Epochs:");
+                print_string("Training");
+
+                //training function, pass epochs, learning rate, training data, and parameters           
+                train_neural_network(epochs, ALPHA, &trainingData, parameters);
                 
-                float x = get_accel_x(); // get x-axis
-
-                if(100 > x && x > 0){epochs = floor(50 *x + 500);} // set top row
-                if(100 > x && x > 0){epochs = floor(50 *x + 1500)/SCALE;} // set top row
-        
-                else if(255 > x && x > 190){epochs = floor((500 * (x - 190)) / 65) + 0;} //set bottom row screen
-                else if(255 > x && x > 190){epochs = (floor((500 * (x - 190)) / 65) + 1000)/SCALE;} //set bottom row screen
+                //print done when complete
                 lcd_cursor(0,1);
-                print_num(epochs);
-                _delay_ms(50); //delay to stop flickering
+                print_string("Done!");
+                _delay_ms(BTN_DELAY);
 
-                if(get_btn()){
-                    clear_screen();
-                    lcd_cursor(0,0);
-                    print_string("Training");
-                                        
-                    trainingData = train_neural_network(epochs, ALPHA, trainingData);
-                    
-                    lcd_cursor(0,1);
-                    print_string("Done!");
-                    _delay_ms(BTN_DELAY);
-
-                    state = NN_MODE;
-                }
-        
+                //enter NN path following mode
+                state = NN_MODE;
+    
                 break;
                 
             case NN_MODE:
-                //motor_init();
+
+                //clear screen and set motors to zero
                 clear_screen();
-                lcd_cursor(0,0);
-                print_string("Neural");
+                motor_init();
+               
+                // stay in mode until button press
+                while(!get_btn()){
+                    
+                    //get sensor values and calculate NN motor speeds
+                    left_sensor_value = analog(ANALOG4_PIN); 
+                    right_sensor_value = analog(ANALOG3_PIN);
+                    m_speed = compute_neural_network(left_sensor_value, right_sensor_value, parameters);
+                    
+                    //print motor speeds (for debugging)
+                    clear_screen();
+                    lcd_cursor(0,0);
+                    print_string("Neural");
+                    lcd_cursor(0,1);
+                    print_num((u16)100*m_speed.left);
+                    lcd_cursor(5,1);
+                    print_num((u16)100*m_speed.right);
 
-                m_speed = compute_neural_network(left_sensor_value, right_sensor_value, trainingData);
-
-                lcd_cursor(0,1);
-                print_num((int8_t)(PERCENT * 10* m_speed.left));
-                lcd_cursor(5,1);
-                print_num((int8_t)(PERCENT * 10* m_speed.right));
-
-                motor(LEFT, (int8_t)(PERCENT * 10* m_speed.left));
-                motor(RIGHT, (int8_t)(PERCENT * 10*m_speed.right));
-                _delay_ms(10);
-                
-                if(get_btn()){
-                    state = TRAIN_MODE;
-                    _delay_ms(BTN_DELAY);
+                    //set motors (0-100)
+                    motor(LEFT, (u08)(PERCENT * m_speed.left));
+                    motor(RIGHT, (u08)(PERCENT * m_speed.right));
+                    _delay_ms(10); //delay for flickering fix
+                    
+                    //for button press, change mode to retrain network
+                    if(get_btn()){
+                        motor_init(); //stop motors 
+                        index = 0; //reset epoch index
+                        state = CHOOSE_EPOCHS; //repick epoch count
+                        _delay_ms(BTN_DELAY);
+                        break;
+                    }
                 }
-
-                break;
         }
     }
     return 0;

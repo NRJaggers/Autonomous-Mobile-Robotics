@@ -3,7 +3,12 @@ Name: Nathan Jaggers and Weston Keitz
 
 Assignment Number: Lab 3 Part 2
 
-Description: 
+Description: Create a program that steps between the following modes: 
+ - Proportional controller for robot
+ - Data gather mode, collects sensor values.
+ - Choose epochs for training
+ - Train robot
+ - NN controller for robot
 */
 
 #include "globals.h"
@@ -161,44 +166,44 @@ int main(){
                 print_string("Done!");
                 _delay_ms(BTN_DELAY);
 
-                //enter
+                //enter NN path following mode
                 state = NN_MODE;
     
                 break;
                 
             case NN_MODE:
 
+                //clear screen and set motors to zero
                 clear_screen();
                 motor_init();
                
+                // stay in mode until button press
                 while(!get_btn()){
-                   
+                    
+                    //get sensor values and calculate NN motor speeds
                     left_sensor_value = analog(ANALOG4_PIN); 
                     right_sensor_value = analog(ANALOG3_PIN);
                     m_speed = compute_neural_network(left_sensor_value, right_sensor_value, parameters);
                     
+                    //print motor speeds (for debugging)
                     clear_screen();
                     lcd_cursor(0,0);
                     print_string("Neural");
-                    
                     lcd_cursor(0,1);
                     print_num((u16)100*m_speed.left);
                     lcd_cursor(5,1);
                     print_num((u16)100*m_speed.right);
 
-            
+                    //set motors (0-100)
                     motor(LEFT, (u08)(PERCENT * m_speed.left));
                     motor(RIGHT, (u08)(PERCENT * m_speed.right));
-                    _delay_ms(10);
+                    _delay_ms(10); //delay for flickering fix
                     
+                    //for button press, change mode to retrain network
                     if(get_btn()){
-                        motor_init();
-
-                        index = 0;
-
-
-                        state = CHOOSE_EPOCHS;
-
+                        motor_init(); //stop motors 
+                        index = 0; //reset epoch index
+                        state = CHOOSE_EPOCHS; //repick epoch count
                         _delay_ms(BTN_DELAY);
                         break;
                     }
