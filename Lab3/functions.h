@@ -37,7 +37,7 @@ Notes and Ideas:
 #define BASE_SPEED 25 //cruising speed for bot
 #define ERROR_THRESH 5 // Threshold for error between sensors before control activates
 #define BIAS_CONST 1
-#define SCALE 10
+#define SCALE 5
 #define PERCENT 100
 #define SENSOR_MAX 255
 
