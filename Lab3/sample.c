@@ -6,10 +6,12 @@
 #include <stdlib.h>
 
 int main(void) {
-   //init();  //initialize board hardware
+   
+   init();  //initialize board hardware
 
-   //print_string("Hello");
-   printf("hello world\n");
+   print_string("Hello");
+   
+   //printf("hello world\n");
 
    return 0;
 }

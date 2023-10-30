@@ -3,7 +3,10 @@ Name: Nathan Jaggers and Weston Keitz
 
 Assignment Number: Lab 3 Part 1 
 
-Description: 
+Description: Line following robot implemented from a strictly proportional
+             controller. Program reads sensor values and has function compute
+             motor speed commands to send to motor function. BNT is used to
+             start and stop the robot.
 */
 
 #include "globals.h"
@@ -11,10 +14,6 @@ Description:
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "functions.h"
-
-//need to make changes for input. need to be scaled to 0->1.0 (float)?
-//ask Dr.Seng in class. Should it be like the notes or lab specs, or am I missing
-//something?
 
 #define DELAY 50 //refresh rate; controlled through delay time 
 
@@ -60,13 +59,8 @@ int main(){
         }
         else
         {
+            //calculate speed command for motors
             speed = compute_proportional(left_sensor_value, right_sensor_value);
-
-            // lcd_cursor(7-2,0);
-            // print_snum(speed.left_motor);
-            
-            // lcd_cursor(7-2,1);
-            // print_snum(speed.right_motor); 
 
             motor(LEFT, speed.left_motor);
             motor(RIGHT, speed.right_motor);
