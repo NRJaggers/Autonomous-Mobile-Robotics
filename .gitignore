@@ -1,8 +1,8 @@
 .vscode/
 #Files
-main.elf
-main.hex
-main.o
+*.elf
+*.hex
+*.o
 lab3_nn_test
 *temp*
 

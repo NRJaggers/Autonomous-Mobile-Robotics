@@ -1,7 +1,7 @@
-//#include "globals.h"
-//#include <util/delay.h>
-// #include <avr/io.h>
-// #include <avr/interrupt.h>
+#include "globals.h"
+#include <util/delay.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 #include <stdio.h>
 #include <stdlib.h>
 

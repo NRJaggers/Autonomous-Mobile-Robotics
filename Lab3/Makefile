@@ -21,8 +21,8 @@ test: test.c $(wildcard $(BOARD_LIB)/*.c)
 test_c: test.c $(wildcard $(BOARD_LIB)/*.c)
 	gcc -Wall -O2 -o main.o test.c
 
-debug: debug.c $(wildcard $(BOARD_LIB)/*.c)
-	avr-gcc -I$(BOARD_LIB) -DF_CPU=$(CLOCK_RATE) -Wall -mmcu=atmega645a -O2 -o main.elf debug.c $(FUNCS) $(wildcard $(BOARD_LIB)/*.c)
+debug: $(FILE) $(wildcard $(BOARD_LIB)/*.c)
+	avr-gcc -I$(BOARD_LIB) -DF_CPU=$(CLOCK_RATE) -Wall -mmcu=atmega645a -O2 -g -o debug.elf $(FILE) $(FUNCS) $(wildcard $(BOARD_LIB)/*.c)
 	avr-objcopy -O ihex main.elf main.hex
 	avr-size main.elf
 
