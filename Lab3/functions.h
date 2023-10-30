@@ -9,7 +9,7 @@ Notes and Ideas:
 
 //Global defines
 #include<stdint.h>
-
+#include <math.h>
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
@@ -34,7 +34,7 @@ Notes and Ideas:
 #define SERVO_FSN 157   //full speed negative direction
 
 // Neural Network Lab componets
-#define BASE_SPEED 30 //cruising speed for bot
+#define BASE_SPEED 25 //cruising speed for bot
 #define ERROR_THRESH 5 // Threshold for error between sensors before control activates
 #define BIAS_CONST 1
 #define SCALE 10
@@ -42,8 +42,8 @@ Notes and Ideas:
 #define SENSOR_MAX 255
 
 #define DATA_POINTS 100  // more than 50 seems to lead to memeory problems; only 4k for variables
-#define PARAMS 17       //hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
-#define ALPHA 0.07
+#define PARAMS 17       // hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
+#define ALPHA 1.5       // learning rate
 
 
 // Testing include file
@@ -83,7 +83,7 @@ struct MotorValues {
 struct NeuralData{
     float left_sensor_values[DATA_POINTS]; // make u8 or uint_8? shouldnt need to be float
     float right_sensor_values[DATA_POINTS]; // make u8 or uint_8? shouldnt need to be float
-    float parameters[PARAMS]; 
+   // float parameters[PARAMS]; 
 };
 
 struct motor_command compute_proportional(uint8_t left, uint8_t right);
@@ -94,6 +94,6 @@ float d_sigmoid(float s);
 
 
 struct MotorValues compute_neural_network(float left_sensor, float right_sensor, float *parameters);
-struct NeuralData train_neural_network(int epochs_max, float alpha,  struct NeuralData nD, float *parameters);
+void train_neural_network(int epochs_max, float alpha,  struct NeuralData *nD, float *parameters);
 
 #endif

@@ -145,7 +145,7 @@ struct MotorValues compute_neural_network(float left_sensor, float right_sensor,
     return m1;
 }
 
-struct NeuralData train_neural_network(int epochs_max, float alpha,  struct NeuralData nD, float *parameters){
+void train_neural_network(int epochs_max, float alpha,  struct NeuralData *nD, float *parameters){
     
     int epochs = 0;
     //struct TempOutputValues tV; 
@@ -162,13 +162,11 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
 
     while(epochs < epochs_max){
         
-     //   printf("%d\n",epochs);
-        
         for(int i = 0 ; i < DATA_POINTS; i++){
             
-            mV =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],parameters);
+            mV =  compute_neural_network(nD->left_sensor_values[i], nD->right_sensor_values[i],parameters);
             //generate target values
-            target = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
+            target = compute_proportional(nD->left_sensor_values[i], nD->right_sensor_values[i]);
            
             
         //update output layer
@@ -210,23 +208,23 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             float h3Temp = d_sigmoid(mV.h3);
 
             //update w1
-            dE[0] = ((c1Temp*parameters[9]) + (c2Temp*parameters[13])) * h1Temp * (nD.left_sensor_values[i]/SENSOR_MAX);
+            dE[0] = ((c1Temp*parameters[9]) + (c2Temp*parameters[13])) * h1Temp * (nD->left_sensor_values[i]/SENSOR_MAX);
             //update w2
-            dE[1] = ((c1Temp*parameters[9]) + (c2Temp*parameters[13])) * h1Temp * (nD.right_sensor_values[i]/SENSOR_MAX);
+            dE[1] = ((c1Temp*parameters[9]) + (c2Temp*parameters[13])) * h1Temp * (nD->right_sensor_values[i]/SENSOR_MAX);
             //update w3
             dE[2] = ((c1Temp*parameters[9]) + (c2Temp*parameters[13])) * h1Temp * BIAS_CONST;
 
             //update w4
-            dE[3] = ((c1Temp*parameters[10]) + (c2Temp*parameters[13])) * h2Temp * (nD.left_sensor_values[i]/SENSOR_MAX);
+            dE[3] = ((c1Temp*parameters[10]) + (c2Temp*parameters[13])) * h2Temp * (nD->left_sensor_values[i]/SENSOR_MAX);
             //update w5
-            dE[4] = ((c1Temp*parameters[10]) + (c2Temp*parameters[13])) * h2Temp * (nD.right_sensor_values[i]/SENSOR_MAX);
+            dE[4] = ((c1Temp*parameters[10]) + (c2Temp*parameters[13])) * h2Temp * (nD->right_sensor_values[i]/SENSOR_MAX);
             //update w6
             dE[5] = ((c1Temp*parameters[10]) + (c2Temp*parameters[13])) * h2Temp * BIAS_CONST;
 
             //update w7
-            dE[6] = ((c1Temp*parameters[11]) + (c2Temp*parameters[15])) * h3Temp * (nD.left_sensor_values[i]/SENSOR_MAX);
+            dE[6] = ((c1Temp*parameters[11]) + (c2Temp*parameters[15])) * h3Temp * (nD->left_sensor_values[i]/SENSOR_MAX);
             //update w8
-            dE[7] = ((c1Temp*parameters[11]) + (c2Temp*parameters[15])) * h3Temp * (nD.right_sensor_values[i]/SENSOR_MAX);
+            dE[7] = ((c1Temp*parameters[11]) + (c2Temp*parameters[15])) * h3Temp * (nD->right_sensor_values[i]/SENSOR_MAX);
             //update w9
             dE[8] = ((c1Temp*parameters[11]) + (c2Temp*parameters[15])) * h3Temp * BIAS_CONST;
 
@@ -235,18 +233,16 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
             }
 
         } 
-        
-        
     
      //   for(int i = 0; i< PARAMS; i++){printf("NN Parameter %d:%.3f \n",i,nD.parameters[i]);}
 
         error = 0;
         // printf("---Epoch: %d---\n",epochs);
         for(int i = 0; i< DATA_POINTS; i++){
-            mTest =  compute_neural_network(nD.left_sensor_values[i], nD.right_sensor_values[i],parameters);
+            mTest =  compute_neural_network(nD->left_sensor_values[i], nD->right_sensor_values[i],parameters);
 
             //generate target values
-            tTest = compute_proportional(nD.left_sensor_values[i], nD.right_sensor_values[i]);
+            tTest = compute_proportional(nD->left_sensor_values[i], nD->right_sensor_values[i]);
 
             error_l = abs((mTest.left) - (tTest.left_motor/100)); // network - target
             error_r = abs((mTest.right) - (tTest.right_motor/100)); // network - target
@@ -265,7 +261,7 @@ struct NeuralData train_neural_network(int epochs_max, float alpha,  struct Neur
         epochs++;
     }
 
-    return nD;
+    // return nD;
 
 }
 
@@ -289,14 +285,13 @@ int main(){
     }
 
  
-    trainingData = train_neural_network(500, 0.07, trainingData, parameters);
+    train_neural_network(500, 0.07, &trainingData, parameters);
     
     // printf("---Trained Param---\n");
     // for(int j = 0 ; j < PARAMS; j++){
     //     printf("Param %d: %2.6f\n",j,trainingData.parameters[j]);
     // }
 
-    m = compute_neural_network(20,200, parameters);
  //   printf("NN Outputs L:%2.3f R%2.3f \n", m.left*100,m.right*100);
     for(int j = 0 ; j < DATA_POINTS; j++){
         m = compute_neural_network(trainingData.left_sensor_values[j],trainingData.right_sensor_values[j], parameters);
@@ -310,8 +305,9 @@ int main(){
         // printf("Hidden: %0.4f\n",trainingData.parameters[j]);
      //   printf("Inputs     L:%1.3f R%1.3f \n", trainingData.left_sensor_values[j],trainingData.right_sensor_values[j]);
         // printf("%f\n", t.right_motor);
-        printf("NN Outputs L:%2.3f R%2.3f \n", m.left*100,m.right*100);
-        printf("PP Outputs L:%2.3f R%2.3f \n", t.left_motor,t.right_motor);
+        printf("NN Outputs L:%2.3f R:%2.3f \n", m.left*100,m.right*100);
+        printf("NN Ints    L:%3d    R:%3d \n",(int16_t)(PERCENT * m.left),(int16_t)(PERCENT * m.right));
+        printf("PP Outputs L:%2.3f R:%2.3f \n", t.left_motor,t.right_motor);
     }
 //    // for(int i = 0; i< PARAMS; i++){printf("NN Parameter:%.3f \n",trainingData.parameters[i]);}
 
