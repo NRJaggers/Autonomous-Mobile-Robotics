@@ -9,7 +9,7 @@ Directions:
         
         or use SCP (Secure Copy Protocol)
         scp [file_name]  remoteuser@remotehost:/remote/directory
-        scp ./<lab_folder>/* <user>@unix2.csc.calpoly.edu:~/CPE416/<lab_folder>
+        scp ~/<lab_folder>/* <user>@unix2.csc.calpoly.edu:~/CPE416/<lab_folder>
 
     1. Open Terminal 
 
