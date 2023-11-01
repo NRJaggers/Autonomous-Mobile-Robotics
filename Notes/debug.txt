@@ -1,0 +1,9 @@
+Here are links for where I found stuff:
+https://aykevl.nl/2020/06/simavr-debug/
+https://snowfox-project.org/blog/2020/03/21/graphical-debugging-of-atmega328p-on-linux/
+https://www.bitdegree.org/learn/gdb-debugger
+
+Haven't fully figured out debugging yet. It seems to take really long so far
+because of the libraries we include for the robot. May drop it for now and try
+to pick it up again later.
+
