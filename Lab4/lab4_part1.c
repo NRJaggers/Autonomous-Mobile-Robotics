@@ -59,6 +59,6 @@ int main(){
 
     init(); //initialize board
     motor_init(); //initialize motors 
-    
+    while(1){}
 }
 
