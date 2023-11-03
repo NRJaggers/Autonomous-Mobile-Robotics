@@ -58,7 +58,17 @@ ISR(PCINT1_vect) {
 int main(){
 
     init(); //initialize board
-    motor_init(); //initialize motors 
-    while(1){}
+    motor_init(); //initialize motors
+    init_encoder(); //initialize encoder
+
+    while(TRUE){
+        //print encoder values
+        lcd_cursor(0,0);
+        print_num(left_encoder);
+        lcd_cursor(5,0);
+        print_num(right_encoder);
+    
+    }
+
 }
 
