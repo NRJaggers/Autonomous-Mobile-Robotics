@@ -68,9 +68,15 @@ int main(){
     {
         //print encoder values
         lcd_cursor(0,0);
-        print_num(left_encoder);
+        print_num(left_encoder); //Digital input 4
         lcd_cursor(5,0);
-        print_num(right_encoder);
+        print_num(right_encoder); //Digital input 5
+
+        //write code to run robot around loop
+        //count ticks for several runs around loop
+        //then calculate ticks/loops 
+        //then calculate (ticks/loops)/360 = ~ticks/degree.
+        //save value in comments here.
     }
 
 
