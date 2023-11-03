@@ -1,10 +1,13 @@
 /*
-Name: Nathan Jaggers and Weston Keitz  
+Name: Nathan Jaggers and Weston Keitz
 
 Assignment Number: Lab 4 Part 1 
 
 Description: 
 
+Notes:  Need to tape encoder disk on wheel
+        Figure out how to associate ticks from wheel to degrees traveled around
+        the circle. 
 */
 
 #include "globals.h"
@@ -61,14 +64,14 @@ int main(){
     motor_init(); //initialize motors
     init_encoder(); //initialize encoder
 
-    while(TRUE){
+    while(TRUE)
+    {
         //print encoder values
         lcd_cursor(0,0);
         print_num(left_encoder);
         lcd_cursor(5,0);
         print_num(right_encoder);
-    
     }
 
-}
 
+}
