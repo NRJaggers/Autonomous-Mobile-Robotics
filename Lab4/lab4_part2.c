@@ -68,7 +68,7 @@ float prob_tower_given_location(float sensor_val, float a, float b, float c, flo
 }
 
 //function for calculating probablilty of getting sensor_val given that the 
-//robot/particle position is at a tower
+//robot/particle position is in free space
 float prob_free_space_given_location(float sensor_val, float a, float b, float c, float d){
     
     return 1 - prob_tower_given_location(sensor_val, a, b, c, d); //yeah I see what you mean by your question now
