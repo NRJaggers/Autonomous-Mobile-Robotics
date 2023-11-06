@@ -1,7 +1,7 @@
 /*
 Name: Nathan Jaggers and Weston Keitz  
 
-Assignment Number: Lab 4 Part 2
+Assignment Number: Lab 4 Part 2 Simulation
 
 Description: Test for Monty Carlo Localization algorithm.
 

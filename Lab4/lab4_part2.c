@@ -5,6 +5,23 @@ Assignment Number: Lab 4 Part 2
 
 Description:
 
+Notes:  make function to calculate std_dev of particles? 
+        then function for mean which represents location?
+        
+        make MCL a function?
+            - generate n particles
+            - take 1 sensor reading
+            - for each particle:
+                ~ advance the particle (and add noise)
+                ~ categorize particle (tower or free space)
+                ~ compute weight for particle
+            - resample particles
+
+Questions:  Should probablility of tower and free space functions add to 1?
+            How are a,b,c,d determined? Experimentally with sensor and hardcode?
+
+
+
 */
 
 #include "globals.h"
@@ -20,7 +37,7 @@ Description:
 #define PARTICLE_COUNT 100
 #define NUM_TOWERS 3 
 
-//add = 0 and scale = 1 for normal distribution
+//Box-Muller Transform: function to create sample from gaussian curve
 float gaussian_sample(float shift, float scale){
     
     float u1 = (float) rand() / RAND_MAX;
@@ -29,6 +46,7 @@ float gaussian_sample(float shift, float scale){
 
     float z = sqrtf(-2 * logf(u1)) * cosf(2 * PI * u2);
 
+    //add shift = 0 and multiply scale = 1 for normal distribution
     return (z * scale) + shift;
 
 }
@@ -40,7 +58,7 @@ float prob_tower_given_distance(float sensor, float a, float b, float c, float d
     
     if(a <= x && x < b){return u * (sensor - a) / (b - a);}
     
-    else if(b <= x && x < c){return u;}
+    else if(b <= sensor_val && sensor_val < c){return u;}
 
     else if(c <= x && x < d){return u * (d - sensor) / (c - d);}
 
@@ -144,55 +162,10 @@ int main(){
 
         ir_value = read_ir();
 
-        float prob = prob_tower_given_distance(ir_value, dist1, dist2, dist3, dist4);
-
-
-
-        //reset probabilities array
-        memset(probabilities, 0, PARTICLE_COUNT*sizeof(probabilities[0]));
+        for(int i = 0; i < PARTICLE_COUNT; i++){
+            prob_tower_given_location(particle[i], float a, float b, float c, float d)
+        }
         
-        //calculate probabilities at current point
-        // prob_sensor_value_given_location(towers, &particles, &probabilities);
-
-        
-        
-        
-        
-        
-        
-        
-        //resample new more likely positions
-        // int resamples = (int)(0.95 * PARTICLE_COUNT);
-
-        // for(int i = 0; i < resamples; i++){
-            
-        //     int sum = 0;
-            
-        //     float random = (float) rand() / RAND_MAX;
-            
-        //     int index = 0; 
-
-        //     while(sum <= random){
-
-        //         sum += probabilities[index];
-
-        //     }
-
-        //     particle[i] = particle[index];
-
-        // }
-
-        // for(int i = resamples; i < PARTICLE_COUNT; i++){
-           
-        //     particle[i] = 360 * (float) rand() / RAND_MAX;
-
-        // }
-
-        // move    
-
-
-
-
 
         
     }
