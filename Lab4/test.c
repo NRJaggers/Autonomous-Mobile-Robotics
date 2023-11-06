@@ -7,33 +7,18 @@
 int main(void) {
    init();  //initialize board hardware
    motor_init();
-   u08 state = FALSE;
+   u16 upper_sensor_value; 
 
-    while(TRUE)
-    {
-        if(get_btn())
-        {
-            state = FALSE;
-            _delay_ms(200);
-        }
-                //stop or start the motors
-        if (state == FALSE)
-        {
-            motor_init(); //stop motors
-            if(get_btn())
-            {
-                state = TRUE;
-                _delay_ms(200);
-            }
-        }
-        else
-        {
-            motor(LEFT, 50);
-            motor(RIGHT, 0);
-        }
+    clear_screen();
+    lcd_cursor(0,0);
+    print_string("RANGE:");
+    lcd_cursor(0,1);
 
-    }
-    
+   while(1)
+   {
+      upper_sensor_value = analog(ANALOG5_PIN); //pick pin 5 or 2 or 1
+      print_num(upper_sensor_value); 
+   }
 
    return 0;
 }
