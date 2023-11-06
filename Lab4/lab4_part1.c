@@ -103,10 +103,11 @@ int main(){
     typedef enum {INIT, PROP, STOP, DEGR, STAT} state_Robot;
     state_Robot state = INIT;
 
+    u08 x = 0, y = 0, loops = 0; 
     u08 left_sensor_value, right_sensor_value; //read analog sensor values
     u16 time_count, time_count_max = COUNTMAX;
     u16 degree = 0;
-    float loops = 0, ratio = 1;
+    float ratio = 1;
     struct motor_command speed; // proportional controller output values
 
     while(TRUE)
@@ -188,24 +189,103 @@ int main(){
                 lcd_cursor(5,1);
                 print_num(right_encoder); //Digital input 5
 
-                //change mode to INIT if pressed
-                if(get_btn()){
-                    state = INIT;
-                    _delay_ms(BTN_DELAY);
+                //wait for button press
+                while(!get_btn()){/*wait*/};
+                _delay_ms(BTN_DELAY);
 
-                    //change to choose next state
+                //user input for next state
+                clear_screen();
+                lcd_cursor(0,0);
+                print_string("Restart?");
+                lcd_cursor(0,1);
+                print_string(" Yes");
+                lcd_cursor(5,1);
+                print_string(" No");
 
-                    //then if state is DEGR, choose how many loops completed
+                //let user select by tilting robot side to side
+                while(TRUE)
+                {
+                    y = get_accel_y();
+
+                    //left tilt to retry and return to INIT state
+                    if(y < 101)
+                    {
+                        lcd_cursor(0,1);
+                        print_string(">");
+                        lcd_cursor(5,1);
+                        print_string(" ");
+                        state = INIT;
+                    }
+                    //right tilt to progress to DEGR state and test
+                    else if (y > 192)
+                    {
+                        lcd_cursor(0,1);
+                        print_string(" ");
+                        lcd_cursor(5,1);
+                        print_string(">");
+                        state = DEGR;
+                    }
+                    //if in the middle, dont do anything
+
+                    //when ready, press button to escape
+                    if(get_btn()){
+                        _delay_ms(BTN_DELAY);
+                        break;
+                    };
+                }
+
+                //if going to DEGR state, then input how many loops were completed
+                if(state == DEGR){
+                    //reset loops
+                    loops = 0;
+
+                    //recieve user input
+                    clear_screen();
+                    lcd_cursor(0,0);
+                    print_string("Loops:");
+                    lcd_cursor(0,1);
+                    print_num(loops);
+
+                    while(loops == 0)
+                    {
+                        //get input
+                        x = get_accel_x();
+                        if(110 > x && x > 0){x = x/51;} 
+                        else if(255 > x && x > 190){x = x/51;}
+
+                        print_num(x);
+
+                        //when ready, press button to escape
+                        if(get_btn()){
+                            loops = x;
+                            _delay_ms(BTN_DELAY);
+                        };
+
+                    }
+
+                    //calculate ticks/degree
+                    ratio = ((float)left_encoder/loops)/360;
+                    //ratio = ((float)right_encoder/loops)/360;
+                    
                 }
 
                 break;
 
             case DEGR:
+                //Notify user start of Degree test
+                clear_screen();
+                lcd_cursor(0,0);
+                print_string("Place @");
+                lcd_cursor(0,1);
+                print_string("start");
+
                 //Wait untill button press (put robot into position)
                 while(!get_btn()){/*wait*/};
                 _delay_ms(BTN_DELAY);
                 degree = 0;
                 time_count = 0;
+                left_encoder = 0;
+                right_encoder = 0;
                 clear_screen();
 
                 //Start Robot at degree 0 in circle and let it run around
@@ -234,6 +314,8 @@ int main(){
 
                     //calculate degrees from ticks
                     degree = (float)left_encoder * ratio;
+                    //degree = (float)right_encoder * ratio;
+
 
                     //change mode to STOP if button pressed or if time limit reached
                     //(limit should be associated with how long till x loops
@@ -259,10 +341,49 @@ int main(){
                 lcd_cursor(5,1);
                 print_num(right_encoder); //Digital input 5
 
-                //change mode to INIT if pressed
-                if(get_btn()){
-                    state = INIT;
-                    _delay_ms(BTN_DELAY);
+                //wait for button press
+                while(!get_btn()){/*wait*/};
+                _delay_ms(BTN_DELAY);
+
+                //user input for next state
+                clear_screen();
+                lcd_cursor(0,0);
+                print_string("Restart?");
+                lcd_cursor(0,1);
+                print_string(" Yes");
+                lcd_cursor(5,1);
+                print_string(" No");
+
+                //let user select by tilting robot side to side
+                while(TRUE)
+                {
+                    y = get_accel_y();
+
+                    //left tilt to retry and return to INIT state
+                    if(y < 101)
+                    {
+                        lcd_cursor(0,1);
+                        print_string(">");
+                        lcd_cursor(5,1);
+                        print_string(" ");
+                        state = INIT;
+                    }
+                    //right tilt to progress to DEGR state and test
+                    else if (y > 192)
+                    {
+                        lcd_cursor(0,1);
+                        print_string(" ");
+                        lcd_cursor(5,1);
+                        print_string(">");
+                        state = DEGR;
+                    }
+                    //if in the middle, dont do anything
+
+                    //when ready, press button to escape
+                    if(get_btn()){
+                        _delay_ms(BTN_DELAY);
+                        break;
+                    };
                 }
 
                 break;
