@@ -69,7 +69,7 @@ int main(void) {
         print_num(upper_sensor_value);
 
         //print ticks
-        lcd_cursor(3,1);
+        lcd_cursor(4,1);
         print_num(left_encoder);
         //print_num(right_encoder);
 
