@@ -16,8 +16,13 @@ int main(void) {
 
    while(1)
    {
-      upper_sensor_value = analog(ANALOG5_PIN); //pick pin 5 or 2 or 1
-      print_num(upper_sensor_value); 
+        //get range sensor value and refresh
+        upper_sensor_value = analog(ANALOG2_PIN); //pick pin 5 or 2 or 1
+        lcd_cursor(0,1);
+        print_string("   ");
+        lcd_cursor(0,1);
+        print_num(upper_sensor_value);
+        _delay_us(400);
    }
 
    return 0;
