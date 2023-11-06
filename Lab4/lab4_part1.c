@@ -29,7 +29,7 @@ Notes:  measure time it takes to traverse around a portion of the circle (like
         30          9500              432         ~1 (like 99% there)
         30          9700              440         1  (like 99.999% there)
         30          19315             896         ~2 (little over)          .8035
-        30          45634             2237         5                        
+        30          45634             2237         5                        .8054
 
 */
 
