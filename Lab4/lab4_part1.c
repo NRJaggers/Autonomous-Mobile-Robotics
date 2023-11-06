@@ -5,21 +5,7 @@ Assignment Number: Lab 4 Part 1
 
 Description: 
 
-Notes:  Need to tape encoder disk on wheel
-        Figure out how to associate ticks from wheel to degrees traveled around
-        the circle. 
-
-        //write code to run robot around loop
-        //count ticks for several runs around loop
-        //then calculate ticks/loops 
-        //then calculate (ticks/loops)/360 = ~ticks/degree.
-        //save value in comments here.
-
-        need proportional controller code to traverse loop
-
-        FSM to control different states?
-
-        measure time it takes to traverse around a portion of the circle (like 
+Notes:  measure time it takes to traverse around a portion of the circle (like 
         maybe a quarter of the circle) at a given speed and use that to inform 
         time it will take to make it around the loop several times
 
@@ -32,15 +18,19 @@ Notes:  Need to tape encoder disk on wheel
         ---Predata--- For quarter circle
         Speed:      Time Count:
         #           #
-        
+        30          3281
+                    3480
+                    3412
 
         ---Data---
-        Speed:      Time Count:       Ticks:      Loops:
-        #           #                 #           #
-        
-        maybe add more code here to input loops taken and have another state
-        that goes around circle and shows ticks, calculated robots current 
-        angle (assume starting at 0) and maybe range finder reading  
+        Speed:      Time Count:       Ticks:      Loops:                    Ratio
+        #           #                 #           #                         #
+        30          9225              435         ~1 (like 99% there)       
+        30          9500              432         ~1 (like 99% there)
+        30          9700              440         1  (like 99.999% there)
+        30          19315             896         ~2 (little over)          .8035
+        30          45634             2237         5                        
+
 */
 
 #include "globals.h"
@@ -49,7 +39,7 @@ Notes:  Need to tape encoder disk on wheel
 #include <avr/interrupt.h>
 #include "functions.h"
 
-#define COUNTMAX 65535 // I hope this is enough, adjust based on experimental runs
+#define COUNTMAX 50000 // I hope this is enough, adjust based on experimental runs
 
 //function given by Dr.Seng
 void init_encoder() {
@@ -128,14 +118,14 @@ int main(){
                 print_string("INIT");
                 lcd_cursor(0,1);
                 print_num(left_encoder); //Digital input 4
-                lcd_cursor(5,1);
-                print_num(right_encoder); //Digital input 5
+                // lcd_cursor(5,1);
+                // print_num(right_encoder); //Digital input 5
 
                 //change mode to proportional controller line following
-                if(get_btn()){
-                    state = PROP;
-                    _delay_ms(BTN_DELAY);
+                while(!get_btn()){
                 }
+                state = PROP;
+                _delay_ms(BTN_DELAY);
 
                 break;
 
@@ -151,12 +141,14 @@ int main(){
 
                     //print state and encoder values
                     lcd_cursor(0,0);
-                    print_string("PROP:");
+                    //print_string("PROP:");
+                    print_string("T:"); //T for time count
                     print_num(time_count);
                     lcd_cursor(0,1);
+                    print_string("E:"); //E for encoder
                     print_num(left_encoder); //Digital input 4
-                    lcd_cursor(5,1);
-                    print_num(right_encoder); //Digital input 5
+                    // lcd_cursor(5,1);
+                    // print_num(right_encoder); //Digital input 5
                     //_delay_ms(15); // stops flickering (don't know that we need this
                                 // if we are not clearing screen)
 
@@ -182,12 +174,15 @@ int main(){
             case STOP: //add functionality to choose next state
                 //Stop and hold state to observe recorded values
                 lcd_cursor(0,0);
-                print_string("STOP:");
+                //print_string("STOP:");
+                print_string("T:"); //T for time count
                 print_num(time_count);
                 lcd_cursor(0,1);
+                print_string("E:"); //E for encoder
                 print_num(left_encoder); //Digital input 4
-                lcd_cursor(5,1);
-                print_num(right_encoder); //Digital input 5
+                // lcd_cursor(5,1);
+                // print_num(right_encoder); //Digital input 5
+                
 
                 //wait for button press
                 while(!get_btn()){/*wait*/};
@@ -246,25 +241,40 @@ int main(){
                     lcd_cursor(0,1);
                     print_num(loops);
 
+                    int8_t temp = 0;
+
                     while(loops == 0)
                     {
                         //get input
                         x = get_accel_x();
-                        if(110 > x && x > 0){x = x/51;} 
-                        else if(255 > x && x > 190){x = x/51;}
+                        if(20 > x && x > 0){temp++;} 
+                        else if(230 > x && x > 200){temp--;}
+                        
+                        //still weird behavior here, don't see the problem yet
+                        // able to do what is needed though, so moving on
+                        if(temp<0)
+                        {temp = 0;}
+                        else if(temp>5)
+                        {temp = 5;}
+                        _delay_ms(300);
 
-                        print_num(x);
+                        lcd_cursor(0,1);
+                        print_num(temp);
+
+                        // lcd_cursor(0,1);
+                        // print_num(x);
+                        // _delay_ms(300);
 
                         //when ready, press button to escape
                         if(get_btn()){
-                            loops = x;
+                            loops = temp;
                             _delay_ms(BTN_DELAY);
                         };
 
                     }
 
-                    //calculate ticks/degree
-                    ratio = ((float)left_encoder/loops)/360;
+                    //calculate degree/ticks
+                    ratio = 360/((float)left_encoder/loops);
                     //ratio = ((float)right_encoder/loops)/360;
                     
                 }
@@ -302,8 +312,8 @@ int main(){
                     print_num(degree);
                     lcd_cursor(0,1);
                     print_num(left_encoder); //Digital input 4
-                    lcd_cursor(5,1);
-                    print_num(right_encoder); //Digital input 5
+                    // lcd_cursor(5,1);
+                    // print_num(right_encoder); //Digital input 5
                     //_delay_ms(15); // stops flickering (don't know that we need this
                                 // if we are not clearing screen)
 
@@ -334,12 +344,13 @@ int main(){
                 case STAT: //add functionality to choose next state
                 //Stop and hold state to observe recorded values
                 lcd_cursor(0,0);
-                print_string("STAT:");
+                print_string("DEGR:");
                 print_num(degree);
                 lcd_cursor(0,1);
+                print_string("E:");
                 print_num(left_encoder); //Digital input 4
-                lcd_cursor(5,1);
-                print_num(right_encoder); //Digital input 5
+                // lcd_cursor(5,1);
+                // print_num(right_encoder); //Digital input 5
 
                 //wait for button press
                 while(!get_btn()){/*wait*/};
