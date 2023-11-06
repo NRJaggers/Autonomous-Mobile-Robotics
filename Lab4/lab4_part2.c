@@ -21,6 +21,7 @@ Questions:  Should probablility of tower and free space functions add to 1?
             How are a,b,c,d determined? Experimentally with sensor and hardcode?
 
 
+
 */
 
 #include "globals.h"
@@ -32,7 +33,8 @@ Questions:  Should probablility of tower and free space functions add to 1?
 #include <stdlib.h> 
 
 #define PI 3.141592654
-
+#define PARTICLE_COUNT 100
+#define NUM_TOWERS 3 
 
 //Box-Muller Transform: function to create sample from gaussian curve
 float gaussian_sample(float shift, float scale){
@@ -48,9 +50,10 @@ float gaussian_sample(float shift, float scale){
 
 }
 
+
 //function for calculating probablilty of getting sensor_val given that the 
 //robot/particle position is at a tower 
-float prob_tower_given_sensor(float sensor_val, float a, float b, float c, float d){
+float prob_tower_given_location(float sensor_val, float a, float b, float c, float d){
     
     float u = 2 /(c + d - a - b);
     
@@ -66,12 +69,28 @@ float prob_tower_given_sensor(float sensor_val, float a, float b, float c, float
 
 //function for calculating probablilty of getting sensor_val given that the 
 //robot/particle position is at a tower
-float prob_free_space_given sensor(float sensor_val, float a, float b, float c, float d){
+float prob_free_space_given_location(float sensor_val, float a, float b, float c, float d){
     
-    return 1 - prob_tower_given_sensor(sensor_val, a, b, c, d); //yeah I see what you mean by your question now
+    return 1 - prob_tower_given_location(sensor_val, a, b, c, d); //yeah I see what you mean by your question now
     //we should ask him in class if they add up to 1 or if we are supposed to have independent
     //functions and curves.
     
+}
+
+//complete this function
+u08 read_ir(void){
+    return sensor;
+}
+
+struct towers{
+    float location[NUM_TOWERS];
+    u08 target;
+}
+
+float prob_tower_given_location(float angle0, float angle1, float angle2){
+
+    
+
 }
 
 int main(){
