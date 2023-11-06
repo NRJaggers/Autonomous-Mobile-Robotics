@@ -51,86 +51,37 @@ float gaussian_sample(float shift, float scale){
 
 }
 
-// based on sensor reading distance
-float prob_tower_given_distance(float sensor, float a, float b, float c, float d){
-    
-    float u = 2 /(c + d - a - b);
-    
-    if(a <= x && x < b){return u * (sensor - a) / (b - a);}
-    
-    else if(b <= sensor_val && sensor_val < c){return u;}
-
-    else if(c <= x && x < d){return u * (d - sensor) / (c - d);}
-
-    else{return 0;}
-
-}
-
-float prob_tower_given_angle(float particle, float a, float b, float c, float d){
-    
-    float u = 2 /(c + d - a - b);
-    
-    if(a <= x && x < b){return u * (sensor - a) / (b - a);}
-    
-    else if(b <= x && x < c){return u;}
-
-    else if(c <= x && x < d){return u * (d - sensor) / (c - d);}
-
-    else{return 0;}
-
-}
-
-// float prob_free_space_given_location(float sensor, float a, float b, float c, float d){
-    
-//     return 1 - prob_tower_given_location(sensor, a, b, c, d);
-    
-// }
 
 //complete this function
 u08 read_ir(void){
     return sensor;
 }
 
-struct tower{
+struct map{
     float location[NUM_TOWERS];
     u08 target;
 }
 
-//fix
-// void prob_sensor_value_given_location(float sensor, struct tower tower_inst, float *particles, float *probabilities){
-    
-//     float sum = 0; 
-   
-//     for(int j = 0; j < PARTICLE_COUNT, j++){
-       
-//         for(int i = 0; i < NUM_TOWERS; i++){
-            
-//             float temp = tower_inst.location[i];
-            
-//             probabilities[j] += prob_tower_given_location(sensor, temp - 2, temp - 1, temp + 1, temp + 2);
-    
-//         }
-//     }
-// }
+struct trapezoid{
+    float a;
+    float b;
+    float c;
+    float d;
+}
 
-void prob_sensor_value_given_tower(float sensor, struct tower tower_inst, float *particles, float *probabilities){
-   
-    float u = 2 /(c + d - a - b);
-    
-    if(a <= x && x < b){return u * (sensor - a) / (b - a);}
-    
-    else if(b <= x && x < c){return u;}
 
-    else if(c <= x && x < d){return u * (d - sensor) / (c - d);}
+void prob_given_tower_or_free(float sensor, struct trapezoid type){
+   
+    float u = 2 /(type.c + type.d - type.a - type.b);
+    
+    if(type.a <= x && x < type.b){return u * (sensor - type.a) / (type.b - type.a);}
+    
+    else if(type.b <= x && x < type.c){return u;}
+
+    else if(type.c <= x && x < type.d){return u * (type.d - sensor) / (type.c - type.d);}
 
     else{return 0;}
 
-}
-
-void prob_sensor_value_given_free_space(float sensor, struct tower tower_inst, float *particles, float *probabilities){
-    
-    return 1 - prob_sensor_value_given_tower(sensor,tower_inst, &particles, &probabilities);
-    
 }
 
 int main(){
