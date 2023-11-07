@@ -77,7 +77,9 @@ void test_sensors()
 
 }
 
+
 //direction is LEFT or RIGHT #define (0 or 1)
+//if this doesn't work in main program, maybe switch to ticks
 void turn_90(u08 direction)
 {
    //Assumes you will use same speed as base speed
