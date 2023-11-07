@@ -1,3 +1,38 @@
+/*
+Notes:
+      ---Data---
+      Speed:      Ticks:      Distance (in):
+      #           #           #                         
+      25          30          5
+      25          30          5.25
+      25          30          5
+      25          30          5
+      25          30          5
+      25          30          5
+      25          30          5.25
+      25          30          5.25
+      25          30          5
+      25          30          5
+
+      25          10          1.625
+      25          10          1.75
+      25          10          1.625
+      25          10          1.625
+      25          10          1.5
+
+      25          70          12
+      25          70          11.75
+      25          70          11.5
+      25          70          11.75
+      25          70          11.75
+      25          70          11.5
+      25          70          11.5
+      25          70          12
+      25          70          11.75
+      25          70          11.5
+*/
+
+
 #include "globals.h"
 #include <util/delay.h>
 #include <avr/io.h>
@@ -77,6 +112,23 @@ void test_sensors()
 
 }
 
+void test_motion_noise(u16 ticks)
+{
+   left_encoder = 0;
+
+   lcd_cursor(0,0);
+   print_string("Ticks:");
+
+   forward(BASE_SPEED);
+   while (left_encoder < ticks)
+   {
+      lcd_cursor(0,1);
+      print_num(left_encoder);
+   };
+   motor_init();
+   lcd_cursor(0,1);
+   print_num(left_encoder);
+}
 
 //direction is LEFT or RIGHT #define (0 or 1)
 //if this doesn't work in main program, maybe switch to ticks
@@ -110,22 +162,21 @@ void turn_90(u08 direction)
 int main(void) {
       init();  //initialize board hardware
       motor_init();
+      _delay_ms(1000);
       init_encoder();
 
       //test_sensors();
+      test_motion_noise(70);
 
       //left then right test
-      turn_90(LEFT);
-      _delay_ms(1000);
-      turn_90(RIGHT);
+      // turn_90(LEFT);
+      // _delay_ms(1000);
+      // turn_90(RIGHT);
 
       //right then left test
       // turn_90(RIGHT);
       // _delay_ms(1000);
       // turn_90(LEFT);
-
-
-   
 
    return 0;
 }
