@@ -7,7 +7,7 @@ Notes and Ideas:
 
 */
 
-//Global defines
+// Global defines
 #include<stdint.h>
 #include <math.h>
 
@@ -46,6 +46,9 @@ Notes and Ideas:
 #define PARAMS 17       // hidden layer (2 input + bias)* 3 nodes + (3 input + bias) * 2 nodes
 #define ALPHA 1.5       // learning rate
 
+// Monty Carlo Localization componets
+#define LDUR 44500/BASE_SPEED
+#define RDUR 38500/BASE_SPEED
 
 // Testing include file
 void test_include();

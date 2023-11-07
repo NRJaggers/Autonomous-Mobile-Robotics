@@ -3,6 +3,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "functions.h"
+#include <time.h>
 
 //function given by Dr.Seng
 void init_encoder() {
@@ -46,18 +47,16 @@ ISR(PCINT1_vect) {
 
 }
 
+void test_sensors()
+{
+   init_encoder();
+   u16 upper_sensor_value; 
 
-int main(void) {
-    init();  //initialize board hardware
-    motor_init();
-    init_encoder();
-    u16 upper_sensor_value; 
-
-    clear_screen();
-    lcd_cursor(0,0);
-    print_string("RANGE:");
-    lcd_cursor(0,1);
-    motor(RIGHT, 30);
+   clear_screen();
+   lcd_cursor(0,0);
+   print_string("RANGE:");
+   lcd_cursor(0,1);
+   motor(RIGHT, 0);
 
    while(1)
    {
@@ -75,6 +74,56 @@ int main(void) {
 
         //_delay_us(400);
    }
+
+}
+
+//direction is LEFT or RIGHT #define (0 or 1)
+void turn_90(u08 direction)
+{
+   //Assumes you will use same speed as base speed
+   if(direction == LEFT)
+   {
+      spin(BASE_SPEED);
+      _delay_ms(LDUR);
+      motor_init();
+   }
+
+   else if (direction == RIGHT)
+   {
+      spin(-BASE_SPEED);
+      _delay_ms(RDUR);
+      motor_init();
+   }
+   else
+   {
+      clear_screen();
+      lcd_cursor(0,0);
+      print_string("Spin Dir");
+      lcd_cursor(0,1);
+      print_string("Error");
+   }
+
+}
+
+int main(void) {
+      init();  //initialize board hardware
+      motor_init();
+      init_encoder();
+
+      //test_sensors();
+
+      //left then right test
+      turn_90(LEFT);
+      _delay_ms(1000);
+      turn_90(RIGHT);
+
+      //right then left test
+      // turn_90(RIGHT);
+      // _delay_ms(1000);
+      // turn_90(LEFT);
+
+
+   
 
    return 0;
 }
