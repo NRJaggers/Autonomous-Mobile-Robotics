@@ -57,57 +57,57 @@ float gaussian_sample(float shift, float scale){
 }
 
 //complete this function
-int read_ir(void){
-    return sensor;
+int read_range_finder(void){
+    return analog(ANALOG2_PIN);;
 }
 
 struct map{
     float location[NUM_TOWERS];
     int target;
-}
+};
 
 struct trapezoid{
     float a;
     float b;
     float c;
     float d;
-}
+};
 
 void prob_given_tower_or_free(float sensor, struct trapezoid type, float *probability){
    
     float u = 2 /(type.c + type.d - type.a - type.b);
     
-    if(type.a <= x && x < type.b){probability = u * (sensor - type.a) / (type.b - type.a);}
+    if(type.a <= sensor && sensor < type.b){*probability = u * (sensor - type.a) / (type.b - type.a);}
     
-    else if(type.b <= x && x < type.c){probability = u;}
+    else if(type.b <= sensor && sensor < type.c){*probability = u;}
 
-    else if(type.c <= x && x < type.d){probability = u * (type.d - sensor) / (type.c - type.d);}
+    else if(type.c <= sensor && sensor < type.d){*probability = u * (type.d - sensor) / (type.c - type.d);}
 
-    else{probability = 0;}
+    else{*probability = 0;}
 
 }
 
-void classify_particles(float *particle, float *classify, struct tower towers){
+void classify_particles(float* particle, int* classify, struct map towers){
     
     for(int j = 0; j < NUM_TOWERS; j++){
 
-        if((towers.location[j] - BLOCK_ANGLE < particle)
-        || (towers.location[j] + BLOCK_ANGLE > particle)){
+        if((towers.location[j] - BLOCK_ANGLE < *particle)
+        || (towers.location[j] + BLOCK_ANGLE > *particle)){
             
             if(towers.location[j] - BLOCK_ANGLE < 0){
-                if(towers.location[j] - BLOCK_ANGLE + 360 < particle){
-                    classify = BLOCK_TOWER;
+                if(towers.location[j] - BLOCK_ANGLE + 360 < *particle){
+                    *classify = BLOCK_TOWER;
                 }
             }
 
             else if(towers.location[j] - BLOCK_ANGLE > 360){
-                if(towers.location[j] - BLOCK_ANGLE - 360 > particle){
-                    classify = BLOCK_TOWER;
+                if((towers.location[j] - BLOCK_ANGLE - 360) > *particle){
+                    *classify = BLOCK_TOWER;
                 }
             }
 
             else{
-                classify = BLOCK_TOWER;
+                *classify = BLOCK_TOWER;
             }
 
         }
@@ -141,11 +141,12 @@ int main(){
     float new_particles[PARTICLE_COUNT];
     int classify[PARTICLE_COUNT];
 
+    //initialize particle positions randomly
     for(int i = 0; i < PARTICLE_COUNT; i++){
         particles[i] = 360 * (float) rand() / RAND_MAX;
     }
 
-    struct tower towers;
+    struct map towers;
 
     //create map
     towers.location[0] = 0; 
@@ -168,18 +169,17 @@ int main(){
     free_space.c = 50;
     free_space.d = 55;
 
-    float degrees;
-
     while(1){
 
-        ir_value = read_ir();
+        ir_value = read_range_finder();
         
         sum = 0;
         
+        //classify particles as tower or free space, assign probabilites
         for(int i = 0; i < PARTICLE_COUNT; i++){
             
             //classify
-            classify_particles(&particle[i], &classify[i], towers);
+            classify_particles(&particles[i], &classify[i], towers);
 
             //assign probabilities
             if(classify[i] == BLOCK_TOWER){
@@ -197,7 +197,7 @@ int main(){
             probabilities[i] = probabilities[i] / sum;
         }
 
-        //resample
+        //resample 95% of dataset
         for(int i = 0; i < sampling_total; i++){
             random = (float) rand() / RAND_MAX;
             random_count = 0;
@@ -210,9 +210,8 @@ int main(){
 
             new_particles[i] = particles[j];  
         }
-
-       
-
+   
+        // add noisy particles
         for(int i = sampling_total; i < PARTICLE_COUNT; i++){
             new_particles[i] = (float) (360 * rand() / RAND_MAX); 
         }
@@ -220,6 +219,7 @@ int main(){
         // move robot
         advance(MOTION_DEGREES);
 
+        //set mean to zero
         float mean = 0; 
 
         // update location , add gaussian noise
@@ -230,43 +230,58 @@ int main(){
 
         //calculate mean and standard deviation
         mean = mean / PARTICLE_COUNT;
-        float sum2 = 0;
+        float variance_sum = 0;
         float temp;
         float std_dev;
+        
+        //calculate variance
         for(int i = 0; i < PARTICLE_COUNT; i++){
             temp = (mean - new_particles[i]) * (mean - new_particles[i]);
-            sum2 += temp;
-
+            variance_sum += temp;
         }
 
-        sum2 = sum2 / PARTICLE_COUNT;
-
-        std_dev = sqrtf(sum2);
+        variance_sum = variance_sum / PARTICLE_COUNT;
+        std_dev = sqrtf(variance_sum);
         float travel_dist;
+        
+        //check if particles are grouped together, localization protocol
         if(std_dev < MOTION_NOISE_DEV * 3){
+            
             float location = mean; // location will be in degrees
 
-            // need a case for crossing the 360
            
-            if(location > towers.location[towers.target]){
-                travel_dist = location - towers.location[towers.target];
+            //IF ANGLE OF GOAL TOWER IS GREATER THAN CURRENT POSITION
+            if(location <= towers.location[towers.target]){
+                travel_dist =  (towers.location[towers.target] - location);            
             }
-            if(location < towers.location[towers.target]){
-                // need a case for crossing the 360
-                if()
-                travel_dist = 360 - (location - towers.location[towers.target]);
+            
+            
+            //IF ANGLE OF GOAL TOWER IS GREATER THAN CURRENT POSITION
+            else if(location > towers.location[towers.target]){
+
+                travel_dist = 360 - (towers.location[towers.target] - location);
+                
+                if(travel_dist > 360){
+                    travel_dist = 360 + (towers.location[towers.target] - location);
+                }
             }
-            while(1){
-                advance()
-            }
+            
+            //move to target
+            advance(travel_dist);
+
+            //turn and barrel that shit down
+
+            //stop motors
+            motor_init();
+
+            //print complete
+            print_string("Done!");
+
+            //end program
+            return 0;
+
         }
-
-
-
-
-        
-
-        
+         
     }
     
     return 0;
