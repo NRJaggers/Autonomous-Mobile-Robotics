@@ -2,7 +2,7 @@ SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 BOARD_LIB = $(SELF_DIR)/library
 SOURCE_LIB = $(wildcard $(BOARD_LIB)/*.c)
 CLOCK_RATE = 16000000L
-LAB = lab3_part2.c
+LAB = lab4_part2_simulation.c
 FUNCS = functions.c 
 
 sample: sample.c $(wildcard $(BOARD_LIB)/*.c)
@@ -34,7 +34,7 @@ lab: $(LAB) $(wildcard $(BOARD_LIB)/*.c)
 
 #Define LAB variable above
 lab_c: $(LAB)
-	gcc -Wall -O2 -o main.o $(LAB)
+	gcc -Wall -o main.o $(LAB)
 
 #Define FILE variable on command line
 file: $(FILE) $(wildcard $(BOARD_LIB)/*.c)
