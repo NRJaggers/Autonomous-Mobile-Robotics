@@ -200,6 +200,8 @@ int main(){
 
     struct trapezoid free_space;
     
+    //there should be a little of overlap between the freespace and block
+    //trapizoids to catch edge cases where sensor is near edge of block
     free_space.a = 0;
     free_space.b = 2;
     free_space.c = 10;
