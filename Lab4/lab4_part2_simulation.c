@@ -37,7 +37,7 @@ Questions:  Should probablility of tower and free space functions add to 1?
 #define FREE 0
 #define BLOCK_TOWER 1
 #define MOTION_NOISE_DEV 0.1
-#define MOTION_DEGREES 3
+#define MOTION_DEGREES 2.8
 
 //Box-Muller Transform: function to create sample from gaussian curve
 float gaussian_sample(float shift, float scale){
@@ -78,11 +78,13 @@ void prob_given_tower_or_free(float sensor, struct trapezoid type, float *probab
     
     else if(type.b <= sensor && sensor < type.c){*probability = u;}
 
-    else if(type.c <= sensor && sensor < type.d){*probability = u * (type.d - sensor) / (type.c - type.d);}
+    else if(type.c <= sensor && sensor < type.d){
+        *probability = u * (type.d - sensor) / (type.c - type.d);
+        }
 
     else{*probability = 0;}
 
-    if(*probability < 0){*probability = 0;}
+   // if(*probability < 0){*probability = 0;}
 
 }
 
@@ -98,7 +100,6 @@ void classify_particles(float* particle, int* classify, struct map towers){
 
         if(towers.location[j] < *particle){
             if((towers.location[j] + (360 - *particle)) <= 1.5){
-                printf("DIST: %2.3f\n",towers.location[j] + (360 - *particle));
                 *classify = BLOCK_TOWER;
                 break;
             }
@@ -137,32 +138,59 @@ int main(){
     int classify[PARTICLE_COUNT];
 
     //initialize particle positions randomly
-    for(int i = 0; i < PARTICLE_COUNT - 1; i++){
+    for(int i = 0; i < PARTICLE_COUNT; i++){
         
-        // particles[i] = 360 * (float) rand() / RAND_MAX;
-        particles[i] = (float)(i * 360 / PARTICLE_COUNT);
+        particles[i] = 360 * (float) rand() / RAND_MAX;
+        // particles[i] = (float)(i * 360 / PARTICLE_COUNT);
         printf("Particle %d: %2.3f\n",i,particles[i]);
     }
 
-    particles[99] = 359;
-    printf("Particle 99: %2.3f\n",particles[99]);
 
-
-    int ir_values[50];
-
-    for(int i=0; i < 50; i++){
-        ir_values[i] = 45-i;
-        if(i > 25){
-            ir_values[i] = 5;
-        }
-    }
+    int ir_values[35];
     
+    ir_values[0] = 40; // 0 degrees
+    ir_values[1] = 11; // 3 degrees
+    ir_values[2] = 11; // 6 degrees
+    ir_values[3] = 11; // 9 degrees
+    ir_values[4] = 11; // 12 degrees
+    ir_values[5] = 11; // 15 degrees
+    ir_values[6] = 11; // 18 degrees
+    ir_values[7] = 11; // 21 degrees
+    ir_values[8] = 11; // 24 degrees
+    ir_values[9] = 11; // 27 degrees
+    ir_values[10] = 11; // 30 degrees
+    ir_values[11] = 11; // 33 degrees
+    ir_values[12] = 11; // 36 degrees
+    ir_values[13] = 11; // 39 degrees
+    ir_values[14] = 11; // 42 degrees
+    ir_values[15] = 11; // 45 degrees
+    ir_values[16] = 11; // 48 degrees
+    ir_values[17] = 11; // 51 degrees
+    ir_values[18] = 11; // 54 degrees
+    ir_values[19] = 11; // 57 degrees
+    ir_values[20] = 11; // 60 degrees
+    ir_values[21] = 11; // 63 degrees
+    ir_values[22] = 11; // 66 degrees
+    ir_values[23] = 11; // 69 degrees
+    ir_values[24] = 11; // 72 degrees
+    ir_values[25] = 11; // 75 degrees
+    ir_values[26] = 11; // 78 degrees
+    ir_values[27] = 11; // 81 degrees
+    ir_values[28] = 11; // 84 degrees
+    ir_values[29] = 11; // 87 degrees
+    ir_values[30] = 40; // 90 degrees
+    ir_values[31] = 11; // 93 degrees
+    ir_values[32] = 11; // 96 degrees
+    ir_values[33] = 11; // 99 degrees
+    ir_values[34] = 11; // 102 degrees
+
 
     struct map towers;
 
     //create map
-    towers.location[0] = 0.5; 
+    // towers.location[0] = 0.5; 
     // towers.location[0] = 359.5; 
+    towers.location[0] = 0;
     towers.location[1] = 90; 
     towers.location[2] = 225; 
     towers.target = 1; 
@@ -172,19 +200,19 @@ int main(){
 
     struct trapezoid free_space;
     
-    free_space.d = 0;
-    free_space.d = 9;
-    free_space.b = 12;
-    free_space.a = 30;
+    free_space.a = 0;
+    free_space.b = 2;
+    free_space.c = 10;
+    free_space.d = 25;
 
-    block.d = 25;
-    block.c = 40;
-    block.b = 50;
-    block.a = 55;
+    block.a = 20;
+    block.b = 30;
+    block.c = 50;
+    block.d = 60;
 
     int count = 0;
 
-    // while(count < 1){
+    while(count < 35){
 
         ir_value = ir_values[count];
         
@@ -229,10 +257,10 @@ int main(){
     
             }
 
-            // printf("Sampled Particle %d: %d\n",i,j);
+            printf("Sampled Particle %d: %d\n",i,j-1);
 
             
-            new_particles[i] = particles[j];  
+            new_particles[i] = particles[j - 1]; //must subtact b/c of while loop 
         }
    
         // add noisy particles
@@ -248,7 +276,7 @@ int main(){
 
         // update location , add gaussian noise
         for(int i = 0; i < PARTICLE_COUNT; i++){
-            new_particles[i] += new_particles[i] + (float) MOTION_DEGREES +  gaussian_sample(0, (float)MOTION_NOISE_DEV);
+            new_particles[i] += new_particles[i] + (float)MOTION_DEGREES +  gaussian_sample(0, (float)MOTION_NOISE_DEV);
             if(new_particles[i] > 360){
                 new_particles[i] = new_particles[i] - 360;
             }
@@ -273,12 +301,13 @@ int main(){
         
         float travel_dist;
 
-        memcpy(new_particles, particles, PARTICLE_COUNT*sizeof(float));
+        memcpy(particles,new_particles, PARTICLE_COUNT*sizeof(float));
+
         for(int i = 0; i < PARTICLE_COUNT; i++){
-            // printf("Updated Particle %d: %2.3f\n",i,particles[i]);
+           printf("%2.3f\n",particles[i]);
         }
 
-        // printf("Standard Deviation: %2.3f Mean:%2.3f \n",std_dev,mean);
+        printf("Standard Deviation: %2.3f Mean:%2.3f \n",std_dev,mean);
         
         //check if particles are grouped together, localization protocol
         
@@ -290,7 +319,7 @@ int main(){
 
         }
     count++;   
-    // }
+    }
     
     return 0;
 }

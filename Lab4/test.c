@@ -165,8 +165,8 @@ int main(void) {
       _delay_ms(1000);
       init_encoder();
 
-      //test_sensors();
-      test_motion_noise(70);
+      test_sensors();
+      // test_motion_noise(70);
 
       //left then right test
       // turn_90(LEFT);
