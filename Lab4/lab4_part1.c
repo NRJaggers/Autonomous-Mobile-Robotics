@@ -18,18 +18,18 @@ Notes:  measure time it takes to traverse around a portion of the circle (like
         ---Predata--- For quarter circle
         Speed:      Time Count:
         #           #
-        30          3281
+        25          3281
                     3480
                     3412
 
         ---Data---
         Speed:      Time Count:       Ticks:      Loops:                    Ratio
         #           #                 #           #                         #
-        30          9225              435         ~1 (like 99% there)       
-        30          9500              432         ~1 (like 99% there)
-        30          9700              440         1  (like 99.999% there)
-        30          19315             896         ~2 (little over)          .8035
-        30          45634             2237         5                        .8054
+        25          9225              435         ~1 (like 99% there)       
+        25          9500              432         ~1 (like 99% there)
+        25          9700              440         1  (like 99.999% there)
+        25          19315             896         ~2 (little over)          .8035
+        25          45634             2237         5                        .8054
 
 */
 
