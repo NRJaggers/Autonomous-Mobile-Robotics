@@ -179,7 +179,6 @@ float d_sigmoid(float s){
     return s* (1 - s);
 };
 
-
 struct MotorValues compute_neural_network(float left_sensor, float right_sensor, float *parameters){
     
     //scale the sensor readings to values between 0 and 1
@@ -201,6 +200,7 @@ struct MotorValues compute_neural_network(float left_sensor, float right_sensor,
 }
 
 void train_neural_network(int epochs_max, float alpha,  struct NeuralData *nD, float *parameters){
+
     
     //Variables to train network and compute error
     int epochs = 0;
@@ -317,3 +317,124 @@ void train_neural_network(int epochs_max, float alpha,  struct NeuralData *nD, f
     }
 
 }
+
+// ###################################################################################
+// Lab 4
+float gaussian_sample(float shift, float scale){
+    
+    float u1 = (float) rand() / RAND_MAX;
+    
+    float u2 = (float) rand() / RAND_MAX;
+
+    float z = sqrtf(-2 * logf(u1)) * cosf(2 * PI * u2);
+
+    //add shift = 0 and multiply scale = 1 for normal distribution
+    return (z * scale) + shift;
+
+}
+
+int read_range_finder(void){
+    return analog(ANALOG2_PIN);;
+}
+
+void prob_given_tower_or_free(float sensor, struct trapezoid type, float *probability){
+   
+    float u = 2 /(type.c + type.d - type.a - type.b);
+    
+    if(type.a <= sensor && sensor < type.b){*probability = u * (sensor - type.a) / (type.b - type.a);}
+    
+    else if(type.b <= sensor && sensor < type.c){*probability = u;}
+
+    else if(type.c <= sensor && sensor < type.d){
+        *probability = u * (type.d - sensor) / (type.d - type.c);
+        }
+
+    else{*probability = 0;}
+}
+
+void classify_particles(float* particle, int* classify, struct map towers){
+    
+    for(int j = 0; j < NUM_TOWERS; j++){
+        
+        if((fabs(towers.location[j] - *particle)) <= BLOCK_ANGLE){
+            *classify = BLOCK_TOWER;
+            break;
+        }
+
+        if(towers.location[j] < *particle){
+            if((towers.location[j] + (360 - *particle)) <= 1.5){
+                *classify = BLOCK_TOWER;
+                break;
+            }
+        }
+
+        if(towers.location[j] > *particle){
+            if((*particle + (360 - towers.location[j])) <= (float)BLOCK_ANGLE){
+                *classify = BLOCK_TOWER;
+                break;
+            }
+        }
+        
+        else{*classify = FREE;}
+    
+    }
+}
+
+float min(float a, float b){
+    if (a < b) 
+        return a ;
+    else
+        return b;
+}
+
+float calc_mean(float *particle, float size){
+    float totalx = 0;
+    float totaly = 0;
+    
+    for(int i=0; i<size; i++){
+        totalx += cosf(*particle * PI / 180);
+        totaly += sinf(*particle * PI / 180);
+        particle++;
+    }
+
+    totalx = totalx / size;
+    totaly = totaly / size;
+
+    float angle = atanf(totaly/totalx) * 180 / PI;
+    
+    if(totalx < 0 && totaly >=0)
+        return angle + 180;
+    else if(totalx < 0 && totaly < 0)
+        return angle + 180;
+    else if(totalx >= 0 && totaly < 0)
+        return angle + 360;
+    else // if in pos x and pos y quadrant
+        return angle;
+}
+
+void turn_90(u08 direction){
+   //Assumes you will use same speed as base speed
+   if(direction == LEFT)
+   {
+      spin(BASE_SPEED);
+      _delay_ms(LDUR);
+      motor_init();
+   }
+
+   else if (direction == RIGHT)
+   {
+      spin(-BASE_SPEED);
+      _delay_ms(RDUR);
+      motor_init();
+   }
+   else
+   {
+      clear_screen();
+      lcd_cursor(0,0);
+      print_string("Spin Dir");
+      lcd_cursor(0,1);
+      print_string("Error");
+   }
+
+}
+// ###################################################################################

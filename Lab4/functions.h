@@ -99,6 +99,39 @@ void train_neural_network(int epochs_max, float alpha,  struct NeuralData *nD, f
 
 //Monty Carlo Localization Functions
 
+#define PI 3.141592654
+#define PARTICLE_COUNT 100
+#define NUM_TOWERS 3 
+#define BLOCK_ANGLE 1.5
+#define FREE 0
+#define BLOCK_TOWER 1
+#define MOTION_NOISE_DEV 0.1
+#define MOTION_DEGREES 1
 
+struct map{
+    float location[NUM_TOWERS];
+    int target;
+};
+
+struct trapezoid{
+    float a;
+    float b;
+    float c;
+    float d;
+};
+
+float gaussian_sample(float shift, float scale);
+
+int read_range_finder(void);
+
+void prob_given_tower_or_free(float sensor, struct trapezoid type, float *probability);
+
+void classify_particles(float* particle, int* classify, struct map towers);
+
+float min(float a, float b);
+
+float calc_mean(float *particle, float size);
+
+void turn_90(u08 direction);
 #endif
 

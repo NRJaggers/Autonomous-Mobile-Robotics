@@ -29,15 +29,14 @@ Questions:  Should probablility of tower and free space functions add to 1?
 #include <string.h>
 #include <stdio.h>
 
-
 #define PI 3.141592654
 #define PARTICLE_COUNT 100
 #define NUM_TOWERS 3 
 #define BLOCK_ANGLE 1.5
 #define FREE 0
 #define BLOCK_TOWER 1
-#define MOTION_NOISE_DEV 0.1
-#define MOTION_DEGREES 2.8
+#define MOTION_NOISE_DEV 0
+#define MOTION_DEGREES 3
 
 //Box-Muller Transform: function to create sample from gaussian curve
 float gaussian_sample(float shift, float scale){
@@ -52,11 +51,6 @@ float gaussian_sample(float shift, float scale){
     return (z * scale) + shift;
 
 }
-
-//complete this function
-// int read_range_finder(void){
-//     return analog(ANALOG2_PIN);;
-// }
 
 struct map{
     float location[NUM_TOWERS];
@@ -79,16 +73,12 @@ void prob_given_tower_or_free(float sensor, struct trapezoid type, float *probab
     else if(type.b <= sensor && sensor < type.c){*probability = u;}
 
     else if(type.c <= sensor && sensor < type.d){
-        *probability = u * (type.d - sensor) / (type.c - type.d);
+        *probability = u * (type.d - sensor) / (type.d - type.c);
         }
 
     else{*probability = 0;}
-
-   // if(*probability < 0){*probability = 0;}
-
 }
 
-// verifited
 void classify_particles(float* particle, int* classify, struct map towers){
     
     for(int j = 0; j < NUM_TOWERS; j++){
@@ -117,7 +107,36 @@ void classify_particles(float* particle, int* classify, struct map towers){
     }
 }
 
-void advance(float degrees){
+float min(float a, float b){
+    if (a < b) 
+        return a ;
+    else
+        return b;
+}
+
+float calc_mean(float *particle, float size){
+    float totalx = 0;
+    float totaly = 0;
+    
+    for(int i=0; i<size; i++){
+        totalx += cosf(*particle * PI / 180);
+        totaly += sinf(*particle * PI / 180);
+        particle++;
+    }
+
+    totalx = totalx / size;
+    totaly = totaly / size;
+
+    float angle = atanf(totaly/totalx) * 180 / PI;
+    
+    if(totalx < 0 && totaly >=0)
+        return angle + 180;
+    else if(totalx < 0 && totaly < 0)
+        return angle + 180;
+    else if(totalx >= 0 && totaly < 0)
+        return angle + 360;
+    else // if in pos x and pos y quadrant
+        return angle;
 }
 
 int main(){
@@ -139,50 +158,103 @@ int main(){
 
     //initialize particle positions randomly
     for(int i = 0; i < PARTICLE_COUNT; i++){
-        
         particles[i] = 360 * (float) rand() / RAND_MAX;
-        // particles[i] = (float)(i * 360 / PARTICLE_COUNT);
-        printf("Particle %d: %2.3f\n",i,particles[i]);
+        // printf("Particle %d: %2.3f\n",i,particles[i]);
     }
 
 
-    int ir_values[35];
+    int ir_values[80];
     
-    ir_values[0] = 40; // 0 degrees
-    ir_values[1] = 11; // 3 degrees
-    ir_values[2] = 11; // 6 degrees
-    ir_values[3] = 11; // 9 degrees
-    ir_values[4] = 11; // 12 degrees
-    ir_values[5] = 11; // 15 degrees
-    ir_values[6] = 11; // 18 degrees
-    ir_values[7] = 11; // 21 degrees
-    ir_values[8] = 11; // 24 degrees
-    ir_values[9] = 11; // 27 degrees
-    ir_values[10] = 11; // 30 degrees
-    ir_values[11] = 11; // 33 degrees
-    ir_values[12] = 11; // 36 degrees
-    ir_values[13] = 11; // 39 degrees
-    ir_values[14] = 11; // 42 degrees
-    ir_values[15] = 11; // 45 degrees
-    ir_values[16] = 11; // 48 degrees
-    ir_values[17] = 11; // 51 degrees
-    ir_values[18] = 11; // 54 degrees
-    ir_values[19] = 11; // 57 degrees
-    ir_values[20] = 11; // 60 degrees
-    ir_values[21] = 11; // 63 degrees
-    ir_values[22] = 11; // 66 degrees
-    ir_values[23] = 11; // 69 degrees
-    ir_values[24] = 11; // 72 degrees
-    ir_values[25] = 11; // 75 degrees
-    ir_values[26] = 11; // 78 degrees
-    ir_values[27] = 11; // 81 degrees
-    ir_values[28] = 11; // 84 degrees
-    ir_values[29] = 11; // 87 degrees
+    ir_values[0] = 7; // 0 degrees
+    ir_values[1] = 25; // 3 degrees
+    ir_values[2] = 8; // 6 degrees
+    ir_values[3] = 8; // 9 degrees
+    ir_values[4] = 8; // 12 degrees
+    ir_values[5] = 8; // 15 degrees
+    ir_values[6] = 8; // 18 degrees
+    ir_values[7] = 8; // 21 degrees
+    ir_values[8] = 8; // 24 degrees
+    ir_values[9] = 8; // 27 degrees
+    ir_values[10] = 8; // 30 degrees
+
+    ir_values[11] = 7; // 33 degrees
+    ir_values[12] = 7; // 36 degrees
+    ir_values[13] = 7; // 39 degrees
+    ir_values[14] = 7; // 42 degrees
+    ir_values[15] = 7; // 45 degrees
+    ir_values[16] = 7; // 48 degrees
+    ir_values[17] = 7; // 51 degrees
+    ir_values[18] = 7; // 54 degrees
+    ir_values[19] = 7; // 57 degrees
+    ir_values[20] = 7; // 60 degrees
+
+    ir_values[21] = 7; // 63 degrees
+    ir_values[22] = 7; // 66 degrees
+    ir_values[23] = 7; // 69 degrees
+    ir_values[24] = 7; // 72 degrees
+    ir_values[25] = 7; // 75 degrees
+    ir_values[26] = 7; // 78 degrees
+    ir_values[27] = 7; // 81 degrees
+    ir_values[28] = 7; // 84 degrees
+    ir_values[29] = 7; // 87 degrees
     ir_values[30] = 40; // 90 degrees
-    ir_values[31] = 11; // 93 degrees
-    ir_values[32] = 11; // 96 degrees
-    ir_values[33] = 11; // 99 degrees
-    ir_values[34] = 11; // 102 degrees
+
+    ir_values[31] = 7; // 93 degrees
+    ir_values[32] = 7; // 96 degrees
+    ir_values[33] = 7; // 99 degrees
+    ir_values[34] = 7; // 102 degrees
+    ir_values[35] = 7; // 105 degrees
+    ir_values[36] = 7; // 108 degrees
+    ir_values[37] = 7; // 111 degrees
+    ir_values[38] = 7; // 114 degrees
+    ir_values[39] = 7; // 117 degrees
+    ir_values[40] = 7; // 120 degrees
+
+    ir_values[41] = 7; // 123 degrees
+    ir_values[42] = 7; // 126 degrees
+    ir_values[43] = 7; // 129 degrees
+    ir_values[44] = 7; // 132 degrees
+    ir_values[45] = 7; // 135 degrees
+    ir_values[46] = 7; // 138 degrees
+    ir_values[47] = 7; // 141 degrees
+    ir_values[48] = 7; // 144 degrees
+    ir_values[49] = 7; // 147 degrees
+    ir_values[50] = 7; // 150 degrees
+
+    ir_values[51] = 7; // 153 degrees
+    ir_values[52] = 7; // 157 degrees
+    ir_values[53] = 7; // 160 degrees
+    ir_values[54] = 7; // 163 degrees
+    ir_values[55] = 7; // 166 degrees
+    ir_values[56] = 7; // 169 degrees
+    ir_values[57] = 7; // 172 degrees
+    ir_values[58] = 7; // 175 degrees
+    ir_values[59] = 7; // 178 degrees
+    ir_values[60] = 7; // 180 degrees
+
+    ir_values[61] = 7; // 183 degrees
+    ir_values[62] = 7; // 187 degrees
+    ir_values[63] = 7; // 190 degrees
+    ir_values[64] = 7; // 193 degrees
+    ir_values[65] = 7; // 196 degrees
+    ir_values[66] = 7; // 199 degrees
+    ir_values[67] = 7; // 202 degrees
+    ir_values[68] = 7; // 205 degrees
+    ir_values[69] = 7; // 208 degrees
+    ir_values[70] = 7; // 210 degrees
+
+    ir_values[71] = 7; // 213 degrees
+    ir_values[72] = 7; // 216 degrees
+    ir_values[73] = 7; // 219 degrees
+    ir_values[74] = 7; // 222 degrees
+    ir_values[75] = 40; // 225 degrees
+    ir_values[76] = 7; // 228 degrees
+    ir_values[77] = 7; // 231 degrees
+    ir_values[78] = 7; // 234 degrees
+    ir_values[79] = 7; // 237 degrees
+
+
+
 
 
     struct map towers;
@@ -206,13 +278,13 @@ int main(){
     free_space.d = 25;
 
     block.a = 20;
-    block.b = 30;
-    block.c = 50;
-    block.d = 60;
+    block.b = 80;
+    block.c = 100;
+    block.d = 105;
 
     int count = 0;
 
-    while(count < 35){
+    while(count < 80){
 
         ir_value = ir_values[count];
         
@@ -226,12 +298,12 @@ int main(){
             
             //assign probabilities
             if(classify[i] == BLOCK_TOWER){
-                printf("Particle %d: Tower\n",i);
+                // printf("Particle %d: Tower\n",i);
                 prob_given_tower_or_free(ir_value, block, &probabilities[i]);
             }
 
             else{
-                printf("Particle %d: Free Space\n",i);
+                // printf("Particle %d: Free Space\n",i);
                 prob_given_tower_or_free(ir_value, free_space, &probabilities[i]);
             }
             //get running sum
@@ -256,44 +328,43 @@ int main(){
                 j++;
     
             }
-
-            printf("Sampled Particle %d: %d\n",i,j-1);
-
             
             new_particles[i] = particles[j - 1]; //must subtact b/c of while loop 
+
+            // printf("Sampled Particle %d: %d Degrees: %2.3f \n",i,j-1,new_particles[i]);
         }
    
         // add noisy particles
         for(int i = sampling_total; i < PARTICLE_COUNT; i++){
-            new_particles[i] = (float) (360 * rand() / RAND_MAX); 
+            new_particles[i] = 360 * (float) rand() / RAND_MAX; 
+            // printf("Random Noise: %2.3f \n",new_particles[i]);
         }
-
-        // move robot
-        advance(MOTION_DEGREES);
-
-        //set mean to zero
-        float mean = 0; 
 
         // update location , add gaussian noise
         for(int i = 0; i < PARTICLE_COUNT; i++){
-            new_particles[i] += new_particles[i] + (float)MOTION_DEGREES +  gaussian_sample(0, (float)MOTION_NOISE_DEV);
-            if(new_particles[i] > 360){
-                new_particles[i] = new_particles[i] - 360;
+            particles[i] = new_particles[i] + (float)MOTION_DEGREES +  gaussian_sample(0, (float)MOTION_NOISE_DEV);
+            
+            if(particles[i] > 360){ 
+                particles[i] = particles[i] - 360;
+                // printf("%d,%2.3f\n",i,new_particles[i]);
             }
-            mean += new_particles[i];
             // printf("Mean: %f\n",mean);
         }
 
         //calculate mean and standard deviation
-        mean = mean / PARTICLE_COUNT;
+        float mean_angle = calc_mean(&particles[0],(float)PARTICLE_COUNT);
+
         float variance_sum = 0;
         float temp;
         float std_dev;
         
         //calculate variance
         for(int i = 0; i < PARTICLE_COUNT; i++){
-            temp = (mean - new_particles[i]) * (mean - new_particles[i]);
-            variance_sum += temp;
+            // float displacement = min(fabs(particles[i] - mean_angle),360 - fabs(particles[i] - mean_angle));
+            temp = fabs(mean_angle - particles[i]);
+            while(temp >= 180)
+                temp -= 180;
+            variance_sum += temp*temp;
         }
 
         variance_sum = variance_sum / PARTICLE_COUNT;
@@ -301,24 +372,20 @@ int main(){
         
         float travel_dist;
 
-        memcpy(particles,new_particles, PARTICLE_COUNT*sizeof(float));
-
-        for(int i = 0; i < PARTICLE_COUNT; i++){
-           printf("%2.3f\n",particles[i]);
-        }
-
-        printf("Standard Deviation: %2.3f Mean:%2.3f \n",std_dev,mean);
+        printf("Standard Deviation: %2.3f Mean:%2.3f \n",std_dev,mean_angle);
         
         //check if particles are grouped together, localization protocol
         
-        if(std_dev < MOTION_NOISE_DEV * 3){
+        if(std_dev < 40){
             
-            printf("Done\n");
-
-            return 0;
+            printf("Localized\n");
 
         }
     count++;   
+    }
+
+    for(int i = 0; i < PARTICLE_COUNT; i++){
+        printf("%2.3f\n",particles[i]);
     }
     
     return 0;

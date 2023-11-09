@@ -33,93 +33,64 @@ Questions:  Should probablility of tower and free space functions add to 1?
 #include <stdlib.h> 
 #include <string.h>
 
-#define PI 3.141592654
-#define PARTICLE_COUNT 100
-#define NUM_TOWERS 3 
-#define BLOCK_ANGLE 1.5
-#define FREE 0
-#define BLOCK_TOWER 1
-#define MOTION_NOISE_DEV 0.1
-#define MOTION_DEGREES 3
 
-//Box-Muller Transform: function to create sample from gaussian curve
-float gaussian_sample(float shift, float scale){
-    
-    float u1 = (float) rand() / RAND_MAX;
-    
-    float u2 = (float) rand() / RAND_MAX;
 
-    float z = sqrtf(-2 * logf(u1)) * cosf(2 * PI * u2);
 
-    //add shift = 0 and multiply scale = 1 for normal distribution
-    return (z * scale) + shift;
+volatile uint16_t left_encoder = 0;
 
-}
+volatile uint16_t right_encoder = 0;
 
-//complete this function
-int read_range_finder(void){
-    return analog(ANALOG2_PIN);;
-}
+void init_encoder() {
 
-struct map{
-    float location[NUM_TOWERS];
-    int target;
-};
+    // enable encoder interrupts
 
-struct trapezoid{
-    float a;
-    float b;
-    float c;
-    float d;
-};
+    EIMSK = 0;
 
-void prob_given_tower_or_free(float sensor, struct trapezoid type, float *probability){
-   
-    float u = 2 /(type.c + type.d - type.a - type.b);
-    
-    if(type.a <= sensor && sensor < type.b){*probability = u * (sensor - type.a) / (type.b - type.a);}
-    
-    else if(type.b <= sensor && sensor < type.c){*probability = u;}
+    EIMSK |= _BV(PCIE1) | _BV(PCIE0);
 
-    else if(type.c <= sensor && sensor < type.d){*probability = u * (type.d - sensor) / (type.c - type.d);}
 
-    else{*probability = 0;}
+    PCMSK1 |= _BV(PCINT13); //PB5 - digital 5
+
+    PCMSK0 |= _BV(PCINT6);  //PE6 - digital 4
+
+
+    // enable pullups
+
+    PORTE |= _BV(PE6);
+
+    PORTB |= _BV(PB5);
 
 }
 
-void classify_particles(float* particle, int* classify, struct map towers){
-    
-    for(int j = 0; j < NUM_TOWERS; j++){
+ISR(PCINT0_vect) {
 
-        if((towers.location[j] - BLOCK_ANGLE < *particle)
-        || (towers.location[j] + BLOCK_ANGLE > *particle)){
-            
-            if(towers.location[j] - BLOCK_ANGLE < 0){
-                if(towers.location[j] - BLOCK_ANGLE + 360 < *particle){
-                    *classify = BLOCK_TOWER;
-                }
-            }
+   left_encoder++;  //increment left encoder
 
-            else if(towers.location[j] - BLOCK_ANGLE > 360){
-                if((towers.location[j] - BLOCK_ANGLE - 360) > *particle){
-                    *classify = BLOCK_TOWER;
-                }
-            }
-
-            else{
-                *classify = BLOCK_TOWER;
-            }
-
-        }
-
-        else{
-            *classify = FREE;
-        }
-            
-    }
 }
+
+ISR(PCINT1_vect) {
+
+   right_encoder++;  //increment right encoder
+
+}
+
 
 void advance(float degrees){
+
+   left_encoder = 0;
+
+
+   forward(BASE_SPEED);
+
+   while ((int)(left_encoder*0.8) < degrees)
+   {
+      lcd_cursor(0,1);
+      clear_screen();
+      print_num(left_encoder);
+   };
+
+   motor_init();
+
 }
 
 int main(){
@@ -183,10 +154,10 @@ int main(){
 
             //assign probabilities
             if(classify[i] == BLOCK_TOWER){
-                prob_given_tower_or_free(ir_value, block, &probabilities[i]);
+                prob_given_tower_or_free((float)ir_value, block, &probabilities[i]);
             }
 
-            else{prob_given_tower_or_free(ir_value, free_space, &probabilities[i]);}
+            else{prob_given_tower_or_free((float)ir_value, free_space, &probabilities[i]);}
             
             //get running sum
             sum += probabilities[i];
@@ -257,7 +228,7 @@ int main(){
             
             
             //IF ANGLE OF GOAL TOWER IS GREATER THAN CURRENT POSITION
-            else if(location > towers.location[towers.target]){
+            else{
 
                 travel_dist = 360 - (towers.location[towers.target] - location);
                 
