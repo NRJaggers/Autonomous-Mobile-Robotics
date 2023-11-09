@@ -66,8 +66,10 @@ struct trapezoid{
 
 void prob_given_tower_or_free(float sensor, struct trapezoid type, float *probability){
    
+    //max probability, top of trapizoid
     float u = 2 /(type.c + type.d - type.a - type.b);
     
+    //determine probability of sensor reading based on where it falls on trapizoid
     if(type.a <= sensor && sensor < type.b){*probability = u * (sensor - type.a) / (type.b - type.a);}
     
     else if(type.b <= sensor && sensor < type.c){*probability = u;}
@@ -272,6 +274,8 @@ int main(){
 
     struct trapezoid free_space;
     
+    //there should be a little of overlap between the freespace and block
+    //trapizoids to catch edge cases where sensor is near edge of block
     free_space.a = 0;
     free_space.b = 2;
     free_space.c = 10;
