@@ -319,7 +319,44 @@ void train_neural_network(int epochs_max, float alpha,  struct NeuralData *nD, f
 }
 
 // ###################################################################################
-// Lab 4
+// Monty Carlo Localization Functions
+
+/***Given by Dr.Seng***/
+// void init_encoder() {
+
+//     // enable encoder interrupts
+
+//     EIMSK = 0;
+
+//     EIMSK |= _BV(PCIE1) | _BV(PCIE0);
+
+
+//     PCMSK1 |= _BV(PCINT13); //PB5 - digital 5
+
+//     PCMSK0 |= _BV(PCINT6);  //PE6 - digital 4
+
+
+//     // enable pullups
+
+//     PORTE |= _BV(PE6);
+
+//     PORTB |= _BV(PB5);
+
+// }
+
+// ISR(PCINT0_vect) {
+
+//    left_encoder++;  //increment left encoder
+
+// }
+
+// ISR(PCINT1_vect) {
+
+//    right_encoder++;  //increment right encoder
+
+// }
+/***Given Code End***/
+
 float gaussian_sample(float shift, float scale){
     
     float u1 = (float) rand() / RAND_MAX;

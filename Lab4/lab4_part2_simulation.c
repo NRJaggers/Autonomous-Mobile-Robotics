@@ -41,6 +41,7 @@ Questions:  Should probablility of tower and free space functions add to 1?
 //Box-Muller Transform: function to create sample from gaussian curve
 float gaussian_sample(float shift, float scale){
     
+    //make sure u1 is not zero
     float u1 = (float) rand() / RAND_MAX;
     
     float u2 = (float) rand() / RAND_MAX;
