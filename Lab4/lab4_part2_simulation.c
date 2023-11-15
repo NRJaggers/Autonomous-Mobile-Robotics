@@ -116,7 +116,7 @@ float min(float a, float b){
         return b;
 }
 
-float calc_mean(float *particle, float size){
+float calc_mean(float *particle, float *real, float *imaginary, float size){
     float totalx = 0;
     float totaly = 0;
     
@@ -129,6 +129,9 @@ float calc_mean(float *particle, float size){
     totalx = totalx / size;
     totaly = totaly / size;
 
+    *real = totalx;
+    *imaginary = totaly;
+
     float angle = atanf(totaly/totalx) * 180 / PI;
     
     if(totalx < 0 && totaly >=0)
@@ -139,6 +142,24 @@ float calc_mean(float *particle, float size){
         return angle + 360;
     else // if in pos x and pos y quadrant
         return angle;
+}
+
+float standard_devation(float *particle, float *real, float *imaginary, float size){
+    float variance_sum = 0;
+    
+    for(int i=0; i<size; i++){
+
+        float devx = cosf(*particle * PI / 180) - *real;
+        float devy = sinf(*particle * PI / 180) - *imaginary;
+
+        variance_sum += devx*devx + devy*devy;
+
+
+
+        particle++;
+    }
+
+    return sqrtf(variance_sum / PARTICLE_COUNT) * 180 / PI;
 }
 
 int main(){
@@ -165,105 +186,101 @@ int main(){
     }
 
 
-    int ir_values[80];
+    int ir_values[120];
+
     
-    ir_values[0] = 7; // 0 degrees
-    ir_values[1] = 25; // 3 degrees
-    ir_values[2] = 8; // 6 degrees
-    ir_values[3] = 8; // 9 degrees
-    ir_values[4] = 8; // 12 degrees
-    ir_values[5] = 8; // 15 degrees
-    ir_values[6] = 8; // 18 degrees
-    ir_values[7] = 8; // 21 degrees
-    ir_values[8] = 8; // 24 degrees
-    ir_values[9] = 8; // 27 degrees
-    ir_values[10] = 8; // 30 degrees
+    // ir_values[0] = 7; // 0 degrees
+    // ir_values[1] = 25; // 3 degrees
+    // ir_values[2] = 8; // 6 degrees
+    // ir_values[3] = 8; // 9 degrees
+    // ir_values[4] = 8; // 12 degrees
+    // ir_values[5] = 8; // 15 degrees
+    // ir_values[6] = 8; // 18 degrees
+    // ir_values[7] = 8; // 21 degrees
+    // ir_values[8] = 8; // 24 degrees
+    // ir_values[9] = 8; // 27 degrees
+    // ir_values[10] = 8; // 30 degrees
 
-    ir_values[11] = 7; // 33 degrees
-    ir_values[12] = 7; // 36 degrees
-    ir_values[13] = 7; // 39 degrees
-    ir_values[14] = 7; // 42 degrees
-    ir_values[15] = 7; // 45 degrees
-    ir_values[16] = 7; // 48 degrees
-    ir_values[17] = 7; // 51 degrees
-    ir_values[18] = 7; // 54 degrees
-    ir_values[19] = 7; // 57 degrees
-    ir_values[20] = 7; // 60 degrees
+    // ir_values[11] = 7; // 33 degrees
+    // ir_values[12] = 7; // 36 degrees
+    // ir_values[13] = 7; // 39 degrees
+    // ir_values[14] = 7; // 42 degrees
+    // ir_values[15] = 7; // 45 degrees
+    // ir_values[16] = 7; // 48 degrees
+    // ir_values[17] = 7; // 51 degrees
+    // ir_values[18] = 7; // 54 degrees
+    // ir_values[19] = 7; // 57 degrees
+    // ir_values[20] = 7; // 60 degrees
 
-    ir_values[21] = 7; // 63 degrees
-    ir_values[22] = 7; // 66 degrees
-    ir_values[23] = 7; // 69 degrees
-    ir_values[24] = 7; // 72 degrees
-    ir_values[25] = 7; // 75 degrees
-    ir_values[26] = 7; // 78 degrees
-    ir_values[27] = 7; // 81 degrees
-    ir_values[28] = 7; // 84 degrees
-    ir_values[29] = 7; // 87 degrees
-    ir_values[30] = 40; // 90 degrees
+    // ir_values[21] = 7; // 63 degrees
+    // ir_values[22] = 7; // 66 degrees
+    // ir_values[23] = 7; // 69 degrees
+    // ir_values[24] = 7; // 72 degrees
+    // ir_values[25] = 7; // 75 degrees
+    // ir_values[26] = 7; // 78 degrees
+    // ir_values[27] = 7; // 81 degrees
+    // ir_values[28] = 7; // 84 degrees
+    // ir_values[29] = 7; // 87 degrees
+    // ir_values[30] = 40; // 90 degrees
 
-    ir_values[31] = 7; // 93 degrees
-    ir_values[32] = 7; // 96 degrees
-    ir_values[33] = 7; // 99 degrees
-    ir_values[34] = 7; // 102 degrees
-    ir_values[35] = 7; // 105 degrees
-    ir_values[36] = 7; // 108 degrees
-    ir_values[37] = 7; // 111 degrees
-    ir_values[38] = 7; // 114 degrees
-    ir_values[39] = 7; // 117 degrees
-    ir_values[40] = 7; // 120 degrees
+    // ir_values[31] = 7; // 93 degrees
+    // ir_values[32] = 7; // 96 degrees
+    // ir_values[33] = 7; // 99 degrees
+    // ir_values[34] = 7; // 102 degrees
+    // ir_values[35] = 7; // 105 degrees
+    // ir_values[36] = 7; // 108 degrees
+    // ir_values[37] = 7; // 111 degrees
+    // ir_values[38] = 7; // 114 degrees
+    // ir_values[39] = 7; // 117 degrees
+    // ir_values[40] = 7; // 120 degrees
 
-    ir_values[41] = 7; // 123 degrees
-    ir_values[42] = 7; // 126 degrees
-    ir_values[43] = 7; // 129 degrees
-    ir_values[44] = 7; // 132 degrees
-    ir_values[45] = 7; // 135 degrees
-    ir_values[46] = 7; // 138 degrees
-    ir_values[47] = 7; // 141 degrees
-    ir_values[48] = 7; // 144 degrees
-    ir_values[49] = 7; // 147 degrees
-    ir_values[50] = 7; // 150 degrees
+    // ir_values[41] = 7; // 123 degrees
+    // ir_values[42] = 7; // 126 degrees
+    // ir_values[43] = 7; // 129 degrees
+    // ir_values[44] = 7; // 132 degrees
+    // ir_values[45] = 7; // 135 degrees
+    // ir_values[46] = 7; // 138 degrees
+    // ir_values[47] = 7; // 141 degrees
+    // ir_values[48] = 7; // 144 degrees
+    // ir_values[49] = 7; // 147 degrees
+    // ir_values[50] = 7; // 150 degrees
 
-    ir_values[51] = 7; // 153 degrees
-    ir_values[52] = 7; // 157 degrees
-    ir_values[53] = 7; // 160 degrees
-    ir_values[54] = 7; // 163 degrees
-    ir_values[55] = 7; // 166 degrees
-    ir_values[56] = 7; // 169 degrees
-    ir_values[57] = 7; // 172 degrees
-    ir_values[58] = 7; // 175 degrees
-    ir_values[59] = 7; // 178 degrees
-    ir_values[60] = 7; // 180 degrees
+    // ir_values[51] = 7; // 153 degrees
+    // ir_values[52] = 7; // 157 degrees
+    // ir_values[53] = 7; // 160 degrees
+    // ir_values[54] = 7; // 163 degrees
+    // ir_values[55] = 7; // 166 degrees
+    // ir_values[56] = 7; // 169 degrees
+    // ir_values[57] = 7; // 172 degrees
+    // ir_values[58] = 7; // 175 degrees
+    // ir_values[59] = 7; // 178 degrees
+    // ir_values[60] = 7; // 180 degrees
 
-    ir_values[61] = 7; // 183 degrees
-    ir_values[62] = 7; // 187 degrees
-    ir_values[63] = 7; // 190 degrees
-    ir_values[64] = 7; // 193 degrees
-    ir_values[65] = 7; // 196 degrees
-    ir_values[66] = 7; // 199 degrees
-    ir_values[67] = 7; // 202 degrees
-    ir_values[68] = 7; // 205 degrees
-    ir_values[69] = 7; // 208 degrees
-    ir_values[70] = 7; // 210 degrees
+    // ir_values[61] = 7; // 183 degrees
+    // ir_values[62] = 7; // 187 degrees
+    // ir_values[63] = 7; // 190 degrees
+    // ir_values[64] = 7; // 193 degrees
+    // ir_values[65] = 7; // 196 degrees
+    // ir_values[66] = 7; // 199 degrees
+    // ir_values[67] = 7; // 202 degrees
+    // ir_values[68] = 7; // 205 degrees
+    // ir_values[69] = 7; // 208 degrees
+    // ir_values[70] = 7; // 210 degrees
 
-    ir_values[71] = 7; // 213 degrees
-    ir_values[72] = 7; // 216 degrees
-    ir_values[73] = 7; // 219 degrees
-    ir_values[74] = 7; // 222 degrees
-    ir_values[75] = 40; // 225 degrees
-    ir_values[76] = 7; // 228 degrees
-    ir_values[77] = 7; // 231 degrees
-    ir_values[78] = 7; // 234 degrees
-    ir_values[79] = 7; // 237 degrees
-
-
-
+    // ir_values[71] = 7; // 213 degrees
+    // ir_values[72] = 7; // 216 degrees
+    // ir_values[73] = 7; // 219 degrees
+    // ir_values[74] = 7; // 222 degrees
+    // ir_values[75] = 40; // 225 degrees
+    // ir_values[76] = 7; // 228 degrees
+    // ir_values[77] = 7; // 231 degrees
+    // ir_values[78] = 7; // 234 degrees
+    // ir_values[79] = 7; // 237 degrees
 
 
     struct map towers;
 
     //create map
-    // towers.location[0] = 0.5; 
-    // towers.location[0] = 359.5; 
     towers.location[0] = 0;
     towers.location[1] = 90; 
     towers.location[2] = 225; 
@@ -276,19 +293,43 @@ int main(){
     
     //there should be a little of overlap between the freespace and block
     //trapizoids to catch edge cases where sensor is near edge of block
-    free_space.a = 0;
-    free_space.b = 2;
+    free_space.a = -1;
+    free_space.b = 0;
     free_space.c = 10;
-    free_space.d = 25;
+    free_space.d = 50;
 
-    block.a = 20;
+    block.a = 40;
     block.b = 80;
-    block.c = 100;
-    block.d = 105;
+    block.c = 90;
+    block.d = 160;
 
     int count = 0;
+    
+    float real;
+    float imaginary;
 
-    while(count < 80){
+    //make sensor values based on map, TEST
+    for(int i = 0; i < 120; i = i + 3){
+        
+        float dist = min( abs(i - towers.location[0]) , min( abs(i - towers.location[1]) ,abs(i - towers.location[2]) ) );
+
+        if(dist < BLOCK_ANGLE - 0.25){
+            
+            ir_values[i] = (int)(85 + gaussian_sample(0,5));
+        }
+
+        else if ((dist >= BLOCK_ANGLE - 0.25) && (dist <= BLOCK_ANGLE + 0.5)){
+            ir_values[i] = (int)(40 + gaussian_sample(0,5));
+        }
+
+        else{
+            ir_values[i] = (int)(5 + gaussian_sample(0,2));
+
+        }
+        printf("Initialized angle %d: %d\n",3*i,ir_values[i]);
+    }
+
+    while(count < 10){
 
         ir_value = ir_values[count];
         
@@ -356,36 +397,32 @@ int main(){
         }
 
         //calculate mean and standard deviation
-        float mean_angle = calc_mean(&particles[0],(float)PARTICLE_COUNT);
+        float mean_angle = calc_mean(&particles[0],&real,&imaginary,(float)PARTICLE_COUNT);
 
-        float variance_sum = 0;
-        float temp;
-        float std_dev;
-        
-        //calculate variance
-        for(int i = 0; i < PARTICLE_COUNT; i++){
-            // float displacement = min(fabs(particles[i] - mean_angle),360 - fabs(particles[i] - mean_angle));
-            temp = fabs(mean_angle - particles[i]);
-            while(temp >= 180)
-                temp -= 180;
-            variance_sum += temp*temp;
-        }
-
-        variance_sum = variance_sum / PARTICLE_COUNT;
-        std_dev = sqrtf(variance_sum);
+        float std_devation = standard_devation(&particles[0],&real,&imaginary,(float)PARTICLE_COUNT);
         
         float travel_dist;
 
-        printf("Standard Deviation: %2.3f Mean:%2.3f \n",std_dev,mean_angle);
+       // printf("Real: %2.3f Imaginary:%2.3f \n",real,imaginary);
+
+        printf("Standard Deviation: %2.3f Mean:%2.3f \n",std_devation,mean_angle);
         
         //check if particles are grouped together, localization protocol
         
-        if(std_dev < 40){
+        // if(std_devation < 40){
             
-            printf("Localized\n");
+        //     printf("Localized\n");
 
-        }
-    count++;   
+        // }
+
+        count++;
+
+        if (count == 360){
+
+            count = 0;
+
+        }   
+
     }
 
     for(int i = 0; i < PARTICLE_COUNT; i++){
