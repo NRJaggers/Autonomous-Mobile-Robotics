@@ -39,7 +39,7 @@ Notes:  measure time it takes to traverse around a portion of the circle (like
 #include <avr/interrupt.h>
 #include "functions.h"
 
-#define COUNTMAX 50000 // I hope this is enough, adjust based on experimental runs
+#define COUNTMAX 50000 // adjusted based on experimental runs
 
 //function given by Dr.Seng
 void init_encoder() {

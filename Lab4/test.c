@@ -130,35 +130,6 @@ void test_motion_noise(u16 ticks)
    print_num(left_encoder);
 }
 
-//direction is LEFT or RIGHT #define (0 or 1)
-//if this doesn't work in main program, maybe switch to ticks
-void turn_90(u08 direction)
-{
-   //Assumes you will use same speed as base speed
-   if(direction == LEFT)
-   {
-      spin(BASE_SPEED);
-      _delay_ms(LDUR);
-      motor_init();
-   }
-
-   else if (direction == RIGHT)
-   {
-      spin(-BASE_SPEED);
-      _delay_ms(RDUR);
-      motor_init();
-   }
-   else
-   {
-      clear_screen();
-      lcd_cursor(0,0);
-      print_string("Spin Dir");
-      lcd_cursor(0,1);
-      print_string("Error");
-   }
-
-}
-
 int main(void) {
       init();  //initialize board hardware
       motor_init();

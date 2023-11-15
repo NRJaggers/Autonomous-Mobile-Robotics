@@ -49,6 +49,14 @@ Notes and Ideas:
 // Monty Carlo Localization componets
 #define LDUR 44500/BASE_SPEED
 #define RDUR 38500/BASE_SPEED
+#define PI 3.141592654
+#define PARTICLE_COUNT 100
+#define NUM_TOWERS 3 
+#define BLOCK_ANGLE 1.5
+#define FREE 0
+#define BLOCK_TOWER 1
+#define MOTION_NOISE_DEV 0.1
+#define MOTION_DEGREES 1
 
 // Testing include file
 void test_include();
@@ -98,15 +106,18 @@ struct MotorValues compute_neural_network(float left_sensor, float right_sensor,
 void train_neural_network(int epochs_max, float alpha,  struct NeuralData *nD, float *parameters);
 
 //Monty Carlo Localization Functions
+/***Given by Dr.Seng***/
+//function given by Dr.Seng
+// void init_encoder();
 
-#define PI 3.141592654
-#define PARTICLE_COUNT 100
-#define NUM_TOWERS 3 
-#define BLOCK_ANGLE 1.5
-#define FREE 0
-#define BLOCK_TOWER 1
-#define MOTION_NOISE_DEV 0.1
-#define MOTION_DEGREES 1
+// //Global Variables for encoder counters
+// volatile uint16_t left_encoder = 0;
+// volatile uint16_t right_encoder = 0;
+
+// ISR(PCINT0_vect);
+// ISR(PCINT1_vect);
+
+/***Given Code End***/
 
 struct map{
     float location[NUM_TOWERS];
