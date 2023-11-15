@@ -77,16 +77,26 @@ ISR(PCINT1_vect) {
 
 void advance(float degrees){
 
-   left_encoder = 0;
+    left_encoder = 0;
 
-
-   forward(BASE_SPEED);
+    //variables for proportional controller
+    struct motor_command speed;
+    u08 left_sensor_value, right_sensor_value; 
 
    while ((int)(left_encoder*0.8) < degrees)
    {
-      lcd_cursor(0,1);
-      clear_screen();
-      print_num(left_encoder);
+        //read sensor values
+        left_sensor_value = analog(ANALOG4_PIN); 
+        right_sensor_value = analog(ANALOG3_PIN);
+
+        //follow line and count ticks
+        speed = compute_proportional(left_sensor_value, right_sensor_value); //may need to adjust proportional term so bot turns harder
+        motor(LEFT, speed.left_motor);
+        motor(RIGHT, speed.right_motor);
+
+        lcd_cursor(0,1);
+        clear_screen();
+        print_num(left_encoder);
    };
 
    motor_init();
@@ -241,6 +251,9 @@ int main(){
             advance(travel_dist);
 
             //turn and barrel that shit down
+            turn_90(RIGHT);
+            forward(100);
+            _delay_ms(1000);
 
             //stop motors
             motor_init();

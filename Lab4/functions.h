@@ -56,7 +56,7 @@ Notes and Ideas:
 #define FREE 0
 #define BLOCK_TOWER 1
 #define MOTION_NOISE_DEV 0.1
-#define MOTION_DEGREES 1
+#define MOTION_DEGREES 3
 
 // Testing include file
 void test_include();
