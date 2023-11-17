@@ -31,13 +31,13 @@ Questions:  Should probablility of tower and free space functions add to 1?
 #include <time.h>
 
 #define PI 3.141592654
-#define PARTICLE_COUNT 100
+#define PARTICLE_COUNT 500
 #define NUM_TOWERS 3 
 #define BLOCK_ANGLE 2
 #define FREE 0
 #define BLOCK_TOWER 1
 #define MOTION_NOISE_DEV 0
-#define MOTION_DEGREES 7
+#define MOTION_DEGREES 2
 
 //Box-Muller Transform: function to create sample from gaussian curve
 float gaussian_sample(float shift, float scale){
@@ -161,7 +161,7 @@ float standard_devation(float *particle, float *real, float *imaginary, float si
     }
 
     return sqrtf(variance_sum / PARTICLE_COUNT) * 180 / PI;
-    
+
 }
 
 int main(){
@@ -219,7 +219,7 @@ int main(){
 
     int count = 0;
     
-    int start_pos = 0;
+    int start_pos = 350;
 
     float real;
     float imaginary;
@@ -254,7 +254,7 @@ int main(){
         printf("Initialized angle %d: %2.3f\n",i,ir_values[i]);
     }
 
-    while(count < 30){
+    while(count < 100){
 
         ir_value = ir_values[start_pos];
         
@@ -343,9 +343,9 @@ int main(){
 
     }
 
-    for(int i = 0; i < PARTICLE_COUNT; i++){
-        printf("%2.3f\n",particles[i]);
-    }
+    // for(int i = 0; i < PARTICLE_COUNT; i++){
+    //     printf("%2.3f\n",particles[i]);
+    // }
     
     return 0;
 }
