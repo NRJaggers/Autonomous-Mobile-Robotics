@@ -31,13 +31,13 @@ Questions:  Should probablility of tower and free space functions add to 1?
 #include <time.h>
 
 #define PI 3.141592654
-#define PARTICLE_COUNT 100
+#define PARTICLE_COUNT 500
 #define NUM_TOWERS 3 
 #define BLOCK_ANGLE 2
 #define FREE 0
 #define BLOCK_TOWER 1
 #define MOTION_NOISE_DEV 0
-#define MOTION_DEGREES 7
+#define MOTION_DEGREES 2
 
 //Box-Muller Transform: function to create sample from gaussian curve
 float gaussian_sample(float shift, float scale){
@@ -184,7 +184,7 @@ int main(){
     //initialize particle positions randomly
     for(int i = 0; i < PARTICLE_COUNT; i++){
         // particles[i] = 360 * (float) rand() / RAND_MAX;
-        particles[i] = 360.0 * i / 100.0;
+        particles[i] = 360.0 * i / PARTICLE_COUNT;
         printf("Particle %d: %2.3f\n",i,particles[i]);
         // printf("%2.3f\n",particles[i]);
 
@@ -195,10 +195,22 @@ int main(){
     struct map towers;
 
     //create map
-    towers.location[0] = 0;
-    towers.location[1] = 90; 
-    towers.location[2] = 225; 
-    towers.target = 1; 
+    printf("Tower 0 angle: ");
+    scanf("%f", &towers.location[0]);
+    printf("%2f", towers.location[0]);
+
+    printf("\nTower 1 angle: ");
+    scanf("%f", &towers.location[1]);
+    printf("%2f", towers.location[1]);
+
+    printf("\nTower 2 angle: ");
+    scanf("%f", &towers.location[2]);
+    printf("%2f", towers.location[2]);
+
+    printf("\nTarget tower: ");
+    scanf("%d", &towers.target);
+    printf("%d\n", towers.target);
+    
 
     //change these values
     struct trapezoid block;
@@ -219,7 +231,16 @@ int main(){
 
     int count = 0;
     
-    int start_pos = 0;
+    int start_pos;
+    int sim_length;
+    printf("Start angle: ");
+    scanf("%d", &start_pos);
+    printf("%d\n", towers.target);
+
+    printf("Sim length: ");
+    scanf("%d", &sim_length);
+    printf("%d\n", sim_length);
+
 
     float real;
     float imaginary;
@@ -251,10 +272,10 @@ int main(){
             ir_values[i] = (5 + gaussian_sample(0,1));
 
         }
-        printf("Initialized angle %d: %2.3f\n",i,ir_values[i]);
+        // printf("Initialized angle %d: %2.3f\n",i,ir_values[i]);
     }
 
-    while(count < 30){
+    while(count < sim_length){
 
         ir_value = ir_values[start_pos];
         
