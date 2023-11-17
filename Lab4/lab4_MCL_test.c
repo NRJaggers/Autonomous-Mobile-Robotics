@@ -44,6 +44,9 @@ typedef __uint16_t u16;
 #define PI 3.141592654
 #define PARTICLE_COUNT 10
 #define BLOCK_ANGLE 2
+#define MOTION_DEGREES 7
+#define FREE 0
+#define BLOCK_TOWER 1
 
 //define abstract data types 
 struct map{
@@ -102,80 +105,40 @@ void prob_given_tower_or_free(float sensor, struct trapezoid type, float *probab
     else{*probability = 0;}
 }
 
-// void classify_particles(float* particle, int* classify, struct map towers){
-    
-//     for(int j = 0; j < NUM_TOWERS; j++){
-        
-//         if((fabs(towers.location[j] - *particle)) <= BLOCK_ANGLE){
-//             *classify = BLOCK_TOWER;
-//             break;
-//         }
-
-//         if(towers.location[j] < *particle){
-//             if((towers.location[j] + (360 - *particle)) <= 1.5){
-//                 *classify = BLOCK_TOWER;
-//                 break;
-//             }
-//         }
-
-//         if(towers.location[j] > *particle){
-//             if((*particle + (360 - towers.location[j])) <= (float)BLOCK_ANGLE){
-//                 *classify = BLOCK_TOWER;
-//                 break;
-//             }
-//         }
-        
-//         else{*classify = FREE;}
-    
-//     }
-// }
-
-float min(float a, float b){
-    if (a < b) 
-        return a ;
-    else
-        return b;
-}
-
-float calc_mean(float *particle, float size){
-    float totalx = 0;
-    float totaly = 0;
-    
-    for(int i=0; i<size; i++){
-        totalx += cosf(*particle * PI / 180);
-        totaly += sinf(*particle * PI / 180);
-        particle++;
-    }
-
-    totalx = totalx / size;
-    totaly = totaly / size;
-
-    float angle = atanf(totaly/totalx) * 180 / PI;
-    
-    if(totalx < 0 && totaly >=0)
-        return angle + 180;
-    else if(totalx < 0 && totaly < 0)
-        return angle + 180;
-    else if(totalx >= 0 && totaly < 0)
-        return angle + 360;
-    else // if in pos x and pos y quadrant
-        return angle;
-}
-
 u16 advance(u16 location, u16 degrees)
 {
     //using noise in motion model
-    __int8_t noise = gaussian_sample(0,1);
-    u08 new_location = (location + degrees + noise) % 360;
+    u08 noise = gaussian_sample(0,1);
+    u16 new_location = (location + degrees + noise) % 360;
     return new_location; 
 }
 
-void init_part_array(particle array[], u16 count)
+float advance(float location, u16 degrees)
 {
-    for(int i = 0; i < count; i++)
-    {
-        array[i].location = (rand() / RAND_MAX)*359;
-        array[i].weight = 0;
+    //using noise in motion model
+    u08 noise = gaussian_sample(0,1);
+    float new_location = fmod((location + degrees + noise), 360.0);
+    return new_location; 
+}
+
+// void init_part_array(particle array[], u16 count)
+// {
+//     for(int i = 0; i < count; i++)
+//     {
+//         array[i].location = (rand() / RAND_MAX)*359;
+//         array[i].weight = 0;
+//     }
+// }
+
+void init_part_array(float array[])
+{
+    //initialize particle positions randomly
+    for(int i = 0; i < PARTICLE_COUNT; i++){
+        // array[i] = 360 * (float) rand() / RAND_MAX;
+        array[i] = 360.0 * i / 100.0;
+        //printf("Particle %d: %2.3f\n",i+1,array[i]);
+        // printf("%2.3f\n",array[i]);
+
     }
 }
 
@@ -316,10 +279,160 @@ struct map init_map()
     return map; 
 }
 
-int main(){
+void classify_particles(float* particle, int* classify, struct map towers){
+    
+    // for(int j = 0; j < towers.num_towers; j++){
+        
+    //     if((fabs(towers.location[j] - *particle)) <= BLOCK_ANGLE){
+    //         *classify = BLOCK_TOWER;
+    //         break;
+    //     }
 
-    //define variables
+    //     if(towers.location[j] < *particle){
+    //         if((towers.location[j] + (360 - *particle)) <= 1.5){
+    //             *classify = BLOCK_TOWER;
+    //             break;
+    //         }
+    //     }
+
+    //     if(towers.location[j] > *particle){
+    //         if((*particle + (360 - towers.location[j])) <= (float)BLOCK_ANGLE){
+    //             *classify = BLOCK_TOWER;
+    //             break;
+    //         }
+    //     }
+        
+    //     else{*classify = FREE;}
+    
+    // }
+
+    u08 close = 0;
+    for(int j = 0; j < towers.num_towers; j++){
+
+        close = f_within_n(BLOCK_ANGLE, *particle, towers.t_locations[j]);
+
+        if (close == 1)
+        {
+            *classify = BLOCK_TOWER;
+            break;
+        }
+        else
+            *classify = FREE;
+    }
+
+}
+
+void resample_particles(float particles[], float probabilities[])
+{
+    int sampling_total = (int) (PARTICLE_COUNT * 0.99);
+    float random; 
+    float random_count;
+    int j = 0;
+    float new_particles[PARTICLE_COUNT];
+
+    //resample portion of dataset
+    for(int i = 0; i < sampling_total; i++){
+        random = (float) rand() / RAND_MAX;
+        // random = 1;
+        // printf("Random Sum: %2.3f\n",random);
+        random_count = 0;
+        
+        while(random_count <= random){
+            random_count += probabilities[j];
+            // printf("Random Prob: %2.3f\n",probabilities[j]);
+            j++;
+            //reset spinner if it makes it to end of list
+            if(j>=PARTICLE_COUNT)
+                j=0;
+
+        }
+
+        if(j == 0){
+            new_particles[i] = particles[PARTICLE_COUNT - 1];
+        }
+        else{
+            new_particles[i] = particles[j - 1]; //must subtact b/c of while loop
+        }
+        // printf("Sampled Particle %d: %d Degrees: %2.3f \n",i,j-1,new_particles[i]);
+    }
+
+    // add noisy particles
+    for(int i = sampling_total; i < PARTICLE_COUNT; i++){
+        new_particles[i] = 359 * (float) rand() / RAND_MAX; 
+        // printf("Random Noise: %2.3f \n",new_particles[i]);   
+    }
+
+    //update original container
+    for(int i = 0; i < PARTICLE_COUNT; i++){
+        particles[i] = new_particles[i];  
+        // + gaussian_sample(0, 0.1);
+    }
+}
+
+float min(float a, float b){
+    if (a < b) 
+        return a ;
+    else
+        return b;
+}
+
+float calc_mean(float *particle, float *real, float *imaginary, float size){
+    float totalx = 0;
+    float totaly = 0;
+    
+    for(int i=0; i<size; i++){
+        totalx += cosf(*particle * PI / 180);
+        totaly += sinf(*particle * PI / 180);
+        particle++;
+    }
+
+    totalx = totalx / size;
+    totaly = totaly / size;
+
+    *real = totalx;
+    *imaginary = totaly;
+
+    float angle = atanf(totaly/totalx) * 180 / PI;
+    
+    if(totalx < 0 && totaly >=0)
+        return angle + 180;
+    else if(totalx < 0 && totaly < 0)
+        return angle + 180;
+    else if(totalx >= 0 && totaly < 0)
+        return angle + 360;
+    else // if in pos x and pos y quadrant
+        return angle;
+}
+
+float standard_devation(float *particle, float *real, float *imaginary, float size){
+    
+    float variance_sum = 0;
+    
+    for(int i=0; i<size; i++){
+
+        float devx = cosf(*particle * PI / 180) - *real;
+        float devy = sinf(*particle * PI / 180) - *imaginary;
+
+        variance_sum += devx*devx + devy*devy;
+
+        particle++;
+    }
+
+    return sqrtf(variance_sum / PARTICLE_COUNT) * 180 / PI;
+    
+}
+
+
+int main(){
+    //seed RNG
+    srand(time(NULL));
+
+    //define map variables
     struct map layout;
+    layout.num_towers = 3;
+    layout.r_location = 0;
+    layout.t_locations = new u16[0, 45, 180];
+    layout.target = 2;
     
     struct trapezoid block;
     struct trapezoid free_space;
@@ -334,37 +447,90 @@ int main(){
     block.c = 90;
     block.d = 160;
 
+    //define sensor variables
+    int ir_value;
+    float ir_values[360];
+
+    //define particle variables
+    float particles[PARTICLE_COUNT];
+    float probabilities[PARTICLE_COUNT];
+    int classify[PARTICLE_COUNT];
+
+    float sum;
+
+    //define other variables
+    float real;
+    float imaginary;
+    u16 predicted_location = 400;
+
     //initialization parameters
     //these variables describe the map of the circle and blocks
     //get from user input: number of towers, locations, target and robot location
     printf("---MCL Simulation---\n");
     
-    // layout = init_map();
-
-    // u08 test = simulate_sensor(layout);
-    // printf("%u",test);
-
-
-    //other useful variables
-    // particle particle_array[PARTICLE_COUNT];
-    // u08  sensor = 0; //IR sensor measuring distance to objects
-    
-    // init_part_array(particle_array, PARTICLE_COUNT);
-
-    // //advance robot and take sensor reading
-    // robot_location = advance(robot_location, 5);
-    // sensor = simulate_sensor(robot_location, tower_locations, NUM_TOWERS);
-
-
-    // - for each particle:
-    //     ~ advance the particle (and add noise)
-    //     ~ categorize particle (tower or free space)
-    //     ~ compute weight for particle
-    // - resample particles
-
-
+    //layout = init_map();
 
     
+    init_part_array(particles);
+
+    //maybe this is a solid exit condition, maybe make it based on particles?
+    while((predicted_location - layout.r_location) > 10) 
+    {
+        //advance robot and take sensor reading
+        layout.r_location = advance(layout.r_location, MOTION_DEGREES);
+        ir_value = simulate_sensor(layout);
+
+        //reset for particle calculations
+        sum = 0;
+
+        //for each particle:
+        //advance the particle
+        //classify particles as tower or free space, assign probabilites
+        for(int i = 0; i < PARTICLE_COUNT; i++){
+            
+            //advance
+            particles[i] = advance(particles[i], MOTION_DEGREES);
+
+            //classify
+            classify_particles(&particles[i], &classify[i], layout);
+            
+            //assign probabilities
+            if(classify[i] == BLOCK_TOWER){
+                // printf("Particle %d: Tower\n",i);
+                prob_given_tower_or_free(ir_value, block, &probabilities[i]);
+                // printf("TOWER ANGLE: %2.3f , Probability: %2.3f\n", particles[i], probabilities[i]);
+            }
+            else{
+                // printf("Particle %d: Free Space\n",i);
+                prob_given_tower_or_free(ir_value, free_space, &probabilities[i]);
+            }
+            // printf("Particle Angle: %2.3f Probability: %2.3f\n", particles[i],probabilities[i]);
+            //get running sum
+            sum += probabilities[i];
+        }
+
+        //normalize probabilities
+        for(int i = 0; i < PARTICLE_COUNT; i++){
+            probabilities[i] = probabilities[i] / sum;
+            // printf("Probability Particle %d: %2.3f\n",i,probabilities[i]);
+        }
+
+        resample_particles(particles, probabilities);
+
+        //calculate mean and standard deviation
+        float mean_angle = calc_mean(&particles[0],&real,&imaginary,(float)PARTICLE_COUNT);
+
+        float std_devation = standard_devation(&particles[0],&real,&imaginary,(float)PARTICLE_COUNT);
+
+        printf("Ref angle %d Mean Angle: %2.3f Standard Deviation: %2.3f\n",layout.r_location,mean_angle,std_devation);
+    
+        if (std_devation < 10)
+        {
+            predicted_location = mean_angle;
+        }
+    }
+
+    //should now know location
 
     return 0;
 }
