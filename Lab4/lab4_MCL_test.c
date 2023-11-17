@@ -44,7 +44,7 @@ typedef __uint16_t u16;
 //define known parameters and constants
 #define PI 3.141592654
 #define PARTICLE_COUNT 10
-#define BLOCK_ANGLE 2
+#define BLOCK_ANGLE 10
 #define MOTION_DEGREES 7
 #define FREE 0
 #define BLOCK_TOWER 1
@@ -465,6 +465,7 @@ int main(){
     float real;
     float imaginary;
     u16 predicted_location = 400;
+    u08 matching = 0;
 
     //define and prep output file instance
     std::ofstream fout;
@@ -502,7 +503,7 @@ int main(){
     }
 
     //maybe this is a solid exit condition, maybe make it based on particles?
-    while((predicted_location - layout.r_location) > 10) 
+    while(matching == 0) 
     {
         //advance robot and take sensor reading
         layout.r_location = advance(layout.r_location, MOTION_DEGREES);
@@ -556,6 +557,15 @@ int main(){
         {
             predicted_location = mean_angle;
         }
+        else
+        {
+            predicted_location = 400;
+        }
+
+        if (predicted_location != 400){
+            matching = f_within_n(5, predicted_location,layout.r_location);
+        }
+            
 
         //print info to file
         iteration++;
