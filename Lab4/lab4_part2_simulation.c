@@ -161,7 +161,7 @@ float standard_devation(float *particle, float *real, float *imaginary, float si
     }
 
     return sqrtf(variance_sum / PARTICLE_COUNT) * 180 / PI;
-    
+
 }
 
 int main(){
@@ -364,9 +364,9 @@ int main(){
 
     }
 
-    for(int i = 0; i < PARTICLE_COUNT; i++){
-        printf("%2.3f\n",particles[i]);
-    }
+    // for(int i = 0; i < PARTICLE_COUNT; i++){
+    //     printf("%2.3f\n",particles[i]);
+    // }
     
     return 0;
 }

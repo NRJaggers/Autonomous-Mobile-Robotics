@@ -5,6 +5,7 @@
 *.o
 lab3_nn_test
 *temp*
+MCL_Sim.txt
 
 #Folders
 /attach.ps1

@@ -34,6 +34,7 @@ Questions:
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <fstream> 
 #include <new>
 
 //make porting to bot easizer
@@ -43,7 +44,7 @@ typedef __uint16_t u16;
 //define known parameters and constants
 #define PI 3.141592654
 #define PARTICLE_COUNT 10
-#define BLOCK_ANGLE 2
+#define BLOCK_ANGLE 10
 #define MOTION_DEGREES 7
 #define FREE 0
 #define BLOCK_TOWER 1
@@ -134,8 +135,8 @@ void init_part_array(float array[])
 {
     //initialize particle positions randomly
     for(int i = 0; i < PARTICLE_COUNT; i++){
-        // array[i] = 360 * (float) rand() / RAND_MAX;
-        array[i] = 360.0 * i / 100.0;
+        //array[i] = 360 * (float) rand() / RAND_MAX;
+        array[i] = ((360.0 * i) / PARTICLE_COUNT);
         //printf("Particle %d: %2.3f\n",i+1,array[i]);
         // printf("%2.3f\n",array[i]);
 
@@ -430,8 +431,9 @@ int main(){
     //define map variables
     struct map layout;
     layout.num_towers = 3;
-    layout.r_location = 0;
-    layout.t_locations = new u16[0, 45, 180];
+    layout.r_location = 1;
+    u16 temp[] = {0, 45, 180};
+    layout.t_locations = temp;
     layout.target = 2;
     
     struct trapezoid block;
@@ -459,22 +461,49 @@ int main(){
     float sum;
 
     //define other variables
+    int iteration = 0;
     float real;
     float imaginary;
     u16 predicted_location = 400;
+    u08 matching = 0;
+
+    //define and prep output file instance
+    std::ofstream fout;
+    fout.open("MCL_Sim.txt");
+    if(!fout.is_open())
+    {
+        printf("Error opening output file");
+        return -1;
+    }
+    
 
     //initialization parameters
     //these variables describe the map of the circle and blocks
     //get from user input: number of towers, locations, target and robot location
     printf("---MCL Simulation---\n");
+    fout << "---MCL Simulation---\n";
     
     //layout = init_map();
 
+    //print map layout to file
+    fout << "num_towers:" << layout.num_towers << std::endl;
+    fout << "r_location:" << layout.r_location << std::endl;
+    for (int i = 0; i < layout.num_towers; i++)
+    {
+        fout << "t_location_" << i+1 << ":" << layout.t_locations[i] << std::endl;
+    }
+    fout << "target:" << layout.target << std::endl;
     
     init_part_array(particles);
 
+    fout << "---Particles Init---\n";
+    for (int i = 0; i < PARTICLE_COUNT; i++)
+    {
+        fout << "Particle " << i+1 << ": " << particles[i] << std::endl;
+    }
+
     //maybe this is a solid exit condition, maybe make it based on particles?
-    while((predicted_location - layout.r_location) > 10) 
+    while(matching == 0) 
     {
         //advance robot and take sensor reading
         layout.r_location = advance(layout.r_location, MOTION_DEGREES);
@@ -528,9 +557,30 @@ int main(){
         {
             predicted_location = mean_angle;
         }
+        else
+        {
+            predicted_location = 400;
+        }
+
+        if (predicted_location != 400){
+            matching = f_within_n(5, predicted_location,layout.r_location);
+        }
+            
+
+        //print info to file
+        iteration++;
+        fout << "---Particles " << iteration << "---\n";
+        fout << "r_location:" << layout.r_location << std::endl;
+        for (int i = 0; i < PARTICLE_COUNT; i++)
+        {
+            fout << "Particle " << i+1 << ": " << particles[i] << std::endl;
+        }
+        fout << "predicted location:" << predicted_location << std::endl;
+
     }
 
     //should now know location
 
+    fout.close();
     return 0;
 }
