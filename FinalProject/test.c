@@ -80,8 +80,6 @@ int main(){
         // lcd_cursor(0,1);
         // print_num(distance_sensor_value);
 
-      
-       
         switch(state){
 
             case READ_SENSORS:
@@ -91,9 +89,9 @@ int main(){
                 // for(int i = 0; i < 30){
                 while(1){
                     
-                    u08 distance_sensor_value = analog(ANALOG2_PIN); 
-                    u08 right_sensor_value = analog(ANALOG3_PIN); 
-                    u08 left_sensor_value = analog(ANALOG4_PIN); 
+                    distance_sensor_value = analog(ANALOG2_PIN); 
+                    right_sensor_value = analog(ANALOG3_PIN); 
+                    left_sensor_value = analog(ANALOG4_PIN); 
                     
                     if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
                         state = CORRECTION;
@@ -119,7 +117,12 @@ int main(){
                 lcd_cursor(0,0);
                 print_string("correct");
                 while(1){
-                    
+                    right_sensor_value = analog(ANALOG3_PIN); 
+                    left_sensor_value = analog(ANALOG4_PIN);
+                    if(left_sensor_value < WHITE_THRESH && right_sensor_value < WHITE_THRESH){
+                        state = READ_SENSORS;
+                        break;
+                    }
                 }
             break;
 
@@ -129,12 +132,14 @@ int main(){
                 lcd_cursor(0,0);
                 print_string("CANFOUND");
                 while(1){
-                    u08 distance_sensor_value = analog(ANALOG2_PIN); 
+
+                    distance_sensor_value = analog(ANALOG2_PIN); 
         
                     if(distance_sensor_value < DIST_SENSOR_LOWER_THRESH){
                         state = READ_SENSORS;
                         break;
                     }
+
                 }
             break;
         }
