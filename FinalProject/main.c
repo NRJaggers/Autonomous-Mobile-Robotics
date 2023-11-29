@@ -14,8 +14,8 @@ the area as well.
 #include <avr/interrupt.h>
 #include "functions.h"
 
-#define RANGE_UPPER_THRESHOLD 200
-#define RANGE_LOWER_THRESHOLD 100
+#define DIST_SENSOR_UPPER_THRESH 170
+#define DIST_SENSOR_UPPER_THRESH 20
 
 int search_for_cans(){
 
@@ -34,7 +34,7 @@ int main(){
             case READ_SENSORS:
                 range = read_range_finder();
 
-                while(RANGE_LOWER_THRESHOLD < range  && range < RANGE_UPPER_THRESHOLD){
+                while(1){
                     
                     for(int i = 0; i < 30){
                         turn_right_degrees(1);
@@ -74,6 +74,19 @@ int main(){
                 break;
 
             case MOVEMENT:
+                while(1){
+                    move_robot();
+                    if(LEFT || RIGHT SENSOR == BLACK){
+                        //stop
+                        motor_init();
+                        reverse(); //move backwards
+                        turn_90();
+                        turn_90();
+                        state = READ_SENSORS;
+                        break;
+                    }
+                }
+                
 
                 break;
         }
