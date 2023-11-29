@@ -449,18 +449,18 @@ float calc_mean(float *particle, float size){
         return angle;
 }
 
-void turn_90(u08 direction){
+void turn_90(u08 direction, u08 scale){
    //Assumes you will use same speed as base speed
    if(direction == LEFT)
    {
-      spin(BASE_SPEED);
+      spin(BASE_SPEED/scale);
       _delay_ms(LDUR);
       motor_init();
    }
 
    else if (direction == RIGHT)
    {
-      spin(-BASE_SPEED);
+      spin(-BASE_SPEED/scale);
       _delay_ms(RDUR);
       motor_init();
    }

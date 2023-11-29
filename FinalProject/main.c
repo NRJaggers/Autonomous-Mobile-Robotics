@@ -15,7 +15,7 @@ the area as well.
 #include "functions.h"
 
 #define DIST_SENSOR_UPPER_THRESH 170
-#define DIST_SENSOR_UPPER_THRESH 20
+#define DIST_SENSOR_LOWER_THRESH 20
 
 int search_for_cans(){
 
@@ -23,7 +23,7 @@ int search_for_cans(){
 int main(){
     int range; 
 
-    typedef enum {READ_SENSORS, MOVEMENT} state_Robot;
+    typedef enum {READ_SENSORS, MOVEMENT, CORRECTION} state_Robot;
 
     state_Robot state = READ_SENSORS;
 
@@ -73,22 +73,22 @@ int main(){
 
                 break;
 
-            case MOVEMENT:
-                while(1){
-                    move_robot();
-                    if(LEFT || RIGHT SENSOR == BLACK){
-                        //stop
-                        motor_init();
-                        reverse(); //move backwards
-                        turn_90();
-                        turn_90();
-                        state = READ_SENSORS;
-                        break;
-                    }
-                }
+            // case MOVEMENT:
+            //     while(1){
+            //         move_robot();
+            //         if(LEFT || RIGHT SENSOR == BLACK){
+            //             //stop
+            //             motor_init();
+            //             reverse(); //move backwards
+            //             turn_90();
+            //             turn_90();
+            //             state = READ_SENSORS;
+            //             break;
+            //         }
+            //     }
                 
 
-                break;
+            //     break;
         }
 
 
