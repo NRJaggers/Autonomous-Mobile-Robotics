@@ -371,7 +371,7 @@ float gaussian_sample(float shift, float scale){
 }
 
 int read_range_finder(void){
-    return analog(ANALOG2_PIN);;
+    return analog(ANALOG2_PIN);
 }
 
 void prob_given_tower_or_free(float sensor, struct trapezoid type, float *probability){
