@@ -5,7 +5,7 @@
 #include "functions.h"
 
 #define BLACK_THRESH 150
-#define WHITE_THRESH 20
+#define WHITE_THRESH 60
 #define DIST_SENSOR_UPPER_THRESH 170
 #define DIST_SENSOR_LOWER_THRESH 50
 
@@ -115,7 +115,6 @@ int main(){
                         
                     else{
                         encoder_turn_degree(RIGHT,3); // turn 1 degree
-                        delay_ms(10);
                     }
                 
                     if(DIST_SENSOR_LOWER_THRESH < distance_sensor_value 
@@ -155,12 +154,21 @@ int main(){
                 lcd_cursor(0,0);
                 print_string("CANFOUND");
 
+                forward(BASE_SPEED);
+
                 while(1){
 
                     distance_sensor_value = analog(ANALOG2_PIN); 
-        
+                    right_sensor_value = analog(ANALOG3_PIN); 
+                    left_sensor_value = analog(ANALOG4_PIN); 
+
                     if(distance_sensor_value < DIST_SENSOR_LOWER_THRESH){
                         state = READ_SENSORS;
+                        break;
+                    }
+
+                    if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
+                        state = CORRECTION;
                         break;
                     }
 
