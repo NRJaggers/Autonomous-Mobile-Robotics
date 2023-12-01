@@ -14,87 +14,185 @@ the area as well.
 #include <avr/interrupt.h>
 #include "functions.h"
 
+#define BLACK_THRESH 150
+#define WHITE_THRESH 60
 #define DIST_SENSOR_UPPER_THRESH 170
-#define DIST_SENSOR_LOWER_THRESH 20
+#define DIST_SENSOR_LOWER_THRESH 50
 
-int search_for_cans(){
+volatile uint16_t left_encoder = 0;
+
+volatile uint16_t right_encoder = 0;
+
+void init_encoder() {
+
+    // enable encoder interrupts
+    EIMSK = 0;
+
+    EIMSK |= _BV(PCIE1) | _BV(PCIE0);
+
+    PCMSK1 |= _BV(PCINT13); //PB5 - digital 5
+
+    PCMSK0 |= _BV(PCINT6);  //PE6 - digital 4
+
+    // enable pullups
+
+    PORTE |= _BV(PE6);
+
+    PORTB |= _BV(PB5);
 
 }
+
+ISR(PCINT0_vect) {
+
+   left_encoder++;  //increment left encoder
+
+}
+
+ISR(PCINT1_vect) {
+
+   right_encoder++;  //increment right encoder
+
+}
+
+void encoder_turn_degree(u08 direction, u08 degree){ //must be in increments of 3 degrees
+    left_encoder = 0;
+    
+    if(direction == LEFT){spin(BASE_SPEED);}
+    else if(direction == RIGHT){spin(-BASE_SPEED);}
+   
+    while(left_encoder <= (uint16_t)(degree / 3)){};
+    motor_init();
+
+}
+
 int main(){
-    int range; 
 
+    init(); //initialize board
+    motor_init(); //initialize motors
+    init_encoder(); //initialize encoder
+
+    u08 distance_sensor_value, right_sensor_value, left_sensor_value;
+    
     typedef enum {READ_SENSORS, MOVEMENT, CORRECTION} state_Robot;
-
     state_Robot state = READ_SENSORS;
 
+    // encoder_turn_degree(RIGHT,180);
+    // while(1){
+    //     lcd_cursor(0,0);
+    //     print_string("ENCODER");
+    //     lcd_cursor(0,1);
+    //     print_num(left_encoder);}
+    
     while(1){
+
+        clear_screen();
         
+        
+
+        // u08 left_sensor_value = analog(ANALOG4_PIN); 
+        // lcd_cursor(0,0);
+        // print_string("L: ");
+        // print_num(left_sensor_value);
+
+        // u08 right_sensor_value = analog(ANALOG3_PIN); 
+        // lcd_cursor(0,1);
+        // print_string("R: ");
+        // print_num(right_sensor_value);
+
+        // u08 distance_sensor_value = analog(ANALOG2_PIN); 
+        // lcd_cursor(0,0);
+        // print_string("Distance");
+        // lcd_cursor(0,1);
+        // print_num(distance_sensor_value);
+
         switch(state){
 
             case READ_SENSORS:
-                range = read_range_finder();
-
+                clear_screen();
+                lcd_cursor(0,0);
+                print_string("READ");
+                // for(int i = 0; i < 30){
                 while(1){
                     
-                    for(int i = 0; i < 30){
-                        turn_right_degrees(1);
-                        if(LEFT || RIGHT SENSOR == BLACK)
-                            //force a correction
-                            //break both loops
-                        range = read_range_finder();
-                        if(RANGE_LOWER_THRESHOLD < range  && range < RANGE_UPPER_THRESHOLD){
-                            state = MOVEMENT;
-                            break; // change state
-                        }
-                    }
-
-                    turn_left_degrees(30);
-
-                    for(int i = 0; i < 30){
-                        turn_left_degrees(1);
-                        if(LEFT || RIGHT SENSOR == BLACK)
-                           //force a correction
-                           //break loops
-
-                        range = read_range_finder();
-                        if(RANGE_LOWER_THRESHOLD < range  && range < RANGE_UPPER_THRESHOLD){
-                            state = MOVEMENT;
-                            break; // change state
-                        }
-                    }
-
-                    //randomly readjust and move
-                    turn_right_degrees(random value);
-                   
-                    move(); // a few units
+                    distance_sensor_value = analog(ANALOG2_PIN); 
+                    right_sensor_value = analog(ANALOG3_PIN); 
+                    left_sensor_value = analog(ANALOG4_PIN); 
                     
-                    
-                }
-
-                break;
-
-            // case MOVEMENT:
-            //     while(1){
-            //         move_robot();
-            //         if(LEFT || RIGHT SENSOR == BLACK){
-            //             //stop
-            //             motor_init();
-            //             reverse(); //move backwards
-            //             turn_90();
-            //             turn_90();
-            //             state = READ_SENSORS;
-            //             break;
-            //         }
-            //     }
+                    if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
+                        state = CORRECTION;
+                        break;
+                    }
+                        
+                    else{
+                        encoder_turn_degree(RIGHT,3); // turn 1 degree
+                    }
                 
+                    if(DIST_SENSOR_LOWER_THRESH < distance_sensor_value 
+                    && distance_sensor_value < DIST_SENSOR_UPPER_THRESH){
+                        state = MOVEMENT;
+                        break; // change state
+                    }
+                
+                }
+            break;
 
-            //     break;
+            case CORRECTION:
+                clear_screen();
+                lcd_cursor(0,0);
+                print_string("correct");
+               // while(1){
+                    right_sensor_value = analog(ANALOG3_PIN); 
+                    left_sensor_value = analog(ANALOG4_PIN);
+                    
+
+                    if(left_sensor_value > WHITE_THRESH){
+                        encoder_turn_degree(RIGHT,180);
+                    } 
+                    else{
+                        encoder_turn_degree(LEFT,180);
+                    }
+
+                    state = READ_SENSORS;
+                    break;
+                    
+              //  }
+            break;
+
+            case MOVEMENT:
+
+                clear_screen();
+                lcd_cursor(0,0);
+                print_string("CANFOUND");
+
+                forward(BASE_SPEED);
+
+                while(1){
+
+                    distance_sensor_value = analog(ANALOG2_PIN); 
+                    right_sensor_value = analog(ANALOG3_PIN); 
+                    left_sensor_value = analog(ANALOG4_PIN); 
+
+                    if(distance_sensor_value < DIST_SENSOR_LOWER_THRESH){
+                        state = READ_SENSORS;
+                        break;
+                    }
+
+                    if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
+                        state = CORRECTION;
+                        break;
+                    }
+
+                }
+            break;
         }
-
+       
+        _delay_ms(30);
+        // forward(25);
 
 
     }
+    
 
-    return 0;
+    return 0; 
 
 }
