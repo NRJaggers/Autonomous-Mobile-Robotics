@@ -45,10 +45,14 @@ ISR(PCINT1_vect) {
 }
 
 void encoder_turn_degree(u08 direction, u08 degree){ //must be in increments of 3 degrees
-    right_encoder = 0;
+    left_encoder = 0;
+    
     if(direction == LEFT){spin(BASE_SPEED);}
     else if(direction == RIGHT){spin(-BASE_SPEED);}
-    while(right_encoder <= (degree / 3)){};
+   
+    while(left_encoder <= (uint16_t)(degree / 3)){};
+    motor_init();
+
 }
 
 int main(){
@@ -62,16 +66,18 @@ int main(){
     typedef enum {READ_SENSORS, MOVEMENT, CORRECTION} state_Robot;
     state_Robot state = READ_SENSORS;
 
-    turn_90(RIGHT);
+    // encoder_turn_degree(RIGHT,180);
+    // while(1){
+    //     lcd_cursor(0,0);
+    //     print_string("ENCODER");
+    //     lcd_cursor(0,1);
+    //     print_num(left_encoder);}
     
     while(1){
 
         clear_screen();
         
-        // lcd_cursor(0,0);
-        // print_string("ENCODER");
-        // lcd_cursor(0,1);
-        // print_num(left_encoder);
+        
 
         // u08 left_sensor_value = analog(ANALOG4_PIN); 
         // lcd_cursor(0,0);
