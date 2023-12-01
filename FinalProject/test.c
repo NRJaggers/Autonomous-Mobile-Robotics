@@ -137,12 +137,10 @@ int main(){
                     
 
                     if(left_sensor_value > WHITE_THRESH){
-                        turn_90(RIGHT);
-                        turn_90(RIGHT);
+                        encoder_turn_degree(RIGHT,180);
                     } 
                     else{
-                        turn_90(LEFT);
-                        turn_90(LEFT);
+                        encoder_turn_degree(LEFT,180);
                     }
 
                     state = READ_SENSORS;
