@@ -507,9 +507,6 @@ void turn_degree(u08 direction, u08 degree){
 
 }
 
-void encoder_turn_degree(u08 direction, u08 degree)
-{
 
-}
 
 // ###################################################################################

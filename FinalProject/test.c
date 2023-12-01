@@ -44,6 +44,13 @@ ISR(PCINT1_vect) {
 
 }
 
+void encoder_turn_degree(u08 direction, u08 degree){ //must be in increments of 3 degrees
+    right_encoder = 0;
+    if(direction == LEFT){spin(BASE_SPEED);}
+    else if(direction == RIGHT){spin(-BASE_SPEED);}
+    while(right_encoder <= (degree / 3)){};
+}
+
 int main(){
 
     init(); //initialize board
@@ -143,7 +150,7 @@ int main(){
                 clear_screen();
                 lcd_cursor(0,0);
                 print_string("CANFOUND");
-                
+
                 while(1){
 
                     distance_sensor_value = analog(ANALOG2_PIN); 
