@@ -54,6 +54,8 @@ int main(){
     
     typedef enum {READ_SENSORS, MOVEMENT, CORRECTION} state_Robot;
     state_Robot state = READ_SENSORS;
+
+    turn_90(RIGHT);
     
     while(1){
 
@@ -129,7 +131,7 @@ int main(){
                         turn_90(LEFT);
                         turn_90(LEFT);
                     }
-                    
+
                     state = READ_SENSORS;
                     break;
                     
@@ -137,10 +139,11 @@ int main(){
             break;
 
             case MOVEMENT:
-                clear_screen();
 
+                clear_screen();
                 lcd_cursor(0,0);
                 print_string("CANFOUND");
+                
                 while(1){
 
                     distance_sensor_value = analog(ANALOG2_PIN); 
@@ -153,26 +156,6 @@ int main(){
                 }
             break;
         }
-        // turn_90(LEFT,3); //30 degrees
-        // turn_90(LEFT,3); //30 degrees
-
-        // for(int i = 0; i < 30){
-        //     turn_left_degrees(1);
-        //     if(LEFT || RIGHT SENSOR == BLACK)
-        //         //force a correction
-        //         //break loops
-
-        //     range = read_range_finder();
-        //     if(RANGE_LOWER_THRESHOLD < range  && range < RANGE_UPPER_THRESHOLD){
-        //         state = MOVEMENT;
-        //         break; // change state
-        //     }
-        // }
-
-        //randomly readjust and move
-        // turn_right_degrees(random value);
-        
-       
        
         _delay_ms(30);
         // forward(25);
