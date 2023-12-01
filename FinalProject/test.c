@@ -113,10 +113,10 @@ int main(){
                         break;
                     }
                         
-                    // else{
-                    //     turn_90(RIGHT,90); // turn 1 degree
-                    //     delay_ms(10);
-                    // }
+                    else{
+                        encoder_turn_degree(RIGHT,3); // turn 1 degree
+                        delay_ms(10);
+                    }
                 
                     if(DIST_SENSOR_LOWER_THRESH < distance_sensor_value 
                     && distance_sensor_value < DIST_SENSOR_UPPER_THRESH){
