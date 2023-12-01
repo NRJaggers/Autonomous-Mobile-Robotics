@@ -116,14 +116,24 @@ int main(){
                 clear_screen();
                 lcd_cursor(0,0);
                 print_string("correct");
-                while(1){
+               // while(1){
                     right_sensor_value = analog(ANALOG3_PIN); 
                     left_sensor_value = analog(ANALOG4_PIN);
-                    if(left_sensor_value < WHITE_THRESH && right_sensor_value < WHITE_THRESH){
-                        state = READ_SENSORS;
-                        break;
+                    
+
+                    if(left_sensor_value > WHITE_THRESH){
+                        turn_90(RIGHT);
+                        turn_90(RIGHT);
+                    } 
+                    else{
+                        turn_90(LEFT);
+                        turn_90(LEFT);
                     }
-                }
+                    
+                    state = READ_SENSORS;
+                    break;
+                    
+              //  }
             break;
 
             case MOVEMENT:
