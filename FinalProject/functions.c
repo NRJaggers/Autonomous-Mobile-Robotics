@@ -449,18 +449,18 @@ float calc_mean(float *particle, float size){
         return angle;
 }
 
-void turn_90(u08 direction, u08 scale){
+void turn_90(u08 direction){
    //Assumes you will use same speed as base speed
    if(direction == LEFT)
    {
-      spin(BASE_SPEED/scale);
+      spin(BASE_SPEED);
       _delay_ms(LDUR);
       motor_init();
    }
 
    else if (direction == RIGHT)
    {
-      spin(-BASE_SPEED/scale);
+      spin(-BASE_SPEED);
       _delay_ms(RDUR);
       motor_init();
    }
@@ -474,4 +474,42 @@ void turn_90(u08 direction, u08 scale){
    }
 
 }
+
+void turn_degree(u08 direction, u08 degree){
+    //Assumes you will use same speed as base speed
+    //based on turn 90
+
+    float scale = degree/90;
+    
+    int8_t speed = BASE_SPEED * scale;
+
+   if(direction == LEFT)
+   {
+      spin(speed);
+      _delay_ms(LDUR);
+      motor_init();
+   }
+
+   else if (direction == RIGHT)
+   {
+      spin(-speed);
+      _delay_ms(RDUR);
+      motor_init();
+   }
+   else
+   {
+      clear_screen();
+      lcd_cursor(0,0);
+      print_string("Spin Dir");
+      lcd_cursor(0,1);
+      print_string("Error");
+   }
+
+}
+
+void encoder_turn_degree(u08 direction, u08 degree)
+{
+
+}
+
 // ###################################################################################

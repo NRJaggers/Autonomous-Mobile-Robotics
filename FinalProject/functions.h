@@ -143,6 +143,17 @@ float min(float a, float b);
 
 float calc_mean(float *particle, float size);
 
-void turn_90(u08 direction,u08 scale);
+// void turn_15(u08 direction);
+
+// void turn_30(u08 direction);
+
+void turn_90(u08 direction);
+
+//void turn_180(u08 direction);
+
+void turn_degree(u08 direction,u08 degree);
+
+void encoder_turn_degree(u08 direction, u08 degree);
+
 #endif
 
