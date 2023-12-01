@@ -143,6 +143,6 @@ float min(float a, float b);
 
 float calc_mean(float *particle, float size);
 
-void turn_90(u08 direction,u08 scale);
+void turn_90(u08 direction);
 #endif
 
