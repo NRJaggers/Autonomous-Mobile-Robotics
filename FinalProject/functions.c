@@ -69,8 +69,8 @@ void spin(int8_t speed)
 
 void forward(int8_t speed)
 {
-    motor(LEFT, speed);
-    motor(RIGHT, speed);
+    motor(LEFT, speed+2);
+    motor(RIGHT, speed - 2);
 }
 
 void reverse(int8_t speed)
