@@ -23,10 +23,6 @@ int main(){
         forward(BASE_SPEED);
     }
 
-
-
-    
-
     return 0;
 
 }
