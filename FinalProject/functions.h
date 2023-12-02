@@ -58,6 +58,11 @@ Notes and Ideas:
 #define MOTION_NOISE_DEV 0.1
 #define MOTION_DEGREES 3
 
+// Can Capture and Battle Bots - Final Project
+#define SCAN_SPEED 10   // slow sensing speed for bot
+#define FAST_SPEED 50   // pursuit speed for bot
+#define  MAX_SPEED 100  // bot go burrr
+
 // Testing include file
 void test_include();
 
