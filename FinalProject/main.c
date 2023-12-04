@@ -17,7 +17,7 @@ the area as well.
 #define BLACK_THRESH 150
 #define WHITE_THRESH 60
 #define DIST_SENSOR_UPPER_THRESH 170
-#define DIST_SENSOR_LOWER_THRESH 27 //when there is less obstructions and good lighting, ~20-25 is good
+#define DIST_SENSOR_LOWER_THRESH 17 //when there is less obstructions and good lighting, ~20-25 is good
                                     //otherwise try like 35
 
 volatile uint16_t left_encoder = 0;
@@ -150,7 +150,7 @@ int main(){
                 
                 //back up
                 reverse(BASE_SPEED);
-                _delay_ms(30);
+                _delay_ms(100);
                 motor_init();
 
                 if(left_sensor_value > WHITE_THRESH){
@@ -201,13 +201,13 @@ int main(){
                     
                     forward(FAST_SPEED);
 
-                    _delay_ms(20);
+                    _delay_ms(50);
 
                     motor_init();
 
                     count++;
 
-                    if(count > 4){ break;}
+                    if(count > 10){ break;}
 
                 }
 
