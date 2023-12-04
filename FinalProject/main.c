@@ -17,7 +17,6 @@ the area as well.
 #define BLACK_THRESH 150
 #define WHITE_THRESH 60
 #define DIST_SENSOR_UPPER_THRESH 170
-#define DIST_SENSOR_LOWER_THRESH 25
 #define DIST_SENSOR_LOWER_THRESH 35 //when there is less obstructions and good lighting, ~20-25 is good
                                     //otherwise try like 35
 
@@ -164,22 +163,46 @@ int main(){
                     _delay_ms(100);
                     motor_init();
 
-                if(left_sensor_value > WHITE_THRESH){
-                    encoder_turn_degree(RIGHT,45,FAST_SPEED);
-                } 
-                else{
-                    encoder_turn_degree(LEFT,45,FAST_SPEED);
-                }
+                    if(left_sensor_value > WHITE_THRESH){
+                        encoder_turn_degree(RIGHT,45,FAST_SPEED);
+                    } 
+                    else{
+                        encoder_turn_degree(LEFT,45,FAST_SPEED);
+                    }
 
                     right_sensor_value = analog(ANALOG3_PIN); 
                     left_sensor_value = analog(ANALOG4_PIN);
                     
-              }
+                }
+
+                int count = 0;
+
+                while(left_sensor_value < BLACK_THRESH && right_sensor_value < BLACK_THRESH){
+                    
+                    right_sensor_value = analog(ANALOG3_PIN); 
+                    left_sensor_value = analog(ANALOG4_PIN);
+
+                    if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
+                        state = CORRECTION;
+                        break;
+                    }
+                    
+                    forward(FAST_SPEED);
+
+                    _delay_ms(20);
+
+                    motor_init();
+
+                    count++;
+
+                    if(count > 4){ break;}
+
+                }
 
                 //once corrected, go back to reading
                 state = READ_SENSORS;
 
-            break;
+                break;
 
             case MOVEMENT:
 
