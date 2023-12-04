@@ -17,7 +17,12 @@ the area as well.
 #define BLACK_THRESH 150
 #define WHITE_THRESH 60
 #define DIST_SENSOR_UPPER_THRESH 170
+<<<<<<< HEAD
 #define DIST_SENSOR_LOWER_THRESH 25
+=======
+#define DIST_SENSOR_LOWER_THRESH 35 //when there is less obstructions and good lighting, ~20-25 is good
+                                    //otherwise try like 35
+>>>>>>> f3cc645cce0f05c20690a1f3a05eaf572d52c921
 
 volatile uint16_t left_encoder = 0;
 
@@ -54,11 +59,12 @@ ISR(PCINT1_vect) {
 
 }
 
-void encoder_turn_degree(u08 direction, u08 degree){ //must be in increments of 3 degrees
+void encoder_turn_degree(u08 direction, u08 degree, u08 speed){ //must be in increments of 3 degrees
     left_encoder = 0;
     
-    if(direction == LEFT){spin(BASE_SPEED);}
-    else if(direction == RIGHT){spin(-BASE_SPEED);}
+    //using slower speed for scanning
+    if(direction == LEFT){spin(speed);}
+    else if(direction == RIGHT){spin(-speed);}
    
     while(left_encoder < (uint16_t)(degree / 3)){};
     motor_init();
@@ -77,9 +83,17 @@ int main(){
     typedef enum {READ_SENSORS, MOVEMENT, CORRECTION} state_Robot;
     state_Robot state = READ_SENSORS;
     
-    while(1){
+    //Show bot is ready for competition
+    clear_screen();
+    lcd_cursor(0,0);
+    print_string("READY");
 
-        clear_screen();
+    while(!get_btn()){};
+
+    while(1){
+        
+        //when switching between states, stop the motors
+        motor_init();
 
         switch(state){
 
@@ -87,27 +101,46 @@ int main(){
                 clear_screen();
                 
                 while(1){
-                    
-                    distance_sensor_value = analog(ANALOG2_PIN); 
+
+                    //check boundary sensors and make sure you are still in the 
+                    //box. If so, scan and if not change to correct state
+
                     right_sensor_value = analog(ANALOG3_PIN); 
                     left_sensor_value = analog(ANALOG4_PIN); 
+<<<<<<< HEAD
                     
                     
                     lcd_cursor(0,1);
                     print_num(distance_sensor_value);
                     
+=======
+
+>>>>>>> f3cc645cce0f05c20690a1f3a05eaf572d52c921
                     if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
                         state = CORRECTION;
                         break;
                     }       
                     else{
-                        encoder_turn_degree(RIGHT,3); // turn 1 degree
+                        encoder_turn_degree(RIGHT,3,BASE_SPEED); // turn 1 degree
                     }
+
+                    //read current object distance and print value
+                    distance_sensor_value = analog(ANALOG2_PIN);
+
+                    lcd_cursor(0,1);
+                    print_string("   ");
+                    lcd_cursor(0,1);
+                    print_num(distance_sensor_value);
                 
+                    //if current distance is within bounds, pursue object
                     if(DIST_SENSOR_LOWER_THRESH < distance_sensor_value 
                     && distance_sensor_value < DIST_SENSOR_UPPER_THRESH){
                         state = MOVEMENT;
+<<<<<<< HEAD
                         // encoder_turn_degree(RIGHT,10);
+=======
+                        //encoder_turn_degree(RIGHT,10);
+>>>>>>> f3cc645cce0f05c20690a1f3a05eaf572d52c921
                         break; // change state
                     }
                 
@@ -117,29 +150,52 @@ int main(){
             case CORRECTION:
                 clear_screen();
                 lcd_cursor(0,0);
-                print_string("correct");
+                print_string("CORRECT");
                 
+<<<<<<< HEAD
                 //back up
                 reverse(BASE_SPEED);
                 _delay_ms(30);
+=======
+                //first back up and try 180 correction
+                reverse(FAST_SPEED);
+                _delay_ms(100);
+>>>>>>> f3cc645cce0f05c20690a1f3a05eaf572d52c921
                 motor_init();
 
+                if(left_sensor_value > WHITE_THRESH){
+                    encoder_turn_degree(RIGHT,170,FAST_SPEED);
+                } 
+                else{
+                    encoder_turn_degree(LEFT,170,FAST_SPEED);
+                }
+
+                right_sensor_value = analog(ANALOG3_PIN); 
+                left_sensor_value = analog(ANALOG4_PIN);
+
+
                while(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
+                    
+                    //otherwise try smaller spin correction
+                    reverse(FAST_SPEED);
+                    _delay_ms(100);
+                    motor_init();
+
+                if(left_sensor_value > WHITE_THRESH){
+                    encoder_turn_degree(RIGHT,45,FAST_SPEED);
+                } 
+                else{
+                    encoder_turn_degree(LEFT,45,FAST_SPEED);
+                }
+
                     right_sensor_value = analog(ANALOG3_PIN); 
                     left_sensor_value = analog(ANALOG4_PIN);
                     
-
-                    if(left_sensor_value > WHITE_THRESH){
-                        encoder_turn_degree(RIGHT,3);
-                    } 
-                    else{
-                        encoder_turn_degree(LEFT,3);
-                    }
-
-                    state = READ_SENSORS;
-                    break;
-                    
               }
+
+                //once corrected, go back to reading
+                state = READ_SENSORS;
+
             break;
 
             case MOVEMENT:
@@ -148,25 +204,32 @@ int main(){
                 lcd_cursor(0,0);
                 print_string("CANFOUND");
 
-                forward(BASE_SPEED);
+                forward(FAST_SPEED);
 
                 while(1){
 
-                    distance_sensor_value = analog(ANALOG2_PIN); 
+                    //check boundary sensors and make sure you are still in the 
+                    //box. If so, scan and if not change to correct state
+
                     right_sensor_value = analog(ANALOG3_PIN); 
                     left_sensor_value = analog(ANALOG4_PIN);
-
-                    lcd_cursor(0,1);
-                    print_string("   ");
-                    lcd_cursor(0,1);
-                    print_num(distance_sensor_value);
 
                     if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
                         state = CORRECTION;
                         break;
                     }
 
+                    //read current object distance and print value
+                    distance_sensor_value = analog(ANALOG2_PIN);
+                    
+                    lcd_cursor(0,1);
+                    print_string("   ");
+                    lcd_cursor(0,1);
+                    print_num(distance_sensor_value);
+
+                    //if object is lost, return to read sensors state
                     if(distance_sensor_value < DIST_SENSOR_LOWER_THRESH){
+                        //opportunity to add some recovery here before going back to read
                         state = READ_SENSORS;
                         break;
                     }

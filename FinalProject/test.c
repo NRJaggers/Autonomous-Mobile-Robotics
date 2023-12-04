@@ -47,10 +47,15 @@ ISR(PCINT1_vect) {
 void encoder_turn_degree(u08 direction, u08 degree){ //must be in increments of 3 degrees
     left_encoder = 0;
     
-    if(direction == LEFT){spin(BASE_SPEED);}
-    else if(direction == RIGHT){spin(-BASE_SPEED);}
+    if(direction == LEFT){spin(SCAN_SPEED);}
+    else if(direction == RIGHT){spin(-SCAN_SPEED);}
    
-    while(left_encoder <= (uint16_t)(degree / 3)){};
+    while(left_encoder <= (uint16_t)(degree / 3)){
+        lcd_cursor(0,0);
+        print_string("ENCODER");
+        lcd_cursor(0,1);
+        print_num(left_encoder);
+    };
     motor_init();
 
 }
@@ -76,8 +81,6 @@ int main(){
     while(1){
 
         clear_screen();
-        
-        
 
         // u08 left_sensor_value = analog(ANALOG4_PIN); 
         // lcd_cursor(0,0);
@@ -89,111 +92,111 @@ int main(){
         // print_string("R: ");
         // print_num(right_sensor_value);
 
-        // u08 distance_sensor_value = analog(ANALOG2_PIN); 
-        // lcd_cursor(0,0);
-        // print_string("Distance");
-        // lcd_cursor(0,1);
-        // print_num(distance_sensor_value);
+        u08 distance_sensor_value = analog(ANALOG2_PIN); 
+        lcd_cursor(0,0);
+        print_string("Distance");
+        lcd_cursor(0,1);
+        print_num(distance_sensor_value);
 
-        switch(state){
+        // switch(state){
 
-            case READ_SENSORS:
-                clear_screen();
-                lcd_cursor(0,0);
-                print_string("READ");
-                // for(int i = 0; i < 30){
-                while(1){
+        //     case READ_SENSORS:
+        //         clear_screen();
+        //         lcd_cursor(0,0);
+        //         print_string("READ");
+        //         // for(int i = 0; i < 30){
+        //         while(1){
                     
-                    distance_sensor_value = analog(ANALOG2_PIN); 
-                    right_sensor_value = analog(ANALOG3_PIN); 
-                    left_sensor_value = analog(ANALOG4_PIN); 
-                    lcd_cursor(0,0);
-                    print_string("L ");
-                    print_num(left_sensor_value);
+        //             distance_sensor_value = analog(ANALOG2_PIN); 
+        //             right_sensor_value = analog(ANALOG3_PIN); 
+        //             left_sensor_value = analog(ANALOG4_PIN); 
+        //             lcd_cursor(0,0);
+        //             print_string("L ");
+        //             print_num(left_sensor_value);
 
-                    lcd_cursor(0,1);
-                    print_string("R ");
-                    print_num(right_sensor_value);
+        //             lcd_cursor(0,1);
+        //             print_string("R ");
+        //             print_num(right_sensor_value);
                     
-                    if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
-                        state = CORRECTION;
-                        break;
-                    }
+        //             if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
+        //                 state = CORRECTION;
+        //                 break;
+        //             }
                 
-                    if(DIST_SENSOR_LOWER_THRESH < distance_sensor_value 
-                    && distance_sensor_value < DIST_SENSOR_UPPER_THRESH){
-                        state = MOVEMENT;
-                        break; // change state
-                    }
+        //             if(DIST_SENSOR_LOWER_THRESH < distance_sensor_value 
+        //             && distance_sensor_value < DIST_SENSOR_UPPER_THRESH){
+        //                 state = MOVEMENT;
+        //                 break; // change state
+        //             }
 
-                    else{
-                        encoder_turn_degree(RIGHT,3); // turn 1 degree
-                        _delay_ms(100);
-                        count++;
-                    }
+        //             else{
+        //                 encoder_turn_degree(RIGHT,3); // turn 1 degree
+        //                 _delay_ms(100);
+        //                 count++;
+        //             }
                 
-                }
-            break;
+        //         }
+        //     break;
 
-            case CORRECTION:
-                clear_screen();
-                lcd_cursor(0,0);
-                print_string("correct");
-                while(1){
-                    right_sensor_value = analog(ANALOG3_PIN); 
-                    left_sensor_value = analog(ANALOG4_PIN);
+        //     case CORRECTION:
+        //         clear_screen();
+        //         lcd_cursor(0,0);
+        //         print_string("correct");
+        //         while(1){
+        //             right_sensor_value = analog(ANALOG3_PIN); 
+        //             left_sensor_value = analog(ANALOG4_PIN);
                     
-                    if(left_sensor_value > WHITE_THRESH){
-                        encoder_turn_degree(RIGHT,180);
-                    } 
-                    else{
-                        encoder_turn_degree(LEFT,180);
-                    }
+        //             if(left_sensor_value > WHITE_THRESH){
+        //                 encoder_turn_degree(RIGHT,180);
+        //             } 
+        //             else{
+        //                 encoder_turn_degree(LEFT,180);
+        //             }
 
-                    lcd_cursor(0,1);
-                    print_num(left_sensor_value);
+        //             lcd_cursor(0,1);
+        //             print_num(left_sensor_value);
                     
-                    lcd_cursor(4,1);
-                    print_num(right_sensor_value);
+        //             lcd_cursor(4,1);
+        //             print_num(right_sensor_value);
 
-                    state = READ_SENSORS;
-                    break;
+        //             state = READ_SENSORS;
+        //             break;
                     
-                }
-            break;
+        //         }
+        //     break;
 
-            case MOVEMENT:
+        //     case MOVEMENT:
 
-                clear_screen();
-                lcd_cursor(0,0);
-                print_string("CANFOUND");
+        //         clear_screen();
+        //         lcd_cursor(0,0);
+        //         print_string("CANFOUND");
 
-                lcd_cursor(0,1);
-                print_string("D: ");
-                forward(BASE_SPEED);
+        //         lcd_cursor(0,1);
+        //         print_string("D: ");
+        //         forward(BASE_SPEED);
 
-                while(1){
+        //         while(1){
 
-                    distance_sensor_value = analog(ANALOG2_PIN); 
-                    right_sensor_value = analog(ANALOG3_PIN); 
-                    left_sensor_value = analog(ANALOG4_PIN); 
+        //             distance_sensor_value = analog(ANALOG2_PIN); 
+        //             right_sensor_value = analog(ANALOG3_PIN); 
+        //             left_sensor_value = analog(ANALOG4_PIN); 
                     
-                    lcd_cursor(0,1);
-                    print_num(distance_sensor_value);
+        //             lcd_cursor(0,1);
+        //             print_num(distance_sensor_value);
 
-                    if(distance_sensor_value < DIST_SENSOR_LOWER_THRESH){
-                        state = READ_SENSORS;
-                        break;
-                    }
+        //             if(distance_sensor_value < DIST_SENSOR_LOWER_THRESH){
+        //                 state = READ_SENSORS;
+        //                 break;
+        //             }
 
-                    if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
-                        state = CORRECTION;
-                        break;
-                    }
+        //             if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
+        //                 state = CORRECTION;
+        //                 break;
+        //             }
 
-                }
-            break;
-        }
+        //         }
+        //     break;
+        // }
 
     }
 
