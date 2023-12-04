@@ -17,8 +17,7 @@ the area as well.
 #define BLACK_THRESH 150
 #define WHITE_THRESH 60
 #define DIST_SENSOR_UPPER_THRESH 170
-#define DIST_SENSOR_LOWER_THRESH 25
-#define DIST_SENSOR_LOWER_THRESH 35 //when there is less obstructions and good lighting, ~20-25 is good
+#define DIST_SENSOR_LOWER_THRESH 27 //when there is less obstructions and good lighting, ~20-25 is good
                                     //otherwise try like 35
 
 volatile uint16_t left_encoder = 0;
@@ -85,7 +84,15 @@ int main(){
     lcd_cursor(0,0);
     print_string("READY");
 
-    while(!get_btn()){};
+    while(!get_btn()){
+        //read current object distance and print value
+        distance_sensor_value = analog(ANALOG2_PIN);
+
+        lcd_cursor(0,1);
+        print_string("   ");
+        lcd_cursor(0,1);
+        print_num(distance_sensor_value);
+    };
 
     while(1){
         
@@ -96,6 +103,8 @@ int main(){
 
             case READ_SENSORS:
                 clear_screen();
+                lcd_cursor(0,0);
+                print_string("READ");
                 
                 while(1){
 
@@ -104,10 +113,6 @@ int main(){
 
                     right_sensor_value = analog(ANALOG3_PIN); 
                     left_sensor_value = analog(ANALOG4_PIN); 
-                    
-                    
-                    lcd_cursor(0,1);
-                    print_num(distance_sensor_value);
                     
                     if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
                         state = CORRECTION;
