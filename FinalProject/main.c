@@ -17,7 +17,7 @@ the area as well.
 #define BLACK_THRESH 150
 #define WHITE_THRESH 60
 #define DIST_SENSOR_UPPER_THRESH 170
-#define DIST_SENSOR_LOWER_THRESH 50
+#define DIST_SENSOR_LOWER_THRESH 25
 
 volatile uint16_t left_encoder = 0;
 
@@ -60,7 +60,7 @@ void encoder_turn_degree(u08 direction, u08 degree){ //must be in increments of 
     if(direction == LEFT){spin(BASE_SPEED);}
     else if(direction == RIGHT){spin(-BASE_SPEED);}
    
-    while(left_encoder <= (uint16_t)(degree / 3)){};
+    while(left_encoder < (uint16_t)(degree / 3)){};
     motor_init();
 
 }
@@ -85,16 +85,14 @@ int main(){
 
             case READ_SENSORS:
                 clear_screen();
-                lcd_cursor(0,0);
-                print_string("READ");
+                
                 while(1){
                     
                     distance_sensor_value = analog(ANALOG2_PIN); 
                     right_sensor_value = analog(ANALOG3_PIN); 
                     left_sensor_value = analog(ANALOG4_PIN); 
-
-                    lcd_cursor(0,1);
-                    print_string("   ");
+                    
+                    
                     lcd_cursor(0,1);
                     print_num(distance_sensor_value);
                     
@@ -109,7 +107,7 @@ int main(){
                     if(DIST_SENSOR_LOWER_THRESH < distance_sensor_value 
                     && distance_sensor_value < DIST_SENSOR_UPPER_THRESH){
                         state = MOVEMENT;
-                        encoder_turn_degree(RIGHT,10);
+                        // encoder_turn_degree(RIGHT,10);
                         break; // change state
                     }
                 
@@ -123,7 +121,7 @@ int main(){
                 
                 //back up
                 reverse(BASE_SPEED);
-                _delay_ms(100);
+                _delay_ms(30);
                 motor_init();
 
                while(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
