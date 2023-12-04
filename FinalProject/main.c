@@ -17,12 +17,9 @@ the area as well.
 #define BLACK_THRESH 150
 #define WHITE_THRESH 60
 #define DIST_SENSOR_UPPER_THRESH 170
-<<<<<<< HEAD
 #define DIST_SENSOR_LOWER_THRESH 25
-=======
 #define DIST_SENSOR_LOWER_THRESH 35 //when there is less obstructions and good lighting, ~20-25 is good
                                     //otherwise try like 35
->>>>>>> f3cc645cce0f05c20690a1f3a05eaf572d52c921
 
 volatile uint16_t left_encoder = 0;
 
@@ -107,15 +104,11 @@ int main(){
 
                     right_sensor_value = analog(ANALOG3_PIN); 
                     left_sensor_value = analog(ANALOG4_PIN); 
-<<<<<<< HEAD
                     
                     
                     lcd_cursor(0,1);
                     print_num(distance_sensor_value);
                     
-=======
-
->>>>>>> f3cc645cce0f05c20690a1f3a05eaf572d52c921
                     if(left_sensor_value > BLACK_THRESH || right_sensor_value > BLACK_THRESH){
                         state = CORRECTION;
                         break;
@@ -136,11 +129,7 @@ int main(){
                     if(DIST_SENSOR_LOWER_THRESH < distance_sensor_value 
                     && distance_sensor_value < DIST_SENSOR_UPPER_THRESH){
                         state = MOVEMENT;
-<<<<<<< HEAD
                         // encoder_turn_degree(RIGHT,10);
-=======
-                        //encoder_turn_degree(RIGHT,10);
->>>>>>> f3cc645cce0f05c20690a1f3a05eaf572d52c921
                         break; // change state
                     }
                 
@@ -152,15 +141,9 @@ int main(){
                 lcd_cursor(0,0);
                 print_string("CORRECT");
                 
-<<<<<<< HEAD
                 //back up
                 reverse(BASE_SPEED);
                 _delay_ms(30);
-=======
-                //first back up and try 180 correction
-                reverse(FAST_SPEED);
-                _delay_ms(100);
->>>>>>> f3cc645cce0f05c20690a1f3a05eaf572d52c921
                 motor_init();
 
                 if(left_sensor_value > WHITE_THRESH){
