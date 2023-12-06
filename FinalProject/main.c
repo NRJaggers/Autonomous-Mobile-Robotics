@@ -153,7 +153,7 @@ int main(){
                 _delay_ms(100);
                 motor_init();
 
-                if(left_sensor_value > WHITE_THRESH){
+                if(left_sensor_value > BLACK_THRESH){
                     encoder_turn_degree(RIGHT,170,FAST_SPEED);
                     direction = RIGHT;
                 } 
@@ -173,11 +173,11 @@ int main(){
                     _delay_ms(100);
                     motor_init();
 
-                    if(left_sensor_value > WHITE_THRESH){
+                    if(left_sensor_value > BLACK_THRESH){
                         encoder_turn_degree(RIGHT,45,FAST_SPEED);
                         direction = RIGHT;
                     } 
-                    else{
+                    else if(right_sensor_value > BLACK_THRESH){
                         encoder_turn_degree(LEFT,45,FAST_SPEED);
                         direction = LEFT;
                     }
