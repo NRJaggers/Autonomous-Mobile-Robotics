@@ -150,15 +150,15 @@ int main(){
                 
                 //back up
                 reverse(BASE_SPEED);
-                _delay_ms(100);
+                _delay_ms(1000);
                 motor_init();
 
                 if(left_sensor_value > BLACK_THRESH){
-                    encoder_turn_degree(RIGHT,170,FAST_SPEED);
+                    encoder_turn_degree(RIGHT,90,FAST_SPEED);
                     direction = RIGHT;
                 } 
                 else{
-                    encoder_turn_degree(LEFT,170,FAST_SPEED);
+                    encoder_turn_degree(LEFT,90,FAST_SPEED);
                     direction = LEFT;
                 }
 
@@ -170,7 +170,7 @@ int main(){
                     
                     //otherwise try smaller spin correction
                     reverse(FAST_SPEED);
-                    _delay_ms(100);
+                    _delay_ms(1000);
                     motor_init();
 
                     if(left_sensor_value > BLACK_THRESH){
@@ -184,6 +184,10 @@ int main(){
 
                     right_sensor_value = analog(ANALOG3_PIN); 
                     left_sensor_value = analog(ANALOG4_PIN);
+
+                    if(left_sensor_value < WHITE_THRESH && right_sensor_value < WHITE_THRESH){
+                        break;
+                    }
                     
                 }
 
